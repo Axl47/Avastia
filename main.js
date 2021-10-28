@@ -11,4 +11,4 @@ client.events = new Discord.Collection();
 
 
 
-client.login('OTAzMTY4MzgyMjQ4MDM4NDEx.YXpDGg.sEKYvybgntWtjq2fUAoG1UH3lKg');
+client.login(token);
