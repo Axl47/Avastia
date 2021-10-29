@@ -36,3 +36,5 @@ main.js
 .Trashes
 ehthumbs.db
 Thumbs.db
+.data/spotify.data
+main.js
