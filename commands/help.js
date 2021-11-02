@@ -28,6 +28,8 @@ module.exports = {
                     { name: '\u200B', value: '\u200B' },
                     { name: '!queue', value: 'Sends the queue to the channel.', inline: true },
                     { name: '!clear, !delete, !c', value: 'Clears x amount of messages from the channel if they are not older than 14 days.', inline: true },
+                    { name: '\u200B', value: '\u200B' },
+                    { name: '!jump', value: 'Jumps x songs.', inline: true },
                 );
             
             return message.reply({ embeds: [newEmbed] });
