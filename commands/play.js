@@ -84,11 +84,17 @@ module.exports = {
                 var wasPlaylist = true;
 
             } else if(args[0].includes('playlist')){
+                if(args[0].includes('music')){
+                    query = args[0].replace('music.', '')
+                    if(query.includes('feature=')) query = query.replace('&feature=share', '');
+                } else{
+                    query = args[0];
+                }
                 if(songQueue.songs.length === 0){
                     first = true;
                 }
 
-                const playlist = await play.playlist_info(args[0], { incomplete : true });
+                const playlist = await play.playlist_info(query, { incomplete : true });
                 // Fetch all playlist videos
                 await playlist.fetch();
 
@@ -106,13 +112,19 @@ module.exports = {
                 var wasPlaylist = true;
 
                 } else{
-                if(songQueue.songs.length === 0){
-                    first = true;
-                }
-                var wasPlaylist = false;
-                var yt_info = await play.search(args, {limit: 1});
-                if(!yt_info) return message.channel.send('No video result found.');
-                song = { title: yt_info[0].title, url: yt_info[0].url }
+                    if(args[0].includes('music')){
+                        query = args[0].replace('music.', '')
+                        if(query.includes('feature=')) query = query.replace('&feature=share', '');
+                    } else{
+                        query = args;
+                    }
+                    if(songQueue.songs.length === 0){
+                        first = true;
+                    }
+                    var wasPlaylist = false;
+                    var yt_info = await play.search(query, {limit: 1});
+                    if(!yt_info) return message.channel.send('No video result found.');
+                    song = { title: yt_info[0].title, url: yt_info[0].url }
             }
 
             if(first){
@@ -308,6 +320,7 @@ module.exports = {
             }
             const newEmbed = new Discord.MessageEmbed()
                     .setColor('#f22222')
+                    .setTitle('Now Playing...')
                     .setDescription(`[${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) [${message.author}]`);
             
             return message.reply({ embeds: [newEmbed] });
