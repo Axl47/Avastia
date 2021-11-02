@@ -1,6 +1,5 @@
-const {RichEmbed, Attachment} = require('discord.js')
 var Scraper = require('images-scraper');
-const { type } = require('os');
+const MessageEmbed = require('discord.js');
 
 const google = new Scraper({
     puppeteer: {
@@ -12,16 +11,24 @@ module.exports = {
     name: 'image',
     aliases: ['wao', 'w'],
     description: 'This sends an image to a text channel',
-    async execute(message, args, cmd, client){
+    async execute(message, args, cmd, client, Discord) {
         if(cmd === 'wao' || cmd === 'w'){
             const imageResults = await google.scrape('dog', 100);
-            return message.channel.send(imageResults[Math.floor(Math.random() * 100) + 1].url)
+            const newEmbed = new Discord.MessageEmbed()
+                .setColor('#f22222')
+                .setImage(imageResults[Math.floor(Math.random() * 100) + 1].url)
+            
+            return message.reply({ embeds: [newEmbed] });
         } else if(cmd === 'image'){
             const imageQuery = args.join(' ');
             if(!imageQuery) return message.channel.send('Please enter an image name.');
     
             const imageResults = await google.scrape(imageQuery, 100);
-            message.channel.send(imageResults[Math.floor(Math.random() * 100) + 1].url)
+            const newEmbed = new Discord.MessageEmbed()
+                .setColor('#f22222')
+                .setImage(imageResults[Math.floor(Math.random() * 100) + 1].url)
+            
+            return message.reply({ embeds: [newEmbed] });
         }
     }
 }
