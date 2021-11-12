@@ -137,6 +137,14 @@ module.exports = {
                     var yt_info = await play.search(query, { limit: 1 });
                     if (!yt_info) return message.channel.send('No video result found.');
                     song = { title: yt_info[0].title, url: yt_info[0].url }
+                } else{
+                    var yt_info = await play.search(args, { limit: 1 });
+                    if (!yt_info) return message.channel.send('No video result found.');
+                    song = { title: yt_info[0].title, url: yt_info[0].url }
+
+                    if (songQueue.songs.length === 0) {
+                        first = true;
+                    }
                 }
 
                 if (first) {
@@ -435,7 +443,7 @@ const videoPlayer = async (guild, song) => {
     });
     songQueue.player.play(resource);
 
-    songQueue.connection?.subscribe(songQueue.player);
+    songQueue.connection.subscribe(songQueue.player);
     if (!songQueue.connection) {
         songQueue.player.stop();
         return queue.delete(message.guild.id);
