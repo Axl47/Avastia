@@ -34,7 +34,5 @@
 ehthumbs.db
 Thumbs.db
 
-.data/spotify.data
 node_modules
 .env
-pegarle.js
