@@ -1,14 +1,15 @@
-const Discord = require('discord.js');
+require('dotenv').config();
 
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"] })
+const Discord = require('discord.js');
+const client = new Discord.Client({
+    intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"]
+});
 
 client.commands = new Discord.Collection();
-client.events = new Discord.Collection();
+client.events = new Discord.Collection();  
 
-['command_handler', 'event_handler'].forEach(handler =>{
+['commandHandler', 'eventHandler'].forEach(handler => {
     require(`./handlers/${handler}`)(client, Discord);
 })
 
-
-
-client.login(token);
+client.login(process.env.DSTOKEN);

@@ -5,7 +5,19 @@ const queue = new Map();
 
 module.exports = {
     name: 'play',
-    aliases: ['p', 'skip', 's', 'pause', 'resume', 'unpause', 'stop', 'loop', 'jump', 'now', 'np', 'shuffle', 'queue'],
+    aliases: [
+        'p',
+        'skip', 's',
+        'pause',
+        'resume', 'unpause',
+        'stop',
+        'loop',
+        'jump',
+        'now', 'np',
+        'shuffle',
+        'queue',
+        'remove'
+    ],
     description: 'Music bot',
     async execute(message, args, cmd, client, Discord) {
         const channel = message.member.voice.channel;
@@ -99,7 +111,7 @@ module.exports = {
                 //
             } else if (args[0].includes('playlist')) {
 
-                (query.includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
+                (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
                 query = query.replace('music.', '')
 
                 if (songQueue.songs.length === 0) {
@@ -127,17 +139,20 @@ module.exports = {
 
             } else {
                 if (args[0].includes('music')) {
-                    (query.includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
+                    // Manage Youtube Music links
+                    (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
                     query = query.replace('music.', '')
 
                     if (songQueue.songs.length === 0) {
                         first = true;
                     }
+
                     var wasPlaylist = false;
                     var yt_info = await play.search(query, { limit: 1 });
                     if (!yt_info) return message.channel.send('No video result found.');
                     song = { title: yt_info[0].title, url: yt_info[0].url }
-                } else{
+
+                } else {
                     var yt_info = await play.search(args, { limit: 1 });
                     if (!yt_info) return message.channel.send('No video result found.');
                     song = { title: yt_info[0].title, url: yt_info[0].url }
@@ -370,11 +385,23 @@ module.exports = {
 
                 return message.reply({ embeds: [newEmbed] });
             }
-            let newEmbed = new Discord.MessageEmbed()
-                .setColor('#304281');
-
+            let songs = "```python\n"
             for (let i = 0; i < songQueue.songs.length; i++) {
-                if (i % 21 === 0 && i != 0) {
+                if (i % 25 === 0 && i != 0) {
+                    songs += "```";
+                    message.channel.send(songs);
+                    songs = "```python\n"
+                    if (i === songQueue.songs.length - 1) {
+                        return;
+                    }
+                }
+                songs += `${i + 1}) ${songQueue.songs[i].title}\n`;
+            }
+            songs += "```";
+            return message.channel.send(songs);
+            /*
+            for (let i = 0; i < songQueue.songs.length; i++) {
+                if (i % 25 === 0 && i != 0) {
                     message.reply({ embeds: [newEmbed] });
                     newEmbed = new Discord.MessageEmbed()
                         .setColor('#304281');
@@ -386,7 +413,18 @@ module.exports = {
             }
 
             return message.reply({ embeds: [newEmbed] });
-        } //Add remove command
+            */
+        } else if (cmd === 'remove') {
+            const songQueue = queue.get(message.guild.id);
+            if (!songQueue) {
+                const newEmbed = new Discord.MessageEmbed()
+                    .setColor('#f22222')
+                    .setDescription('Not playing anything.');
+
+                return message.reply({ embeds: [newEmbed] });
+            }
+        }
+        //Add remove command
 
         const songQueue = queue.get(message.guild.id);
         songQueue.player.on(AudioPlayerStatus.Playing, () => {
@@ -441,12 +479,16 @@ const videoPlayer = async (guild, song) => {
     let resource = createAudioResource(stream.stream, {
         inputType: stream.type
     });
-    songQueue.player.play(resource);
-
-    songQueue.connection.subscribe(songQueue.player);
-    if (!songQueue.connection) {
-        songQueue.player.stop();
-        return queue.delete(message.guild.id);
+    try {
+        songQueue.player.play(resource);
+        songQueue.connection.subscribe(songQueue.player);
+        if (!songQueue.connection) {
+            songQueue.player.stop();
+            return queue.delete(message.guild.id);
+        }
+    } catch (err) {
+        await songQueue.songs.shift();
+        return videoPlayer(guild, songQueue.songs[0]);
     }
 }
 
