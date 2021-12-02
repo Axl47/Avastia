@@ -128,32 +128,33 @@ module.exports = {
                     } else return wasPlaylist = false;
                 }
             } else if (args[0].includes('playlist')) {
-
                 (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0];
                 if (args[0].includes('music.')) query = query.replace('music.', '');
-
                 if (songQueue.songs.length === 0) first = true;
+                try {
+                    const playlist = await play.playlist_info(query, { incomplete: true });
 
-                const playlist = await play.playlist_info(query, { incomplete: true });
+                    // Fetch all playlist videos
+                    await playlist.fetch();
 
-                // Fetch all playlist videos
-                await playlist.fetch();
-
-                for (let j = 1; j <= playlist.total_pages; j++) {
-                    for (let i = 0; i < playlist.page(j).length; i++) {
-                        song = { title: playlist.page(j)[i].title, url: playlist.page(j)[i].url }
-                        if (!song.title || !song.url) continue;
-                        await songQueue.songs.push(song);
+                    for (let j = 1; j <= playlist.total_pages; j++) {
+                        for (let i = 0; i < playlist.page(j).length; i++) {
+                            song = { title: playlist.page(j)[i].title, url: playlist.page(j)[i].url }
+                            await songQueue.songs.push(song);
+                        }
                     }
+                    message.channel.send(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
+
+                    var wasPlaylist = true;
+
+                    if (first) {
+                        await videoPlayer(message.guild, songQueue.songs[0]);
+                        first = false;
+                    } 
+                } catch (err) {
+                    console.log(err);
+                    return message.reply("Failed to queue playlist.");
                 }
-                message.channel.send(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
-
-                var wasPlaylist = true;
-
-                if (first) {
-                    await videoPlayer(message.guild, songQueue.songs[0]);
-                    first = false;
-                } else return wasPlaylist = false;
 
             } else {
                 if (args[0].includes('music')) {
@@ -485,6 +486,7 @@ module.exports = {
 
 const videoPlayer = async (guild, song) => {
     const songQueue = queue.get(guild.id);
+    if (!song.title) song.title = "Undefined";
     try {
         if (songQueue.player === null) {
             const player = createAudioPlayer({
