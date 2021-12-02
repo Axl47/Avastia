@@ -91,6 +91,8 @@ module.exports = {
                     }
                     // Search every song on youtube
                     let sp_data = await play.spotify(args[0]);
+                    await sp_data.fetch();
+
                     for (let i = 0; i < sp_data.fetched_tracks.get('1').length; i++) {
                         let yt_info = await play.search(`${sp_data.fetched_tracks.get('1')[i].name}`, { limit: 1 });
                         if (!yt_info) {
@@ -140,17 +142,22 @@ module.exports = {
             } else {
                 if (args[0].includes('music')) {
                     // Manage Youtube Music links
-                    (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
-                    query = query.replace('music.', '')
+                    try {
+                        (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
+                        query = query.replace('music.', '')
 
-                    if (songQueue.songs.length === 0) {
-                        first = true;
+                        if (songQueue.songs.length === 0) {
+                            first = true;
+                        }
+
+                        var wasPlaylist = false;
+                        var yt_info = await play.search(query, { limit: 1 });
+                        if (!yt_info) return message.channel.send('No video result found.');
+                        song = { title: yt_info[0].title, url: yt_info[0].url }
+                    } catch (err) {
+                        console.log(err);
+                        return;
                     }
-
-                    var wasPlaylist = false;
-                    var yt_info = await play.search(query, { limit: 1 });
-                    if (!yt_info) return message.channel.send('No video result found.');
-                    song = { title: yt_info[0].title, url: yt_info[0].url }
 
                 } else {
                     var yt_info = await play.search(args, { limit: 1 });
@@ -462,33 +469,39 @@ module.exports = {
 }
 
 const videoPlayer = async (guild, song) => {
-    const songQueue = queue.get(guild.id);
-
-    if (songQueue.player === null) {
-        const player = createAudioPlayer({
-            behaviors: {
-                noSubscriber: NoSubscriberBehavior.Play
-            }
-        });
-        songQueue.player = player;
-    }
-
-    if (!song) return queue.delete(guild.id);
-
-    let stream = await play.stream(song.url);
-    let resource = createAudioResource(stream.stream, {
-        inputType: stream.type
-    });
     try {
-        songQueue.player.play(resource);
-        songQueue.connection.subscribe(songQueue.player);
-        if (!songQueue.connection) {
-            songQueue.player.stop();
-            return queue.delete(message.guild.id);
+        const songQueue = queue.get(guild.id);
+
+        if (songQueue.player === null) {
+            const player = createAudioPlayer({
+                behaviors: {
+                    noSubscriber: NoSubscriberBehavior.Play
+                }
+            });
+            songQueue.player = player;
         }
-    } catch (err) {
-        await songQueue.songs.shift();
-        return videoPlayer(guild, songQueue.songs[0]);
+
+        if (!song) return queue.delete(guild.id);
+
+        let stream = await play.stream(song.url);
+        let resource = createAudioResource(stream.stream, {
+            inputType: stream.type
+        });
+        try {
+            songQueue.player.play(resource);
+            songQueue.connection.subscribe(songQueue.player);
+            if (!songQueue.connection) {
+                songQueue.player.stop();
+                return queue.delete(message.guild.id);
+            }
+        } catch (err) {
+            await songQueue.songs.shift();
+            return videoPlayer(guild, songQueue.songs[0]);
+        }
+    }
+    catch (err) {
+        console.log(err);
+        return;
     }
 }
 
