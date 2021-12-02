@@ -85,10 +85,24 @@ module.exports = {
                     if (!yt_info) return message.channel.send('No video result found.');
                     song = { title: yt_info[0].title, url: yt_info[0].url }
 
-                } else if (args[0].includes('playlist') || args[0].includes('album')) {
-                    if (songQueue.songs.length === 0) {
-                        first = true;
+                    if (first) {
+                        songQueue.songs.push(song);
+                        await videoPlayer(message.guild, songQueue.songs[0]);
+                    } else {
+                        songQueue.songs.push(song);
+
+                        const newEmbed = new Discord.MessageEmbed()
+                            .setColor('#f22222')
+                            .setDescription(`Queued [${song.title}](${song.url}) [${message.author}]`);
+
+                        message.reply({ embeds: [newEmbed] });
                     }
+
+
+
+                } else if (args[0].includes('playlist') || args[0].includes('album')) {
+                    if (songQueue.songs.length === 0) first = true;
+
                     // Search every song on youtube
                     let sp_data = await play.spotify(args[0]);
                     await sp_data.fetch();
@@ -100,25 +114,25 @@ module.exports = {
                             continue;
                         }
                         song = { title: yt_info[0].title, url: yt_info[0].url }
+                        if (!song.title || !song.url) continue;
                         await songQueue.songs.push(song);
                     }
 
                     message.channel.send(`:thumbsup: Added **${sp_data.fetched_tracks.get('1').length}** videos to the queue!`);
+
+                    var wasPlaylist = true;
+
                     if (first) {
                         await videoPlayer(message.guild, songQueue.songs[0]);
                         first = false;
-                    }
-                    var wasPlaylist = true;
+                    } else return wasPlaylist = false;
                 }
-                //
             } else if (args[0].includes('playlist')) {
 
-                (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0]
-                query = query.replace('music.', '')
+                (args[0].includes('feature=')) ? query = args[0].replace('&feature=share', '') : query = args[0];
+                if (args[0].includes('music.')) query = query.replace('music.', '');
 
-                if (songQueue.songs.length === 0) {
-                    first = true;
-                }
+                if (songQueue.songs.length === 0) first = true;
 
                 const playlist = await play.playlist_info(query, { incomplete: true });
 
@@ -128,16 +142,18 @@ module.exports = {
                 for (let j = 1; j <= playlist.total_pages; j++) {
                     for (let i = 0; i < playlist.page(j).length; i++) {
                         song = { title: playlist.page(j)[i].title, url: playlist.page(j)[i].url }
+                        if (!song.title || !song.url) continue;
                         await songQueue.songs.push(song);
                     }
                 }
                 message.channel.send(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
+
+                var wasPlaylist = true;
+
                 if (first) {
                     await videoPlayer(message.guild, songQueue.songs[0]);
                     first = false;
-                }
-
-                var wasPlaylist = true;
+                } else return wasPlaylist = false;
 
             } else {
                 if (args[0].includes('music')) {
@@ -163,7 +179,7 @@ module.exports = {
                     var yt_info = await play.search(args, { limit: 1 });
                     if (!yt_info) return message.channel.send('No video result found.');
                     song = { title: yt_info[0].title, url: yt_info[0].url }
-
+                    if (!song.title || !song.url) return message.channel.send('No video result found.');
                     if (songQueue.songs.length === 0) {
                         first = true;
                     }
@@ -184,9 +200,6 @@ module.exports = {
                     message.reply({ embeds: [newEmbed] });
                 } else {
                     wasPlaylist = false;
-                }
-
-                if (!first) {
                     return;
                 }
             }
@@ -406,21 +419,7 @@ module.exports = {
             }
             songs += "```";
             return message.channel.send(songs);
-            /*
-            for (let i = 0; i < songQueue.songs.length; i++) {
-                if (i % 25 === 0 && i != 0) {
-                    message.reply({ embeds: [newEmbed] });
-                    newEmbed = new Discord.MessageEmbed()
-                        .setColor('#304281');
-                    if (i === songQueue.songs.length - 1) {
-                        return;
-                    }
-                }
-                newEmbed.addField(`\u200B`, `${i + 1}) ${songQueue.songs[i].title}`, true);
-            }
 
-            return message.reply({ embeds: [newEmbed] });
-            */
         } else if (cmd === 'remove') {
             const songQueue = queue.get(message.guild.id);
             if (!songQueue) {
@@ -430,8 +429,24 @@ module.exports = {
 
                 return message.reply({ embeds: [newEmbed] });
             }
+
+            if (!args[0]) return message.reply(`Please enter song to remove ${message.author}!`);
+            if (isNaN(args[0])) {
+                // Index Removal
+                var index = songQueue.songs.indexOf(args);
+                if (index < 0) {
+                    message.reply("Song not in queue.");
+                    return console.log(songQueue.songs);
+                }
+            }
+            else {
+                if (args[0] > songQueue.songs.length) return message.reply(`There are less songs than ${args[0]} ${message.author}!`);
+                if (args[0] < 1) return message.reply(`No negative numbers ${message.author}!`);
+                var index = args[0];
+            }
+            message.reply(`${songQueue.songs[index].title} removed!`);
+            return songQueue.songs.splice(index, 1);
         }
-        //Add remove command
 
         const songQueue = queue.get(message.guild.id);
         songQueue.player.on(AudioPlayerStatus.Playing, () => {
@@ -469,9 +484,8 @@ module.exports = {
 }
 
 const videoPlayer = async (guild, song) => {
+    const songQueue = queue.get(guild.id);
     try {
-        const songQueue = queue.get(guild.id);
-
         if (songQueue.player === null) {
             const player = createAudioPlayer({
                 behaviors: {
@@ -496,12 +510,15 @@ const videoPlayer = async (guild, song) => {
             }
         } catch (err) {
             await songQueue.songs.shift();
-            return videoPlayer(guild, songQueue.songs[0]);
+            if (songQueue.songs[0]) return videoPlayer(guild, songQueue.songs[0]);
+            else return;
         }
     }
     catch (err) {
         console.log(err);
-        return;
+        await songQueue.songs.shift();
+        if (songQueue.songs[0]) return videoPlayer(guild, songQueue.songs[0]);
+        else return;
     }
 }
 
