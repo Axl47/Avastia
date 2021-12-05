@@ -406,12 +406,12 @@ module.exports = {
 
                 return message.reply({ embeds: [newEmbed] });
             }
-            let songs = "```python\n"
+            let songs = "```rust\n"
             for (let i = 0; i < songQueue.songs.length; i++) {
                 if (i % 25 === 0 && i != 0) {
                     songs += "```";
                     message.channel.send(songs);
-                    songs = "```python\n"
+                    songs = "```rust\n"
                     if (i === songQueue.songs.length - 1) {
                         return;
                     }
@@ -433,7 +433,9 @@ module.exports = {
 
             if (!args[0]) return message.reply(`Please enter song to remove ${message.author}!`);
             if (isNaN(args[0])) {
-                // Index Removal
+
+                // Fix Searching for Song (titles)
+
                 var index = songQueue.songs.indexOf(args);
                 if (index < 0) {
                     message.reply("Song not in queue.");
@@ -443,9 +445,11 @@ module.exports = {
             else {
                 if (args[0] > songQueue.songs.length) return message.reply(`There are less songs than ${args[0]} ${message.author}!`);
                 if (args[0] < 1) return message.reply(`No negative numbers ${message.author}!`);
-                var index = args[0];
+                var index = args[0] - 1;
             }
             message.reply(`${songQueue.songs[index].title} removed!`);
+            // Fix Double Player
+
             return songQueue.songs.splice(index, 1);
         }
 
