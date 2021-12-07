@@ -199,8 +199,9 @@ module.exports = {
                         .setDescription(`Queued [${song.title}](${song.url}) [${message.author}]`);
 
                     message.reply({ embeds: [newEmbed] });
-                } else {
-                    wasPlaylist = false;
+                } 
+                wasPlaylist = false;
+                if (!first) {
                     return;
                 }
             }
