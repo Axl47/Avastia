@@ -11,14 +11,14 @@ module.exports = {
       const newEmbed = new Discord.MessageEmbed()
         .setColor('#f22222')
         .setDescription('Not playing anything.');
-
       return message.reply({ embeds: [newEmbed] });
     }
-    songQueue.player.state.status = 'playing'
+    
+    songQueue.player.state.status = 'playing';
+    
     const newEmbed = new Discord.MessageEmbed()
       .setColor('#f22222')
       .setDescription('Playback resumed.');
-
     return message.reply({ embeds: [newEmbed] });
   }
 }

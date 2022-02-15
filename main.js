@@ -5,6 +5,7 @@ const client = new Discord.Client({
   intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"]
 });
 
+// Keep Alive maintains the replit online
 const keep_alive = require('./keep_alive.js')
 
 client.commands = new Discord.Collection();

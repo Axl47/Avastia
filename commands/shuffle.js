@@ -10,14 +10,13 @@ module.exports = {
       const newEmbed = new Discord.MessageEmbed()
         .setColor('#f22222')
         .setDescription('Not playing anything.');
-
       return message.reply({ embeds: [newEmbed] });
     }
+    
     await shuffle(songQueue.songs);
     const newEmbed = new Discord.MessageEmbed()
       .setColor('#f22222')
       .setDescription('Queue shuffled.');
-
     return message.reply({ embeds: [newEmbed] });
   }
 }

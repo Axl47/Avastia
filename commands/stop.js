@@ -10,22 +10,24 @@ module.exports = {
       const newEmbed = new Discord.MessageEmbed()
         .setColor('#f22222')
         .setDescription('Not playing anything.');
-
       return message.reply({ embeds: [newEmbed] });
     }
+    
     songQueue.stopped = true;
     songQueue.loop = false;
+    
     try {
       songQueue.connection ?.destroy();
     } catch {
       console.log('Already destroyed.');
     }
+    
     queue.delete(message.guild.id);
     songQueue.player.state.status = 'idle';
+    
     const newEmbed = new Discord.MessageEmbed()
       .setColor('#f22222')
       .setDescription('Player stopped.');
-
     return message.reply({ embeds: [newEmbed] });
 
   }

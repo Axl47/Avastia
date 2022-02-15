@@ -10,18 +10,18 @@ module.exports = {
       const newEmbed = new Discord.MessageEmbed()
         .setColor('#f22222')
         .setDescription('Not playing anything.');
-
       return message.reply({ embeds: [newEmbed] });
     }
-    let songs = "```rust\n"
+    
+    let format = "```rust\n"
+    let songs = format // Setting the format
+    
     for (let i = 0; i < songQueue.songs.length; i++) {
       if (i % 25 === 0 && i != 0) {
         songs += "```";
         message.channel.send(songs);
-        songs = "```rust\n"
-        if (i === songQueue.songs.length - 1) {
-          return;
-        }
+        songs = format
+        if (i === songQueue.songs.length - 1) return;
       }
       songs += `${i + 1}) ${songQueue.songs[i].title}\n`;
     }
