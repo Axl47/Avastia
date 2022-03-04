@@ -1,5 +1,5 @@
 module.exports = async (client, Discord, message) => {
-  const prefix = '!';
+  const prefix = "!";
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const args = message.content.slice(prefix.length).split(/ +/);
@@ -7,8 +7,8 @@ module.exports = async (client, Discord, message) => {
 
   const command =
     client.commands.get(cmd) ||
-    client.commands.find(a => a.aliases && a.aliases.includes(cmd));
+    client.commands.find((a) => a.aliases && a.aliases.includes(cmd));
 
   if (command) command.execute(message, args, cmd, client, Discord);
   else return message.reply("This command does not exist.");
-}
+};
