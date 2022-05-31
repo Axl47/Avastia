@@ -9,33 +9,38 @@ module.exports = {
         .setDescription(`${message.author} y Avastia le pegan a ${args[0]}`);
 
       return message.reply({ embeds: [newEmbed] });
-    } else if (cmd === "beso") {
+    } 
+		else if (cmd === "beso") {
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#15b500")
         .setDescription(`${message.author} besa a ${args[0]}`);
 
       return message.reply({ embeds: [newEmbed] });
-    } else if (cmd === "chales") {
+    } 
+		else if (cmd === "chales") {
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#15b500")
         .setDescription(`Aly es Pulga Chales.`);
 
       return message.reply({ embeds: [newEmbed] });
-    } else if (cmd === "tliste" || cmd === "kuwai") {
+    } 
+		else if (cmd === "tliste" || cmd === "kuwai") {
       let x = (cmd === "tliste") ? "Tliste" : "Kuwai";
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#15b500")
         .setDescription(`Kuro es Pulga ${x}.`);
 
       return message.reply({ embeds: [newEmbed] });
-    } else if (cmd === "kurito" || cmd == "alysita") {
+    } 
+		else if (cmd === "kurito" || cmd == "alysita") {
       let x = (cmd === "kurito") ? "Kurito es de Aly" : "Alysita es de Kuro";
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#15b500")
         .setDescription(`${x}!`);
 
       return message.reply({ embeds: [newEmbed] });
-    } else if (cmd === "m") {
+    } 
+		else if (cmd === "m") {
       return message.channel.send(args.join(" "));
     }
   },

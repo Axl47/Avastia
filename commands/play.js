@@ -44,12 +44,14 @@ const videoPlayer = async (guild, song) => {
       return queue.delete(message.guild.id);
     }
   } catch (err) {
-    if (err.toString().includes("Initial Player Response Data")){
+    if (err.toString().includes("Initial")){
 			await videoPlayer(guild, song);
 			return;
 		}
 
+		message.channel.send("Error playing.");
     console.error(err);
+		console.error(err);
     await songQueue.songs.shift();
     if (songQueue.songs[0]) return videoPlayer(guild, songQueue.songs[0]);
     else return;
@@ -58,7 +60,7 @@ const videoPlayer = async (guild, song) => {
 
 module.exports = {
   name: "play",
-  aliases: ["p"],
+  aliases: ["p", "seek"],
   description: "Plays a song",
   async execute(message, args, cmd, client, Discord) {
     // Get channel from the message
@@ -279,6 +281,8 @@ module.exports = {
         } else {
           // Manage valid YouTube links
 					try{
+						if (args[0].includes("list")) args[0] = args[0].substring(0, args[0].indexOf("list"));
+						
           if (args[0].startsWith("https") && play.yt_validate(args[0]) == "video") {
             var yt_info = await play.video_info(args[0]);
             try {
@@ -321,7 +325,7 @@ module.exports = {
 					}
         }
 
-        songQueue.songs.push(song);
+        if (!wasPlaylist) songQueue.songs.push(song);
 				
         try {
           if (first) await videoPlayer(message.guild, songQueue.songs[0]);
@@ -346,7 +350,13 @@ module.exports = {
       }
     }
 
-    const songQueue = queue.get(message.guild.id);
+		/*else if (cmd === "seek"){
+			const songQueue = queue.get(message.guild.id);
+			let seek = new play.SeekStream();
+			console.log(seek);
+		}*/
+
+		const songQueue = queue.get(message.guild.id);
     songQueue.player.on(AudioPlayerStatus.Playing, () => {
       songQueue.stopped = false;
       try {
