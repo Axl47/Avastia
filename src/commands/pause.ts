@@ -1,11 +1,11 @@
-const { queue } = require("./play.js");
+const { queue } = require("./play.ts");
 
 module.exports = {
-  name: "unpause",
-  aliases: ["resume"],
-  description: "Unpauses the player",
+  name: "pause",
+  description: "Pauses the player",
   async execute(message, args, cmd, client, Discord) {
     const songQueue = queue.get(message.guild.id);
+
     if (!songQueue) {
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#f22222")
@@ -13,11 +13,11 @@ module.exports = {
       return message.reply({ embeds: [newEmbed] });
     }
 
-    songQueue.player.state.status = "playing";
+    songQueue.player.state.status = "idle";
 
     const newEmbed = new Discord.MessageEmbed()
       .setColor("#f22222")
-      .setDescription("Playback resumed.");
+      .setDescription("Playback paused.");
     return message.reply({ embeds: [newEmbed] });
   },
 };

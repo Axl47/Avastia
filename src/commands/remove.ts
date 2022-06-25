@@ -1,4 +1,4 @@
-const { queue } = require("./play.js");
+const { queue } = require("./play.ts");
 
 module.exports = {
   name: "remove",

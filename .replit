@@ -1,2 +1,7 @@
 language = "nodejs"
-run = "npx node ."
+run = "npm run start"
+
+[packager]
+ignoredPackages=[
+"discord",
+]

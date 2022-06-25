@@ -1,4 +1,4 @@
-const { queue, videoPlayer } = require("./play.js");
+const { queue } = require("./play.ts");
 
 module.exports = {
   name: "skip",
@@ -13,6 +13,10 @@ module.exports = {
       return message.reply({ embeds: [newEmbed] });
     }
 
+		songQueue.skip = true;
+		songQueue.player.state.status = "idle";
+		
+		/*
     if (songQueue.loop) {
       songQueue.loopCounter++;
       if (songQueue.loopCounter >= songQueue.songs.length)
@@ -62,5 +66,6 @@ module.exports = {
         return console.log("Error skipping song.");
       }
     }
+		*/
   },
 };

@@ -1,15 +1,15 @@
 {
-  "name": "discordbot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "name": "Avastia",
+  "version": "2.0.0",
+  "description": "A music bot with extra commands for personal use",
+  "repository": "https://github.com/Axl47/Avastia",
+  "main": "./prod/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node src/main.ts"
   },
   "engines": {
     "node": "16.x"
   },
-  "author": "Avastia",
   "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^0.7.0",
@@ -17,10 +17,15 @@
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
     "discord-api-types": "^0.24.0",
-    "discord.js": "^13.5.0",
+    "discord.js": "^13.8.1",
     "ffmpeg-static": "^5.0.0",
     "libsodium-wrappers": "^0.7.9",
     "node": "^16.13.1",
     "play-dl": "^1.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.4"
   }
 }

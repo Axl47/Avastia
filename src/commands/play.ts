@@ -6,57 +6,7 @@ const {
   AudioPlayerStatus,
 } = require("@discordjs/voice");
 const play = require("play-dl");
-const queue = new Map();
-
-// Function for playing audio
-const videoPlayer = async (guild, song) => {
-	
-  // Get the server queue
-  const songQueue = queue.get(guild.id);
-
-  // Basic Error Handling
-  if (!song) return queue.delete(guild.id);
-  if (!song.title) song.title = "Undefined";
-  if (!song.url) return message.channel.send(`Error searching for the song ${message.author}!`);
-
-  try {
-    // Create Player
-    if (songQueue.player === null) {
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Play,
-        },
-      });
-      songQueue.player = player;
-    }
-
-    // Create Player Resources
-    let stream = await play.stream(song.url);
-    let resource = createAudioResource(stream.stream, {
-      inputType: stream.type,
-    });
-
-    // Play the Audio
-    songQueue.connection.subscribe(songQueue.player);
-    songQueue.player.play(resource);
-    if (!songQueue.connection) {
-      songQueue.player.stop();
-      return queue.delete(message.guild.id);
-    }
-  } catch (err) {
-    if (err.toString().includes("Initial")){
-			await videoPlayer(guild, song);
-			return;
-		}
-
-		message.channel.send("Error playing.");
-    console.error(err);
-		console.error(err);
-    await songQueue.songs.shift();
-    if (songQueue.songs[0]) return videoPlayer(guild, songQueue.songs[0]);
-    else return;
-  }
-};
+var queue: Map;
 
 module.exports = {
   name: "play",
@@ -94,6 +44,7 @@ module.exports = {
           loop: false,
           loopCounter: 0,
           stopped: false,
+					skip: false,
         };
 
         // Set the queue on the global queue
@@ -145,7 +96,7 @@ module.exports = {
             };
 
             songQueue.songs.push(song);
-            if (first) await videoPlayer(message.guild, songQueue.songs[0]);
+            if (first) await videoPlayer(message.guild, songQueue.songs[0], message);
             else {
               const newEmbed = new Discord.MessageEmbed()
                 .setColor("#f22222")
@@ -198,7 +149,7 @@ module.exports = {
             var wasPlaylist = true;
 
             if (first) {
-              await videoPlayer(message.guild, songQueue.songs[0]);
+              await videoPlayer(message.guild, songQueue.songs[0], message);
               first = false;
             } else return (wasPlaylist = false);
           } catch (err) {
@@ -247,7 +198,7 @@ module.exports = {
           var wasPlaylist = true;
 
           if (first) {
-            await videoPlayer(message.guild, songQueue.songs[0]);
+            await videoPlayer(message.guild, songQueue.songs[0], message);
             first = false;
           }
         } catch (err) {
@@ -314,7 +265,7 @@ module.exports = {
             } catch (err) {
               await songQueue.songs.shift();
               if (songQueue.songs[0])
-                return videoPlayer(guild, songQueue.songs[0]);
+                return videoPlayer(guild, songQueue.songs[0], message);
               else return;
             }
           }
@@ -328,7 +279,7 @@ module.exports = {
         if (!wasPlaylist) songQueue.songs.push(song);
 				
         try {
-          if (first) await videoPlayer(message.guild, songQueue.songs[0]);
+          if (first) await videoPlayer(message.guild, songQueue.songs[0], message);
           else if (!wasPlaylist) {
 						
             const newEmbed = new Discord.MessageEmbed()
@@ -374,16 +325,21 @@ module.exports = {
 
     songQueue.player.on(AudioPlayerStatus.Idle, () => {
       try {
+				if (songQueue.skip){
+					return;
+				}
+				
         if (songQueue.loop) {
           songQueue.loopCounter++;
           if (songQueue.loopCounter >= songQueue.songs.length) songQueue.loopCounter = 0;
 					
-          return videoPlayer(message.guild, songQueue.songs[songQueue.loopCounter]);
+          return videoPlayer(message.guild, songQueue.songs[songQueue.loopCounter], message);
         } else {
           songQueue.songs.shift();
+					console.log("paused");
 
-          if (songQueue.songs.length) return videoPlayer(message.guild, songQueue.songs[0]);
-          else if (songQueue.stopped === false) {
+          if (songQueue.songs.length) return videoPlayer(message.guild, songQueue.songs[0], message);
+          else if (!songQueue.stopped) {
             songQueue.connection?.destroy();
             return queue.delete(message.guild.id);
           }
@@ -397,5 +353,54 @@ module.exports = {
     });
   },
   queue,
-  videoPlayer,
+};
+
+// Function for playing audio
+const videoPlayer = async (guild, song, message) => {
+	
+  // Get the server queue
+  const songQueue = queue.get(guild.id);
+
+  // Basic Error Handling
+  if (!song) return queue.delete(guild.id);
+  if (!song.title) song.title = "Undefined";
+  if (!song.url) return message.channel.send(`Error searching for the song ${message.author}!`);
+
+  try {
+    // Create Player
+    if (songQueue.player === null) {
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Play,
+        },
+      });
+      songQueue.player = player;
+    }
+
+    // Create Player Resources
+    let stream = await play.stream(song.url);
+    let resource = createAudioResource(stream.stream, {
+      inputType: stream.type,
+    });
+
+    // Play the Audio
+    songQueue.connection.subscribe(songQueue.player);
+    songQueue.player.play(resource);
+    if (!songQueue.connection) {
+      songQueue.player.stop();
+      return queue.delete(message.guild.id);
+    }
+  } catch (err) {
+    if (err.toString().includes("Initial")){
+			await videoPlayer(guild, song, message);
+			return;
+		}
+
+		message.channel.send("Error playing.");
+    console.error(err);
+		console.error(err);
+    await songQueue.songs.shift();
+    if (songQueue.songs[0]) return videoPlayer(guild, songQueue.songs[0], message);
+    else return;
+  }
 };

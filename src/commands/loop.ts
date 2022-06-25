@@ -1,9 +1,8 @@
-const { queue } = require("./play.js");
+const { queue } = require("./play.ts");
 
 module.exports = {
-  name: "now",
-  aliases: ["np"],
-  description: "Displays the current song",
+  name: "loop",
+  description: "Loops the queue",
   async execute(message, args, cmd, client, Discord) {
     const songQueue = queue.get(message.guild.id);
 
@@ -14,13 +13,12 @@ module.exports = {
       return message.reply({ embeds: [newEmbed] });
     }
 
-    let song = songQueue.songs[songQueue.loopCounter];
+    songQueue.loop = !songQueue.loop;
+
+    if (!songQueue.loop) songQueue.loopCounter = 0;
     const newEmbed = new Discord.MessageEmbed()
       .setColor("#f22222")
-      .setTitle("Now Playing...")
-      .setDescription(
-        `[${song.title}](${song.url}) (${song.duration}) [${message.author}]`
-      );
+      .setDescription(songQueue.loop ? "Now looping." : "Stopped looping.");
     return message.reply({ embeds: [newEmbed] });
   },
 };

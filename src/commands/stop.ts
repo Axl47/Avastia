@@ -1,11 +1,10 @@
-const { queue } = require("./play.js");
+const { queue } = require("./play.ts");
 
 module.exports = {
-  name: "loop",
-  description: "Loops the queue",
+  name: "stop",
+  description: "Stops playback",
   async execute(message, args, cmd, client, Discord) {
     const songQueue = queue.get(message.guild.id);
-
     if (!songQueue) {
       const newEmbed = new Discord.MessageEmbed()
         .setColor("#f22222")
@@ -13,12 +12,22 @@ module.exports = {
       return message.reply({ embeds: [newEmbed] });
     }
 
-    songQueue.loop = !songQueue.loop;
+    songQueue.stopped = true;
+    songQueue.loop = false;
 
-    if (songQueue.loop === false) songQueue.loopCounter = 0;
+    try {
+      songQueue.connection?.destroy();
+    } catch(err) {
+			console.error(err);
+      console.log("Already destroyed.");
+    }
+
+    queue.delete(message.guild.id);
+		if (songQueue.player) songQueue.player.state.status = "idle";
+
     const newEmbed = new Discord.MessageEmbed()
       .setColor("#f22222")
-      .setDescription(songQueue.loop ? "Now looping." : "Stopped looping.");
+      .setDescription("Player stopped.");
     return message.reply({ embeds: [newEmbed] });
   },
 };
