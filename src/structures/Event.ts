@@ -1,0 +1,15 @@
+import { ClientEvents } from "discord.js";
+
+export class Event<Key extends keyof ClientEvents> {
+    constructor(
+        public event: Key,
+        public run: (...args: ClientEvents[Key]) => any
+    ) { }
+}
+
+export class PlayerEvent {
+    constructor(
+        public event: string,
+        public run: () => any
+    ) { }
+}

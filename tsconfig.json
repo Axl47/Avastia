@@ -3,7 +3,7 @@
         "target": "ESNext",
         "module": "commonjs",
         "rootDir": "./src/",
-        "outDir": "./prod/",
+        "outDir": "dist",
         "strict": true,
         "moduleResolution": "node",
         "importHelpers": true,
@@ -14,7 +14,6 @@
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
-				"skipLibCheck": true,
         "typeRoots": [
             "node_modules/@types"
         ],
@@ -25,10 +24,11 @@
         "src/main.ts"
     ],
     "include": [
-        "./**/*.ts"
+        "src",
+        "../environment.d.ts"
     ],
     "exclude": [
         "node_modules",
-        "prod"
+        "**/*.spec.ts"
     ],
 }
