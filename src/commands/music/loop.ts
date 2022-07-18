@@ -7,17 +7,14 @@ export default new Command({
   description: 'Loops the queue',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
+    if (songQueue) {
+      songQueue.loop = !songQueue.loop;
+      songQueue.loopCounter = 0;
+      response.setDescription(songQueue.loop ? "Now looping." : "Stopped looping.");
     }
 
-    songQueue.loop = !songQueue.loop;
-
-    if (!songQueue.loop) songQueue.loopCounter = 0;
-    response.setDescription(songQueue.loop ? "Now looping." : "Stopped looping.");
     return interaction.followUp({ embeds: [response] });
   }
 });

@@ -8,15 +8,13 @@ export default new Command({
   description: 'Shuffles the queue.',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
+    if (songQueue) {
+      await shuffle(songQueue.songs);
+      response.setDescription("Queue shuffled.");
     }
 
-    await shuffle(songQueue.songs);
-    response.setDescription("Queue shuffled.");
     return interaction.followUp({ embeds: [response] });
   }
 });

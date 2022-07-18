@@ -7,16 +7,13 @@ export default new Command({
   description: 'Pauses the player',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
+    if (songQueue) {
+      songQueue.player.state.status = "idle";
+      response.setDescription("Playback paused.");
     }
 
-    songQueue.player.state.status = "idle";
-
-    response.setDescription("Playback paused.");
     return interaction.followUp({ embeds: [response] });
   }
 });

@@ -15,9 +15,10 @@ export default new Command({
     }
 
     let format = "```autohotkey\n";
-    let songs = format; // Setting the format
+    let songs = format;
 
     for (let i = 0; i < songQueue.songs.length; i++) {
+      // Every 25 songs send a new message
       if (i % 25 === 0 && i != 0) {
         songs += "```";
         interaction.followUp(songs);

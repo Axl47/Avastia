@@ -7,19 +7,13 @@ export default new Command({
   description: 'Displays the current song',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
+    if (songQueue) {
+      let song = songQueue.songs[songQueue.loopCounter];
+      response.setTitle("Now Playing...")
+        .setDescription(`[${song.title}](${song.url}) (${song.duration}) [${interaction.user}]`);
     }
-
-    let song = songQueue.songs[songQueue.loopCounter];
-    response.
-      setTitle("Now Playing...")
-      .setDescription(
-        `[${song.title}](${song.url}) (${song.duration}) [${interaction.user}]`
-      );
 
     return interaction.followUp({ embeds: [response] });
   }

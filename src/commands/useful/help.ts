@@ -5,7 +5,7 @@ export default new Command({
   name: 'help',
   description: 'Sends a message with all commands',
   run: async ({ interaction }) => {
-    const newEmbed = new MessageEmbed()
+    const response = new MessageEmbed()
       .setColor("#15b500")
       .setTitle("Commands:")
       .setDescription("All available commands...")
@@ -38,6 +38,6 @@ export default new Command({
         { name: "/coin", value: "Throws a coin.", inline: true },
       );
 
-    return interaction.followUp({ embeds: [newEmbed] });
+    return interaction.followUp({ embeds: [response] });
   }
 });

@@ -8,17 +8,13 @@ export default new Command({
   description: 'Skips to the next song',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
+    if (songQueue) {
+      await playNextSong();
+      response.setDescription("Song skipped.");
     }
 
-    songQueue.player.state.status = "idle";
-    await playNextSong();
-
-    response.setDescription("Song skipped.");
     return interaction.followUp({ embeds: [response] });
   }
 });

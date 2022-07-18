@@ -15,29 +15,24 @@ export default new Command({
   ],
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
-    }
+    if (songQueue) {
+      let i = 0;
+      let songs = songQueue.songs;
+      for (i = 0; i < songs.length; i++) {
+        if (songs[i].title.toLowerCase().includes(interaction.options.getString('query', true).toLowerCase())) {
+          break;
+        }
+      }
 
-    let i = 0;
-    let songs = songQueue.songs;
-    for (i = 0; i < songs.length; i++) {
-      if (songs[i].title.toLowerCase().includes(interaction.options.getString('query', true).toLowerCase())) {
-        break;
+      if (i < songQueue.songs.length) {
+        songQueue.songs.splice(i, 1);
+        response.setDescription(`Removed [${songs[i].title}](${songs[i].url}) [${interaction.user}]`);
+      } else {
+        response.setDescription("Song not in queue.");
       }
     }
-
-    if (i >= songQueue.songs.length) {
-      response.setDescription("Song not in queue.")
-      return interaction.followUp({ embeds: [response] });
-    }
-
-    response.setDescription(`Removed [${songs[i].title}](${songs[i].url}) [${interaction.user}]`);
-
-    songQueue.songs.splice(i, 1);
     return interaction.followUp({ embeds: [response] });
   }
 });

@@ -71,7 +71,7 @@ export default new Command({
     },
   ],
   run: async ({ interaction }) => {
-    const response = new MessageEmbed().setColor("#15b500").setDescription('');
+    const response = new MessageEmbed().setColor("#15b500");
 
     switch (interaction.options.getSubcommand()) {
       case 'pegarle':
@@ -93,6 +93,9 @@ export default new Command({
       case 'alysita':
       case 'kurito':
         response.setDescription(`${(interaction.options.getSubcommand() === "kurito") ? "Kurito es de Aly" : "Alysita es de Kuro"}!`);
+        break;
+      default:
+        response.setDescription('');
         break;
     }
     interaction.followUp({ embeds: [response] });

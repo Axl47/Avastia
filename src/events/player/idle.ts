@@ -8,31 +8,20 @@ export default new PlayerEvent("idle", async () => {
 
 export const playNextSong = async () => {
     const songQueue = queue.get(guildId);
-    if (!songQueue) {
-        console.log("No song queue");
-        return;
+    if (!songQueue) return console.log("No song queue");
+    if (songQueue.stopped) {
+        if (songQueue.connection) songQueue.connection.destroy();
+        return queue.delete(guildId);
     }
 
-    try {
-        if (songQueue.loop) {
-            songQueue.loopCounter++;
-            if (songQueue.loopCounter >= songQueue.songs.length) songQueue.loopCounter = 0;
+    if (songQueue.loop) {
+        songQueue.loopCounter++;
+        if (songQueue.loopCounter >= songQueue.songs.length) songQueue.loopCounter = 0;
+    } else {
+        songQueue.songs.shift();
+    }
 
-            videoPlayer(guildId, songQueue.songs[songQueue.loopCounter]);
-            return;
-        } else {
-            songQueue.songs.shift();
-
-            if (songQueue.songs.length) videoPlayer(guildId, songQueue.songs[0]);
-            else if (!songQueue.stopped) {
-                await songQueue.connection?.destroy();
-                queue.delete(guildId);
-            }
-        }
-    } catch (err) {
-        console.error(err);
-        songQueue.connection?.destroy();
-        queue.delete(guildId);
-        return;
+    if (songQueue.songs) {
+        return videoPlayer(guildId, songQueue.songs[songQueue.loopCounter]);
     }
 };

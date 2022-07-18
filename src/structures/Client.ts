@@ -49,7 +49,7 @@ export class SuperClient extends Client {
         this.on("ready", () => {
             this.registerCommands({
                 commands: slashCommands,
-                guildId: process.env.guildId
+                //guildId: process.env.guildId
             });
         });
 

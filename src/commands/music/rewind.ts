@@ -9,25 +9,11 @@ export default new Command({
   description: 'Rewinds the current song',
   run: async ({ interaction }) => {
     const songQueue = queue.get(interaction!.guild!.id);
-    const response = new MessageEmbed().setColor("#f22222");
+    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
-    if (!songQueue) {
-      response.setDescription("Not playing anything.");
-      return interaction.followUp({ embeds: [response] });
-    }
-
-    try {
-      // Play current song if there is one
-      if (songQueue.songs[0]) {
-        await videoPlayer(interaction!.guild!.id, songQueue.songs[songQueue.loopCounter]);
-
-        response.setDescription("Rewinded!");
-      }
-    } catch (err) {
-      console.error(err);
-      songQueue.player.stop();
-      queue.delete(interaction!.guild!.id);
-      response.setDescription("Error rewinding.");
+    if (songQueue && songQueue.songs[0]) {
+      await videoPlayer(interaction!.guild!.id, songQueue.songs[songQueue.loopCounter]);
+      response.setDescription("Rewinded!");
     }
 
     return interaction.followUp({ embeds: [response] });
