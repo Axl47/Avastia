@@ -1,7 +1,7 @@
 import { createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior, DiscordGatewayAdapterCreator } from "@discordjs/voice";
 import { is_expired, refreshToken, spotify, SpotifyTrack, SpotifyAlbum, playlist_info, video_info, yt_validate, stream, search } from "play-dl"
 import { MessageEmbed, TextBasedChannel, User } from "discord.js";
-import { playNextSong } from "../../events/player/idle";
+import { playNextSong } from "../../events/player/stateChange";
 import { Command } from "../../structures/Command";
 import { queue } from "../../structures/Client";
 import { Song } from "../../structures/Song";
@@ -221,9 +221,9 @@ export const videoPlayer = async (guildId: string, song: Song) => {
 
   // Basic Error Handling
   if (!song) {
-		playNextSong()
-		return;
-	};
+    playNextSong()
+    return;
+  };
   if (!song.title) song.title = "";
 
   try {

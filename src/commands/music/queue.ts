@@ -32,29 +32,29 @@ export default new Command({
     // songs += "```";
     // return interaction.followUp(songs);
 
-		let songs = '';
+    let songs = '';
 
-		const paginatedLyrics = new PaginatedMessage({
-        template: new MessageEmbed()
-          .setColor('#ff0000')
-      });
+    const paginatedLyrics = new PaginatedMessage({
+      template: new MessageEmbed()
+        .setColor('#ff0000')
+    });
 
-		let index = 1;
-		songQueue.songs.map(function(song: Song) { 
-  		songs += `${index}) ${song.title} (${song.duration})\n`
-			index += 1;
-		});
-		const songsIndex = Math.round(songs.length / 4096) + 1;
-      for (let i = 1; i <= songsIndex; ++i) {
-        let b = i - 1;
-        if (songs.trim().slice(b * 4096, i * 4096).length !== 0) {
-          paginatedLyrics.addPageEmbed(embed => {
-            return embed.setDescription(songs.slice(b * 4096, i * 4096));
-          });
-        }
+    let index = 1;
+    songQueue.songs.map(function (song: Song) {
+      songs += `${index}) ${song.title} (${song.duration})\n`
+      index += 1;
+    });
+    const songsIndex = Math.round(songs.length / 4096) + 1;
+    for (let i = 1; i <= songsIndex; ++i) {
+      let b = i - 1;
+      if (songs.trim().slice(b * 4096, i * 4096).length !== 0) {
+        paginatedLyrics.addPageEmbed(embed => {
+          return embed.setDescription(songs.slice(b * 4096, i * 4096));
+        });
       }
+    }
 
-      await interaction.followUp('Queue:');
-      return paginatedLyrics.run(interaction);
+    await interaction.followUp('Queue:');
+    return paginatedLyrics.run(interaction);
   }
 });

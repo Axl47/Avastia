@@ -1,7 +1,7 @@
 import { Command } from "../../structures/Command";
 import { queue } from "../../structures/Client";
 import { MessageEmbed } from "discord.js";
-import { playNextSong } from "../../events/player/idle";
+import { playNextSong } from "../../events/player/stateChange";
 
 export default new Command({
   name: 'skip',

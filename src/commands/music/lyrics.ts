@@ -9,31 +9,31 @@ const genius = new GeniusLyrics(process.env.geniusKey!);
 export default new Command({
   name: 'lyrics',
   description: 'Sends the lyrics of the current song',
-	options: [
-		{
-			name: 'title',
-			description: 'song to search',
-			type: 'STRING',
-			required: false,
-		}
-	],
+  options: [
+    {
+      name: 'title',
+      description: 'song to search',
+      type: 'STRING',
+      required: false,
+    }
+  ],
   run: async ({ interaction }) => {
-		let title = interaction.options.getString('title');
-		
-		if (!title) {
-			const songQueue = queue.get(interaction!.guild!.id);
-			if (songQueue) {
-				title = songQueue.songs[0].title;
-    	} else {
-    		const response = new MessageEmbed().setColor("#ff0000").setDescription("Provide a title or start playing something.");
-				return await interaction.followUp({ embeds: [response] });
-			}
-		}
-		
-		try {
+    let title = interaction.options.getString('title');
+
+    if (!title) {
+      const songQueue = queue.get(interaction!.guild!.id);
+      if (songQueue) {
+        title = songQueue.songs[0].title;
+      } else {
+        const response = new MessageEmbed().setColor("#ff0000").setDescription("Provide a title or start playing something.");
+        return await interaction.followUp({ embeds: [response] });
+      }
+    }
+
+    try {
       const lyrics = (await genius.fetchLyrics(title!)) as string;
       const lyricsIndex = Math.round(lyrics.length / 4096) + 1;
-			const paginatedLyrics = new PaginatedMessage({
+      const paginatedLyrics = new PaginatedMessage({
         template: new MessageEmbed()
           .setColor('#ff0000')
           .setTitle(title!)
