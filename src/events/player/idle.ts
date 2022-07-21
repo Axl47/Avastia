@@ -8,7 +8,7 @@ export default new PlayerEvent("idle", async () => {
 
 export const playNextSong = async () => {
     const songQueue = queue.get(guildId);
-    if (!songQueue) return console.log("No song queue");
+    if (!songQueue) return;
     if (songQueue.stopped) {
         if (songQueue.connection) songQueue.connection.destroy();
         return queue.delete(guildId);
@@ -23,5 +23,10 @@ export const playNextSong = async () => {
 
     if (songQueue.songs) {
         return videoPlayer(guildId, songQueue.songs[songQueue.loopCounter]);
-    }
+    } else {
+			if (songQueue.connection) {
+				await songQueue.connection.destroy();
+			}
+			queue.delete(guildId);
+		}
 };

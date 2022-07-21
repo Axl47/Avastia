@@ -47,7 +47,7 @@ export default new Command({
 
     if (!interaction.member.voice.channel) {
       response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
-      return interaction.followUp({ embeds: [response] });
+      return await interaction.followUp({ embeds: [response] });
     }
 
     const voiceChannel = interaction.guild?.voiceStates?.cache?.get(
@@ -83,7 +83,7 @@ export default new Command({
         queue.set(guildId, queueConstructor);
       } catch (err) {
         queue.delete(guildId);
-        interaction.followUp("Error connecting.");
+        await interaction.followUp("Error connecting.");
         console.log(err);
         return;
       }
@@ -107,7 +107,7 @@ export default new Command({
 
           // Search song on Youtube
           song = await searchSong(`${sp_data.name} ${sp_data.artists.map(artist => artist.name).join(" ")}`);
-          if (!song.url) return interaction.followUp("No video result found.");
+          if (!song.url) return await interaction.followUp("No video result found.");
 
           songQueue.songs.push(song);
         }
@@ -127,14 +127,14 @@ export default new Command({
             }
 
             response.setDescription(`:thumbsup: Added **${tracks.length}** videos to the queue!`);
-            interaction.followUp({ embeds: [response] });
+            await interaction.followUp({ embeds: [response] });
 
             wasPlaylist = true;
 
           } catch (err) {
-            interaction.followUp("Error playing.");
+            await interaction.followUp("Error playing.");
             console.log(err);
-            return queue.delete(guildId);
+            return;
           }
         }
       } else {
@@ -161,7 +161,7 @@ export default new Command({
           }
 
           response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
-          interaction.followUp({ embeds: [response] });
+          await interaction.followUp({ embeds: [response] });
 
           wasPlaylist = true;
         }
@@ -171,7 +171,7 @@ export default new Command({
 
           if (!validateLink(url)) {
             response.setDescription(`Invalid Link`);
-            return interaction.followUp({ embeds: [response] });
+            return await interaction.followUp({ embeds: [response] });
           }
 
           const video = await video_info(url);
@@ -181,7 +181,7 @@ export default new Command({
             duration: video.video_details.durationRaw
           };
 
-          if (!song.url) return interaction.followUp("No video result found.");
+          if (!song.url) return await interaction.followUp("No video result found.");
           if (!song.title) song.title = '';
 
           songQueue.songs.push(song);
@@ -192,7 +192,7 @@ export default new Command({
       const query = interaction.options.getString('query', true);
 
       song = await searchSong(query);
-      if (!song.url) return interaction.followUp("No video result found.");
+      if (!song.url) return await interaction.followUp("No video result found.");
 
       songQueue.songs.push(song);
     }
@@ -203,7 +203,7 @@ export default new Command({
 
     if (!wasPlaylist) {
       response.setDescription(`Queued [${songQueue.songs.at(-1).title}](${songQueue.songs.at(-1).url}) [${interaction.user}]`);
-      interaction.followUp({ embeds: [response] });
+      await interaction.followUp({ embeds: [response] });
     }
 
     wasPlaylist = false;
@@ -216,12 +216,14 @@ const validateLink = (link: string) => {
 
 // Function for playing audio
 export const videoPlayer = async (guildId: string, song: Song) => {
-
   // Get the server queue
   const songQueue = queue.get(guildId);
 
   // Basic Error Handling
-  if (!song) queue.delete(guildId);
+  if (!song) {
+		playNextSong()
+		return;
+	};
   if (!song.title) song.title = "";
 
   try {

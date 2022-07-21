@@ -27,7 +27,7 @@ export default new Command({
         { name: "\u200B", value: "\u200B" },
 
         { name: "/queue", value: "Sends the queue to the channel.", inline: true, },
-        { name: "/random", value: "Determined responses for some messages", inline: true, },
+        { name: "/lyrics", value: "Sends the lyrics of the current or desired song", inline: true, },
         { name: "\u200B", value: "\u200B" },
 
         { name: "/jump", value: "Jumps x songs.", inline: true },

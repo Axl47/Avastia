@@ -10,9 +10,8 @@ export default new Command({
     const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
     if (songQueue) {
-      let song = songQueue.songs[songQueue.loopCounter];
       response.setTitle("Now Playing...")
-        .setDescription(`[${song.title}](${song.url}) (${song.duration}) [${interaction.user}]`);
+        .setDescription(`[${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${interaction.user}]`);
     }
 
     return interaction.followUp({ embeds: [response] });

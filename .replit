@@ -1,5 +1,5 @@
 language = "nodejs"
-run = "npm run start"
+run = "npm run start:prod"
 
 [packager]
 ignoredPackages=[

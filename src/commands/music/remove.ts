@@ -27,12 +27,12 @@ export default new Command({
       }
 
       if (i < songQueue.songs.length) {
-        songQueue.songs.splice(i, 1);
         response.setDescription(`Removed [${songs[i].title}](${songs[i].url}) [${interaction.user}]`);
+        songQueue.songs.splice(i, 1);
       } else {
         response.setDescription("Song not in queue.");
       }
     }
-    return interaction.followUp({ embeds: [response] });
+    return await interaction.followUp({ embeds: [response] });
   }
 });
