@@ -71,33 +71,34 @@ export default new Command({
     },
   ],
   run: async ({ interaction }) => {
-    const response = new MessageEmbed().setColor("#15b500");
+    let description: string;
 
     switch (interaction.options.getSubcommand()) {
       case 'pegarle':
-        response.setDescription(`${interaction.user} y Avastia le pegan a ${interaction.options.getUser('usuario', true)}`);
+        description = `${interaction.user} y Avastia le pegan a ${interaction.options.getUser('usuario', true)}`;
         break;
       case 'beso':
-        response.setDescription(`${interaction.user} besa a ${interaction.options.getUser('usuario', true)}`);
+        description = `${interaction.user} besa a ${interaction.options.getUser('usuario', true)}`;
         break;
       case 'message':
-        response.setDescription(`${interaction.options.getString('message', true)}`);
+        description = `${interaction.options.getString('message', true)}`;
         break;
       case 'kuwai':
       case 'tliste':
-        response.setDescription(`Kuro es Pulga ${(interaction.options.getSubcommand() === "kuwai") ? "Kuwai" : "Tliste"}!`);
+        description = `Kuro es Pulga ${(interaction.options.getSubcommand() === "kuwai") ? "Kuwai" : "Tliste"}!`;
         break;
       case 'chales':
-        response.setDescription(`Aly es Pulga Chales!`);
+        description = `Aly es Pulga Chales!`;
         break;
       case 'alysita':
       case 'kurito':
-        response.setDescription(`${(interaction.options.getSubcommand() === "kurito") ? "Kurito es de Aly" : "Alysita es de Kuro"}!`);
+        description = `${(interaction.options.getSubcommand() === "kurito") ? "Kurito es de Aly" : "Alysita es de Kuro"}!`;
         break;
       default:
-        response.setDescription('');
+        description = '';
         break;
     }
+    const response = new MessageEmbed().setColor("#15b500").setDescription(description);
     interaction.followUp({ embeds: [response] });
   }
 });

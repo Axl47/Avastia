@@ -6,7 +6,7 @@ export default new Command({
   name: 'now',
   description: 'Displays the current song',
   run: async ({ interaction }) => {
-    const songQueue = queue.get(interaction!.guild!.id);
+    const songQueue = queue.get(interaction.guild?.id);
     const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
     if (songQueue) {

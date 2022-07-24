@@ -8,7 +8,7 @@ export default new Command({
   name: 'rewind',
   description: 'Rewinds the current song',
   run: async ({ interaction }) => {
-    const songQueue = queue.get(interaction!.guild!.id);
+    const songQueue = queue.get(interaction.guild?.id);
     const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
     if (songQueue && songQueue.songs[0]) {

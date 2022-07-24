@@ -4,9 +4,11 @@ export class Song {
     title: string;
     url: string;
     duration: string;
-    constructor({ title, url, duration }: SongType) {
+    durationSec: number;
+    constructor({ title, url, duration, durationSec }: SongType) {
         this.title = title;
         this.url = url;
         this.duration = duration;
+        this.durationSec = durationSec;
     }
 }

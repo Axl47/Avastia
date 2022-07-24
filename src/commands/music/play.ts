@@ -1,5 +1,5 @@
 import { createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior, DiscordGatewayAdapterCreator } from "@discordjs/voice";
-import { is_expired, refreshToken, spotify, SpotifyTrack, SpotifyAlbum, playlist_info, video_info, yt_validate, stream, search } from "play-dl"
+import { is_expired, refreshToken, spotify, SpotifyTrack, SpotifyAlbum, playlist_info, video_info, yt_validate, sp_validate, stream, search } from "play-dl"
 import { MessageEmbed, TextBasedChannel, User } from "discord.js";
 import { playNextSong } from "../../events/player/stateChange";
 import { Command } from "../../structures/Command";
@@ -16,31 +16,11 @@ export default new Command({
   description: 'Plays a song',
   options: [
     {
-      name: 'search',
-      description: 'Search in YouTube for a song',
-      type: 'SUB_COMMAND',
-      options: [
-        {
-          name: 'query',
-          description: 'Query to search',
-          type: 'STRING',
-          required: true,
-        }
-      ],
+      name: 'query',
+      description: 'Search a song',
+      type: 'STRING',
+      required: true,
     },
-    {
-      name: 'link',
-      description: 'Search a specified URL for a song or playlist',
-      type: 'SUB_COMMAND',
-      options: [
-        {
-          name: 'url',
-          description: 'URL to play',
-          type: 'STRING',
-          required: true,
-        }
-      ],
-    }
   ],
   run: async ({ interaction }) => {
     const response = new MessageEmbed().setColor("#15b500").setDescription('');
@@ -50,12 +30,15 @@ export default new Command({
       return await interaction.followUp({ embeds: [response] });
     }
 
-    const voiceChannel = interaction.guild?.voiceStates?.cache?.get(
+    const voiceChannel = interaction.guild?.voiceStates.cache.get(
       interaction.user.id
-    )?.channel!;
+    )?.channel;
+
+    if (!voiceChannel) return interaction.followUp("Error while getting voice channel.");
+    if (!interaction.channel) return interaction.followUp("Error while getting text channel.");
 
     guildId = interaction.member.guild.id;
-    channel = interaction.channel!;
+    channel = interaction.channel;
     author = interaction.user;
     const serverQueue = queue.get(guildId);
     let song: Song;
@@ -81,69 +64,65 @@ export default new Command({
 
         // Set the queue on the global queue
         queue.set(guildId, queueConstructor);
-      } catch (err) {
+      } catch (e) {
         queue.delete(guildId);
         await interaction.followUp("Error connecting.");
-        console.log(err);
+        console.error(e);
         return;
       }
     }
 
-    // Get the server queue
     const songQueue = queue.get(guildId);
     let wasPlaylist = false;
     let first = (songQueue.songs.length) ? false : true;
 
-    if (interaction.options.getSubcommand() === 'link') {
-      let url = interaction.options.getString('url', true);
+    let url = interaction.options.getString('query', true);
 
-      if (url.includes("spotify")) {
-        if (is_expired()) await refreshToken();
+    if (url.includes("spotify")) {
+      if (is_expired()) await refreshToken();
+      let sp_data: SpotifyTrack | SpotifyAlbum;
 
+      try {
+        switch (sp_validate(url)) {
+          case 'track':
+            sp_data = await spotify(url) as SpotifyTrack;
 
-        // Song Link
-        if (url.includes("track")) {
-          let sp_data = await spotify(url) as SpotifyTrack;
+            // Search song on Youtube
+            song = await searchSong(`${sp_data.name} ${sp_data.artists.map(artist => artist.name).join(" ")}`);
+            if (!song.url) return await interaction.followUp("No video result found.");
 
-          // Search song on Youtube
-          song = await searchSong(`${sp_data.name} ${sp_data.artists.map(artist => artist.name).join(" ")}`);
-          if (!song.url) return await interaction.followUp("No video result found.");
+            songQueue.songs.push(song);
+            break;
+          case 'playlist':
+          case 'album':
+            // Distinction between album and playlist is
+            // unnecessary for searching the song on youtube
+            sp_data = await spotify(url) as SpotifyAlbum;
+            await sp_data.fetch();
+            const tracks = await sp_data.all_tracks();
 
-          songQueue.songs.push(song);
-        }
-        // Spotify Playlist and Album Handling
-        else if (url.includes("playlist") || url.includes("album")) {
-          // Search every song on youtube
-          const sp_data = await spotify(url) as SpotifyAlbum;
-          await sp_data.fetch();
-
-          const tracks = await sp_data.all_tracks();
-          try {
-            // Add each song to the queue
             for (const track of tracks) {
               song = await searchSong(`${track.name} ${track.artists.map(artist => artist.name).join(" ")}`);
               if (!song.url) continue;
               songQueue.songs.push(song);
             }
 
-            response.setDescription(`:thumbsup: Added **${tracks.length}** videos to the queue!`);
+            response.setDescription(`:thumbsup: Added **${tracks.length}** songs to the queue!`);
             await interaction.followUp({ embeds: [response] });
 
             wasPlaylist = true;
-
-          } catch (err) {
-            await interaction.followUp("Error playing.");
-            console.log(err);
-            return;
-          }
+            break;
+          default:
+            return interaction.followUp("This should never happen.");
         }
-      } else {
-        // Manage YouTube Music
-        url = url.replace("&feature=share", "");
-        url = url.replace("music.", "");
+      } catch (e) {
+        await interaction.followUp("Error playing.");
+        return console.error(e);
+      }
 
-        // YouTube Playlist Links
-        if (url.includes("playlist")) {
+    } else {
+      switch (yt_validate(url)) {
+        case 'playlist':
           const playlist = await playlist_info(url, { incomplete: true });
           await playlist.fetch();
 
@@ -156,46 +135,48 @@ export default new Command({
               title: video.title as string,
               url: video.url,
               duration: video.durationRaw,
+              durationSec: video.durationInSec,
             };
-            await songQueue.songs.push(song);
+            songQueue.songs.push(song);
           }
 
           response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
           await interaction.followUp({ embeds: [response] });
 
           wasPlaylist = true;
-        }
-        // YouTube Links
-        else {
-          if (url.includes("list")) url = url.substring(0, url.indexOf("list"));
+          break;
+        case 'video':
+        case 'search':
+          // Search gets handled inside video due to yt_validate
+          // returning 'video' instead of 'search' sometimes
+          if (!url.startsWith("https")) {
+            song = await searchSong(url);
+            if (!song.url) return await interaction.followUp("No video result found.");
 
-          if (!validateLink(url)) {
-            response.setDescription(`Invalid Link`);
-            return await interaction.followUp({ embeds: [response] });
+            songQueue.songs.push(song);
+            break;
           }
+
+          if (url.includes("list")) url = url.substring(0, url.indexOf("list"));
 
           const video = await video_info(url);
           song = {
             title: video.video_details.title as string,
             url: video.video_details.url,
-            duration: video.video_details.durationRaw
+            duration: video.video_details.durationRaw,
+            durationSec: video.video_details.durationInSec,
           };
 
           if (!song.url) return await interaction.followUp("No video result found.");
           if (!song.title) song.title = '';
 
           songQueue.songs.push(song);
-        }
+          break;
+        default:
+          return interaction.followUp("This should never happen 2.");
       }
-    } else {
-      // Search Query
-      const query = interaction.options.getString('query', true);
-
-      song = await searchSong(query);
-      if (!song.url) return await interaction.followUp("No video result found.");
-
-      songQueue.songs.push(song);
     }
+
     if (first) {
       await videoPlayer(guildId, songQueue.songs[0]);
       client.playerEvents(guildId);
@@ -205,21 +186,15 @@ export default new Command({
       response.setDescription(`Queued [${songQueue.songs.at(-1).title}](${songQueue.songs.at(-1).url}) [${interaction.user}]`);
       await interaction.followUp({ embeds: [response] });
     }
-
-    wasPlaylist = false;
   }
 });
 
-const validateLink = (link: string) => {
-  return (link.startsWith("https") && yt_validate(link) == "video");
-}
-
 // Function for playing audio
-export const videoPlayer = async (guildId: string, song: Song) => {
+export const videoPlayer = async (guildId: string, song: Song, seek?: number) => {
   // Get the server queue
   const songQueue = queue.get(guildId);
 
-  // Basic Error Handling
+  // Error Handling
   if (!song) {
     playNextSong()
     return;
@@ -236,7 +211,7 @@ export const videoPlayer = async (guildId: string, song: Song) => {
     }
 
     // Create Player Resources
-    let s = await stream(song.url);
+    let s = await stream(song.url, { seek: seek });
     let resource = createAudioResource(s.stream, { inputType: s.type });
 
     // Play the Audio
@@ -246,19 +221,20 @@ export const videoPlayer = async (guildId: string, song: Song) => {
       songQueue.player.stop();
       return queue.delete(guildId);
     }
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    if ((seek && seek < song.durationSec) || !seek) console.error(e);
     playNextSong();
   }
 };
 
 const searchSong = async (query: string): Promise<Song> => {
   let yt_info = await search(query, { limit: 1 });
-  if (!yt_info[0]) return new Song({ title: '', url: '', duration: '' });
+  if (!yt_info[0]) return new Song({ title: '', url: '', duration: '', durationSec: 0 });
 
   return new Song({
     title: yt_info[0].title as string,
     url: yt_info[0].url,
     duration: yt_info[0].durationRaw,
+    durationSec: yt_info[0].durationInSec,
   });
 }

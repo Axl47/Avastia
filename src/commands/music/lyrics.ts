@@ -1,10 +1,10 @@
 import { Command } from "../../structures/Command";
 import { queue } from "../../structures/Client";
 import { MessageEmbed } from "discord.js";
-import { GeniusLyrics } from 'genius-discord-lyrics';
+import { Client as GeniusClient } from 'genius-lyrics';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 
-const genius = new GeniusLyrics(process.env.geniusKey!);
+const genius = new GeniusClient(process.env.geniusKey);
 
 export default new Command({
   name: 'lyrics',
@@ -18,7 +18,7 @@ export default new Command({
     }
   ],
   run: async ({ interaction }) => {
-    let title = interaction.options.getString('title');
+    let title = interaction.options.getString('title') ?? '';
 
     if (!title) {
       const songQueue = queue.get(interaction!.guild!.id);
@@ -31,12 +31,13 @@ export default new Command({
     }
 
     try {
-      const lyrics = (await genius.fetchLyrics(title!)) as string;
+      const song = (await genius.songs.search(title))[0];
+      const lyrics = await song.lyrics();
       const lyricsIndex = Math.round(lyrics.length / 4096) + 1;
       const paginatedLyrics = new PaginatedMessage({
         template: new MessageEmbed()
           .setColor('#ff0000')
-          .setTitle(title!)
+          .setTitle(song.title)
           .setFooter({
             text: 'Provided by genius.com',
             iconURL:

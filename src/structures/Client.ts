@@ -12,7 +12,13 @@ export class SuperClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
 
     constructor() {
-        super({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"] })
+        super({
+            intents: [
+                "GUILDS",
+                "GUILD_MESSAGES",
+                "GUILD_VOICE_STATES"
+            ]
+        })
     }
 
     start() {

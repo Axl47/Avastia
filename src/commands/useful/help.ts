@@ -35,6 +35,9 @@ export default new Command({
         { name: "\u200B", value: "\u200B" },
 
         { name: "/rewind", value: "Rewinds the current song.", inline: true },
+        { name: "/seek", value: "Seeks to second on current song.", inline: true },
+        { name: "\u200B", value: "\u200B" },
+
         { name: "/coin", value: "Throws a coin.", inline: true },
       );
 
