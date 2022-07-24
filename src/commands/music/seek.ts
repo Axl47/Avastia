@@ -22,7 +22,7 @@ export default new Command({
 
         if (songQueue) {
             await videoPlayer(interaction.guild!.id, songQueue.songs[songQueue.loopCounter], amount);
-            if (songQueue.songs[songQueue.loopCounter] > amount) response.setDescription(`Seeked to ${amount}s!`);
+            if (songQueue.songs[songQueue.loopCounter].durationSec > amount) response.setDescription(`Seeked to ${amount}s!`);
             else response.setDescription("Excedeed song duration, skipping...");
         }
 
