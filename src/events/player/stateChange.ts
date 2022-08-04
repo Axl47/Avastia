@@ -11,7 +11,7 @@ export default new PlayerEvent("stateChange", async () => {
         case "playing":
             const play = new MessageEmbed()
                 .setColor("#f22222")
-                .setDescription(`Started playing [${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) [${author}]`);
+                .setDescription(`Started playing [${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${author}]`);
             return channel.send({ embeds: [play] });
         case "idle":
             playNextSong();
