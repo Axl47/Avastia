@@ -16,7 +16,8 @@ export class SuperClient extends Client {
             intents: [
                 "GUILDS",
                 "GUILD_MESSAGES",
-                "GUILD_VOICE_STATES"
+                "GUILD_VOICE_STATES",
+                "GUILD_MESSAGE_REACTIONS",
             ]
         })
     }

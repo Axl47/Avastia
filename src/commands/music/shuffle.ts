@@ -11,7 +11,7 @@ export default new Command({
     const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
 
     if (songQueue) {
-      await shuffle(songQueue.songs);
+      shuffle(songQueue.songs);
       response.setDescription("Queue shuffled.");
     }
 
@@ -21,8 +21,8 @@ export default new Command({
 
 const shuffle = (queue: Song[]) => {
   let firstSong = queue.shift();
-  let currentIndex = queue.length,
-    randomIndex;
+  let currentIndex = queue.length;
+  let randomIndex: number;
 
   // While there remain elements to shuffle...
   while (currentIndex != 0) {

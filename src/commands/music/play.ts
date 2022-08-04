@@ -1,10 +1,12 @@
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior, DiscordGatewayAdapterCreator } from "@discordjs/voice";
+import { createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior, DiscordGatewayAdapterCreator, VoiceConnection } from "@discordjs/voice";
 import { is_expired, refreshToken, spotify, SpotifyTrack, SpotifyAlbum, playlist_info, video_info, yt_validate, sp_validate, stream, search } from "play-dl"
-import { MessageEmbed, TextBasedChannel, User } from "discord.js";
+import { MessageEmbed, TextBasedChannel, User, VoiceBasedChannel } from "discord.js";
 import { playNextSong } from "../../events/player/stateChange";
 import { Command } from "../../structures/Command";
+import { SuperInteraction } from "../../typings/Command";
 import { queue } from "../../structures/Client";
 import { Song } from "../../structures/Song";
+import { Queue } from "../../structures/Queue";
 import { client } from "../../main";
 
 export let guildId = "";
@@ -23,56 +25,29 @@ export default new Command({
     },
   ],
   run: async ({ interaction }) => {
+    author = interaction.user;
     const response = new MessageEmbed().setColor("#15b500").setDescription('');
 
     if (!interaction.member.voice.channel) {
-      response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
+      response.setDescription(`You need to be in a voice channel to execute this command ${author}!`);
       return await interaction.followUp({ embeds: [response] });
     }
 
-    const voiceChannel = interaction.guild?.voiceStates.cache.get(
-      interaction.user.id
-    )?.channel;
+    const voiceChannel = interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
     if (!voiceChannel) return interaction.followUp("Error while getting voice channel.");
     if (!interaction.channel) return interaction.followUp("Error while getting text channel.");
 
     guildId = interaction.member.guild.id;
     channel = interaction.channel;
-    author = interaction.user;
-    const serverQueue = queue.get(guildId);
-    let song: Song;
 
-    if (!serverQueue) {
-      try {
-        const connection = joinVoiceChannel({
-          channelId: voiceChannel.id,
-          guildId: guildId,
-          adapterCreator: interaction.member.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
-        });
-
-        const queueConstructor = {
-          voiceChannel: voiceChannel,
-          textChannel: interaction.channel,
-          connection: connection,
-          player: null,
-          songs: [] as Song[],
-          stopped: false,
-          loop: false,
-          loopCounter: 0,
-        };
-
-        // Set the queue on the global queue
-        queue.set(guildId, queueConstructor);
-      } catch (e) {
-        queue.delete(guildId);
-        await interaction.followUp("Error connecting.");
-        console.error(e);
-        return;
-      }
+    if (!queue.get(guildId)) {
+      createQueue(voiceChannel, channel, interaction);
     }
 
     const songQueue = queue.get(guildId);
+
+    let song: Song;
     let wasPlaylist = false;
     let first = (songQueue.songs.length) ? false : true;
 
@@ -132,7 +107,7 @@ export default new Command({
             if (!video.url) continue;
 
             song = {
-              title: video.title as string,
+              title: video.title ?? "Untitled",
               url: video.url,
               duration: video.durationRaw,
               durationSec: video.durationInSec,
@@ -161,7 +136,7 @@ export default new Command({
 
           const video = await video_info(url);
           song = {
-            title: video.video_details.title as string,
+            title: video.video_details.title ?? "Untitled",
             url: video.video_details.url,
             duration: video.video_details.durationRaw,
             durationSec: video.video_details.durationInSec,
@@ -179,18 +154,22 @@ export default new Command({
 
     if (first) {
       await videoPlayer(guildId, songQueue.songs[0]);
-      client.playerEvents(guildId);
+      initiateEvents(guildId);
     }
 
     if (!wasPlaylist) {
-      response.setDescription(`Queued [${songQueue.songs.at(-1).title}](${songQueue.songs.at(-1).url}) [${interaction.user}]`);
+      response.setDescription(`Queued [${songQueue.songs.at(-1).title}](${songQueue.songs.at(-1).url}) [${author}]`);
       await interaction.followUp({ embeds: [response] });
     }
   }
 });
 
+export const initiateEvents = (guildId: string): void => {
+  client.playerEvents(guildId);
+}
+
 // Function for playing audio
-export const videoPlayer = async (guildId: string, song: Song, seek?: number) => {
+export const videoPlayer = async (guildId: string, song: Song, seek?: number): Promise<void> => {
   // Get the server queue
   const songQueue = queue.get(guildId);
 
@@ -219,20 +198,51 @@ export const videoPlayer = async (guildId: string, song: Song, seek?: number) =>
     await songQueue.player.play(resource);
     if (!songQueue.connection) {
       songQueue.player.stop();
-      return queue.delete(guildId);
+      queue.delete(guildId);
+      return;
     }
   } catch (e) {
     if ((seek && seek < song.durationSec) || !seek) console.error(e);
     playNextSong();
+    return;
   }
 };
+
+export const createQueue = async (voice: VoiceBasedChannel, text: TextBasedChannel, interaction: SuperInteraction): Promise<void> => {
+  try {
+    const connection = joinVoiceChannel({
+      channelId: voice.id,
+      guildId: guildId,
+      adapterCreator: interaction.member.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
+    });
+
+    const queueConstructor = new Queue({
+      voiceChannel: voice,
+      textChannel: text,
+      connection: connection,
+      player: null,
+      songs: [] as Song[],
+      stopped: false,
+      loop: false,
+      loopCounter: 0,
+    });;
+
+    // Set the queue on the global queue
+    queue.set(guildId, queueConstructor);
+  } catch (e) {
+    queue.delete(guildId);
+    await interaction.followUp("Error connecting.");
+    console.error(e);
+    return;
+  }
+}
 
 const searchSong = async (query: string): Promise<Song> => {
   let yt_info = await search(query, { limit: 1 });
   if (!yt_info[0]) return new Song({ title: '', url: '', duration: '', durationSec: 0 });
 
   return new Song({
-    title: yt_info[0].title as string,
+    title: yt_info[0].title ?? "Untitled",
     url: yt_info[0].url,
     duration: yt_info[0].durationRaw,
     durationSec: yt_info[0].durationInSec,
