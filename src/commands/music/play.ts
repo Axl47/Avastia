@@ -259,7 +259,7 @@ export default new Command({
 
 		if (!wasPlaylist) {
 			/* eslint-disable-next-line max-len */
-			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) [${author}]`);
+			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) (${songQueue.songs.at(-1)?.duration}) [${author}]`);
 			await interaction.followUp({ embeds: [response] });
 		}
 	},

@@ -1,12 +1,12 @@
 import {
-	EmbedBuilder,
+	// EmbedBuilder,
 	ApplicationCommandType,
 } from 'discord.js';
-import { PaginatedMessage } from '@sapphire/discord.js-utilities';
+// import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 
 import { Command } from '../../structures/Command';
-import { queue } from '../../structures/Client';
-import { Song } from '../../structures/Song';
+// import { queue } from '../../structures/Client';
+// import { Song } from '../../structures/Song';
 
 /**
  * Sends the song queue to the channel
@@ -16,6 +16,9 @@ export default new Command({
 	description: 'Shows the current queue',
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
+		await interaction.followUp('Maintenance in process :D');
+		return;
+		/*
 		const songQueue = queue.get(interaction.commandGuildId!);
 
 		if (!songQueue?.player) {
@@ -52,5 +55,6 @@ export default new Command({
 		await interaction.followUp('Queue:');
 		await paginatedLyrics.run(interaction);
 		return;
+		*/
 	},
 });
