@@ -43,7 +43,7 @@ export default new PlayerEvent('stateChange', async (): Promise<void> => {
 		default:
 			return;
 	}
-	oldState = songQueue.player.state.status;
+	oldState = songQueue?.player?.state.status ?? AudioPlayerStatus.Idle;
 });
 
 /**
