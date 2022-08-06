@@ -1,15 +1,20 @@
-import { ClientEvents } from "discord.js";
+import { ClientEvents } from 'discord.js';
 
+/**
+ * Class for the client events
+ * @extends ClientEvents
+ */
 export class Event<Key extends keyof ClientEvents> {
-    constructor(
-        public event: Key,
-        public run: (...args: ClientEvents[Key]) => any
-    ) { }
-}
-
-export class PlayerEvent {
-    constructor(
-        public event: string,
-        public run: () => any
-    ) { }
+	/**
+	 * Constuctor for the client event
+	 * @constructor
+	 * @param {Key} event Event Key
+	 * @param {Function} run Async function to run
+	 */
+	constructor(
+		public event: Key,
+		public run: (...args: ClientEvents[Key]) => Promise<void>,
+	) {
+		return;
+	}
 }

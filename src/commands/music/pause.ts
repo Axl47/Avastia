@@ -1,19 +1,32 @@
-import { Command } from "../../structures/Command";
-import { queue } from "../../structures/Client";
-import { MessageEmbed } from "discord.js";
+import {
+	EmbedBuilder,
+	ApplicationCommandType,
+} from 'discord.js';
 
+import { Command } from '../../structures/Command';
+import { queue } from '../../structures/Client';
+
+// TODO: Maybe merge unpause with pause
+
+/**
+ * Command for unpausing the player
+ */
 export default new Command({
-  name: 'pause',
-  description: 'Pauses the player',
-  run: async ({ interaction }) => {
-    const songQueue = queue.get(interaction.guild?.id);
-    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
+	name: 'pause',
+	description: 'Pauses the player',
+	type: ApplicationCommandType.ChatInput,
+	run: async ({ interaction }): Promise<void> => {
+		const songQueue = queue.get(interaction.commandGuildId!);
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Not playing anything.');
 
-    if (songQueue) {
-      songQueue.player.state.status = "idle";
-      response.setDescription("Playback paused.");
-    }
+		if (songQueue?.player) {
+			songQueue.player.pause();
+			response.setDescription('Playback paused.');
+		}
 
-    return interaction.followUp({ embeds: [response] });
-  }
+		interaction.followUp({ embeds: [response] });
+		return;
+	},
 });

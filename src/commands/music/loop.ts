@@ -1,20 +1,35 @@
-import { Command } from "../../structures/Command";
-import { queue } from "../../structures/Client";
-import { MessageEmbed } from "discord.js";
+import {
+	EmbedBuilder,
+	ApplicationCommandType,
+} from 'discord.js';
 
+import { Command } from '../../structures/Command';
+import { queue } from '../../structures/Client';
+
+// TODO: Add toggling between looping queue
+// or looping song
+
+/**
+ * Toggles looping the queue
+ */
 export default new Command({
-  name: 'loop',
-  description: 'Loops the queue',
-  run: async ({ interaction }) => {
-    const songQueue = queue.get(interaction.guild?.id);
-    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
+	name: 'loop',
+	description: 'Loops the queue',
+	type: ApplicationCommandType.ChatInput,
+	run: async ({ interaction }): Promise<void> => {
+		const songQueue = queue.get(interaction.commandGuildId!);
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Not playing anything.');
 
-    if (songQueue) {
-      songQueue.loop = !songQueue.loop;
-      songQueue.loopCounter = 0;
-      response.setDescription(songQueue.loop ? "Now looping." : "Stopped looping.");
-    }
+		if (songQueue) {
+			songQueue.loop = !songQueue.loop;
+			songQueue.loopCounter = 0;
+			response
+				.setDescription(songQueue.loop ? 'Now looping.' : 'Stopped looping.');
+		}
 
-    return interaction.followUp({ embeds: [response] });
-  }
+		await interaction.followUp({ embeds: [response] });
+		return;
+	},
 });

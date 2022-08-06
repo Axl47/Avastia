@@ -1,22 +1,34 @@
-import { Command } from "../../structures/Command";
-import { queue } from "../../structures/Client";
-import { MessageEmbed } from "discord.js";
-import { playNextSong } from "../../events/player/stateChange";
+import {
+	ApplicationCommandType,
+	EmbedBuilder,
+} from 'discord.js';
 
+import { Command } from '../../structures/Command';
+import { queue } from '../../structures/Client';
+import { playNextSong } from '../../events/player/stateChange';
+
+/**
+ * Stops the player
+ */
 export default new Command({
-  name: 'stop',
-  description: 'Stops the player',
-  run: async ({ interaction }) => {
-    const songQueue = queue.get(interaction.guild?.id);
-    const response = new MessageEmbed().setColor("#f22222").setDescription("Not playing anything.");
+	name: 'stop',
+	description: 'Stops the player',
+	type: ApplicationCommandType.ChatInput,
+	run: async ({ interaction }): Promise<void> => {
+		const songQueue = queue.get(interaction.commandGuildId!);
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Not playing anything.');
 
-    if (songQueue) {
-      songQueue.stopped = true;
-      playNextSong();
+		if (songQueue?.player) {
+			songQueue.stopped = true;
+			// playNextSong takes care of deleting the queue
+			await playNextSong(interaction.commandGuildId!);
 
-      response.setDescription("Player stopped.");
-    }
+			response.setDescription('Player stopped.');
+		}
 
-    return interaction.followUp({ embeds: [response] });
-  }
+		await interaction.followUp({ embeds: [response] });
+		return;
+	},
 });

@@ -1,19 +1,38 @@
-import { CommandInteraction, CommandInteractionOptionResolver, PermissionResolvable, ChatInputApplicationCommandData, GuildMember } from 'discord.js'
-import { SuperClient } from "../structures/Client"
+import {
+	ChatInputApplicationCommandData,
+	CommandInteraction,
+	CommandInteractionOptionResolver,
+	GuildMember,
+	PermissionResolvable,
+} from 'discord.js';
 
+import { SuperClient } from '../structures/Client';
 
+// TODO: SuperInteraction might not be needed anymore
+/**
+ * CommandInteraction with access to member
+ * @interface SuperClient
+ * @extends CommandInteraction
+ */
 export interface SuperInteraction extends CommandInteraction {
 	member: GuildMember;
 }
 
+/**
+ * Parameters to pass to each command
+ * @interface RunOptions
+ */
 interface RunOptions {
 	client: SuperClient,
 	interaction: SuperInteraction,
 	args: CommandInteractionOptionResolver
 }
 
-type RunFunction = (options: RunOptions) => any;
+type RunFunction = (options: RunOptions) => Promise<void>;
 
+/**
+ * Type for creating a command
+ */
 export type CommandType = {
 	userPermissions?: PermissionResolvable[];
 	run: RunFunction;

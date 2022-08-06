@@ -1,18 +1,28 @@
-import { Event } from "../structures/Event";
-import { client } from "../main"
-import { CommandInteractionOptionResolver } from "discord.js";
-import { SuperInteraction } from "../typings/Command"
+import { CommandInteractionOptionResolver } from 'discord.js';
 
-export default new Event('interactionCreate', async (interaction) => {
-    if (interaction.isCommand()) {
-        await interaction.deferReply();
-        const command = client.commands.get(interaction.commandName);
-        if (!command) return interaction.followUp("Non existent command");
+import { client } from '../main';
+import { Event } from '../structures/Event';
+import { SuperInteraction } from '../typings/Command';
 
-        command.run({
-            args: interaction.options as CommandInteractionOptionResolver,
-            client,
-            interaction: interaction as SuperInteraction
-        })
-    }
-});
+/**
+ * Event called when an interaction is created
+ * (when user calls a command with '/')
+ */
+export default new Event('interactionCreate',
+	async (interaction): Promise<void> => {
+		// If the interaction is a slash command
+		if (interaction.isChatInputCommand()) {
+			await interaction.deferReply();
+			const command = client.commands.get(interaction.commandName);
+			if (!command) {
+				interaction.followUp('Non existent command');
+				return;
+			}
+
+			command.run({
+				args: interaction.options as CommandInteractionOptionResolver,
+				client,
+				interaction: interaction as SuperInteraction,
+			});
+		}
+	});

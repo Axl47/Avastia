@@ -1,14 +1,25 @@
-import { Command } from "../../structures/Command";
-import { MessageEmbed } from "discord.js";
+import {
+	ApplicationCommandType,
+	EmbedBuilder,
+} from 'discord.js';
 
+import { Command } from '../../structures/Command';
+
+/**
+ * Randomly decides between heads or tails
+ */
 export default new Command({
-  name: 'coin',
-  description: 'Cara o Cruz | Head or Tails',
-  run: async ({ interaction }) => {
-    let coin = Math.random();
-    const newEmbed = new MessageEmbed()
-      .setColor("#f22222")
-      .setDescription(`Y el resultado es... **${(coin >= 1.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`);
-    return interaction.followUp({ embeds: [newEmbed] });
-  }
+	name: 'coin',
+	description: 'Cara o Cruz | Head or Tails',
+	type: ApplicationCommandType.ChatInput,
+	run: async ({ interaction }): Promise<void> => {
+		const coin = Math.random();
+		const newEmbed = new EmbedBuilder()
+			.setColor('#f22222')
+			/* eslint-disable-next-line max-len */
+			.setDescription(`Y el resultado es... **${(coin >= 1.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`);
+
+		interaction.followUp({ embeds: [newEmbed] });
+		return;
+	},
 });

@@ -1,250 +1,390 @@
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior, DiscordGatewayAdapterCreator, VoiceConnection } from "@discordjs/voice";
-import { is_expired, refreshToken, spotify, SpotifyTrack, SpotifyAlbum, playlist_info, video_info, yt_validate, sp_validate, stream, search } from "play-dl"
-import { MessageEmbed, TextBasedChannel, User, VoiceBasedChannel } from "discord.js";
-import { playNextSong } from "../../events/player/stateChange";
-import { Command } from "../../structures/Command";
-import { SuperInteraction } from "../../typings/Command";
-import { queue } from "../../structures/Client";
-import { Song } from "../../structures/Song";
-import { Queue } from "../../structures/Queue";
-import { client } from "../../main";
+import {
+	ApplicationCommandType,
+	ApplicationCommandOptionType,
+	EmbedBuilder,
+	TextBasedChannel,
+	User,
+	VoiceBasedChannel,
+} from 'discord.js';
+import {
+	createAudioPlayer,
+	createAudioResource,
+	DiscordGatewayAdapterCreator,
+	joinVoiceChannel,
+	NoSubscriberBehavior,
+} from '@discordjs/voice';
+import {
+	is_expired as isExpired,
+	playlist_info as playlistInfo,
+	video_info as videoInfo,
+	yt_validate as ytValidate,
+	sp_validate as spValidate,
+	refreshToken,
+	search,
+	spotify,
+	SpotifyAlbum,
+	SpotifyTrack,
+	stream,
+} from 'play-dl';
 
-export let guildId = "";
+import { Command } from '../../structures/Command';
+import { Queue } from '../../structures/Queue';
+import { queue, SuperClient } from '../../structures/Client';
+import { playNextSong } from '../../events/player/stateChange';
+import { Song } from '../../structures/Song';
+import { SuperInteraction } from '../../typings/Command';
+
+/**
+ * @type {string} The id of the current guild
+ */
+export let guildId: string = '';
+
+/**
+ * @type {TextBasedChannel} The channel to send messages to
+ */
 export let channel: TextBasedChannel;
+
+/**
+ * @type {User} The user of the interaction
+ */
 export let author: User;
 
+/**
+ * @type {SuperClient} Discord Client
+ */
+let bot: SuperClient;
+
+/**
+ * Searches a song with a query on Spotify or YouTube
+ * and adds it to the queue
+ */
 export default new Command({
-  name: 'play',
-  description: 'Plays a song',
-  options: [
-    {
-      name: 'query',
-      description: 'Search a song',
-      type: 'STRING',
-      required: true,
-    },
-  ],
-  run: async ({ interaction }) => {
-    author = interaction.user;
-    const response = new MessageEmbed().setColor("#15b500").setDescription('');
+	name: 'play',
+	description: 'Plays a song',
+	type: ApplicationCommandType.ChatInput,
+	options: [
+		{
+			name: 'query',
+			description: 'Search a song',
+			type: ApplicationCommandOptionType.String,
+			required: true,
+		},
+	],
+	run: async ({ interaction, args, client }): Promise<void> => {
+		bot = client;
+		author = interaction.user;
+		const response = new EmbedBuilder()
+			.setColor('#15b500')
+			.setDescription('Empty');
 
-    if (!interaction.member.voice.channel) {
-      response.setDescription(`You need to be in a voice channel to execute this command ${author}!`);
-      return await interaction.followUp({ embeds: [response] });
-    }
+		if (!interaction.member.voice.channel) {
+			/* eslint-disable-next-line max-len */
+			response.setDescription(`You need to be in a voice channel to execute this command ${author}!`);
+			await interaction.followUp({ embeds: [response] });
+			return;
+		}
 
-    const voiceChannel = interaction.guild?.voiceStates.cache.get(author.id)?.channel;
+		const voiceChannel =
+			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
-    if (!voiceChannel) return interaction.followUp("Error while getting voice channel.");
-    if (!interaction.channel) return interaction.followUp("Error while getting text channel.");
+		if (!voiceChannel) {
+			interaction.followUp('Error while getting voice channel.');
+			return;
+		}
+		if (!interaction.channel) {
+			interaction.followUp('Error while getting text channel.');
+			return;
+		}
 
-    guildId = interaction.member.guild.id;
-    channel = interaction.channel;
+		guildId = interaction.commandGuildId!;
+		channel = interaction.channel;
 
-    if (!queue.get(guildId)) {
-      createQueue(voiceChannel, channel, interaction);
-    }
+		if (!queue.get(guildId)) {
+			try {
+				queue.set(guildId,
+					await createQueue(voiceChannel, channel, interaction));
+			}
+			catch (e) {
+				interaction.followUp('Error while creating queue');
+				console.error(e);
+				return;
+			}
+		}
 
-    const songQueue = queue.get(guildId);
+		const songQueue = queue.get(guildId);
+		if (!songQueue) {
+			interaction.followUp('Error while creating queue.');
+			return;
+		}
 
-    let song: Song;
-    let wasPlaylist = false;
-    let first = (songQueue.songs.length) ? false : true;
+		let song: Song;
+		let wasPlaylist = false;
+		const first = (songQueue.songs.length) ? false : true;
 
-    let url = interaction.options.getString('query', true);
+		let url = args.getString('query', true);
 
-    if (url.includes("spotify")) {
-      if (is_expired()) await refreshToken();
-      let sp_data: SpotifyTrack | SpotifyAlbum;
+		if (url.includes('spotify')) {
+			if (isExpired()) await refreshToken();
+			let spData: SpotifyTrack | SpotifyAlbum;
 
-      try {
-        switch (sp_validate(url)) {
-          case 'track':
-            sp_data = await spotify(url) as SpotifyTrack;
+			try {
+				switch (spValidate(url)) {
+					case 'track':
+						spData = await spotify(url) as SpotifyTrack;
 
-            // Search song on Youtube
-            song = await searchSong(`${sp_data.name} ${sp_data.artists.map(artist => artist.name).join(" ")}`);
-            if (!song.url) return await interaction.followUp("No video result found.");
+						// Search song on Youtube
+						try {
+							/* eslint-disable-next-line max-len */
+							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
+						}
+						catch (e) {
+							await interaction.followUp('No video result found.');
+							return;
+						}
 
-            songQueue.songs.push(song);
-            break;
-          case 'playlist':
-          case 'album':
-            // Distinction between album and playlist is
-            // unnecessary for searching the song on youtube
-            sp_data = await spotify(url) as SpotifyAlbum;
-            await sp_data.fetch();
-            const tracks = await sp_data.all_tracks();
+						songQueue.songs.push(song);
+						break;
+					case 'playlist':
+					case 'album':
+						// Distinction between album and playlist is
+						// unnecessary for searching the song on youtube
+						spData = await spotify(url) as SpotifyAlbum;
+						await spData.fetch();
+						const tracks = await spData.all_tracks();
 
-            for (const track of tracks) {
-              song = await searchSong(`${track.name} ${track.artists.map(artist => artist.name).join(" ")}`);
-              if (!song.url) continue;
-              songQueue.songs.push(song);
-            }
+						for (const track of tracks) {
+							try {
+								song =
+									await searchSong(`${track.name} ${track.artists.map(
+										(artist) => artist.name).join(' ')}`);
+							}
+							catch (e) {
+								continue;
+							}
+							songQueue.songs.push(song);
+						}
 
-            response.setDescription(`:thumbsup: Added **${tracks.length}** songs to the queue!`);
-            await interaction.followUp({ embeds: [response] });
+						/* eslint-disable-next-line max-len */
+						response.setDescription(`:thumbsup: Added **${tracks.length}** songs to the queue!`);
+						await interaction.followUp({ embeds: [response] });
 
-            wasPlaylist = true;
-            break;
-          default:
-            return interaction.followUp("This should never happen.");
-        }
-      } catch (e) {
-        await interaction.followUp("Error playing.");
-        return console.error(e);
-      }
+						wasPlaylist = true;
+						break;
+					default:
+						interaction.followUp('This should never happen.');
+						return;
+				}
+			}
+			catch (e) {
+				console.error(e);
+				await interaction.followUp('Error playing.');
+				await playNextSong(guildId);
+				return;
+			}
+		}
+		else {
+			switch (ytValidate(url)) {
+				case 'playlist':
+					const playlist = await playlistInfo(url, { incomplete: true });
+					await playlist.fetch();
 
-    } else {
-      switch (yt_validate(url)) {
-        case 'playlist':
-          const playlist = await playlist_info(url, { incomplete: true });
-          await playlist.fetch();
+					const videos = await playlist.all_videos();
 
-          const videos = await playlist.all_videos();
+					for (const video of videos) {
+						if (!video.url) continue;
 
-          for (const video of videos) {
-            if (!video.url) continue;
+						song = {
+							title: video.title ?? 'Untitled',
+							url: video.url,
+							duration: video.durationRaw,
+							durationSec: video.durationInSec,
+						};
+						songQueue.songs.push(song);
+					}
 
-            song = {
-              title: video.title ?? "Untitled",
-              url: video.url,
-              duration: video.durationRaw,
-              durationSec: video.durationInSec,
-            };
-            songQueue.songs.push(song);
-          }
+					/* eslint-disable-next-line max-len */
+					response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
+					await interaction.followUp({ embeds: [response] });
 
-          response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
-          await interaction.followUp({ embeds: [response] });
+					wasPlaylist = true;
+					break;
+				case 'video':
+				case 'search':
+					// Search gets handled inside video due to ytValidate
+					// returning 'video' instead of 'search' sometimes
+					if (!url.startsWith('https')) {
+						try {
+							song = await searchSong(url);
+						}
+						catch (e) {
+							await interaction.followUp('No video result found.');
+							return;
+						}
 
-          wasPlaylist = true;
-          break;
-        case 'video':
-        case 'search':
-          // Search gets handled inside video due to yt_validate
-          // returning 'video' instead of 'search' sometimes
-          if (!url.startsWith("https")) {
-            song = await searchSong(url);
-            if (!song.url) return await interaction.followUp("No video result found.");
+						songQueue.songs.push(song);
+						break;
+					}
 
-            songQueue.songs.push(song);
-            break;
-          }
+					if (url.includes('list')) url = url.substring(0, url.indexOf('list'));
 
-          if (url.includes("list")) url = url.substring(0, url.indexOf("list"));
+					const video = await videoInfo(url);
+					song = {
+						title: video.video_details.title ?? 'Untitled',
+						url: video.video_details.url,
+						duration: video.video_details.durationRaw,
+						durationSec: video.video_details.durationInSec,
+					};
 
-          const video = await video_info(url);
-          song = {
-            title: video.video_details.title ?? "Untitled",
-            url: video.video_details.url,
-            duration: video.video_details.durationRaw,
-            durationSec: video.video_details.durationInSec,
-          };
+					if (!song.url) {
+						await interaction.followUp('No video result found.');
+						return;
+					}
+					if (!song.title) {
+						song.title = '';
+					}
 
-          if (!song.url) return await interaction.followUp("No video result found.");
-          if (!song.title) song.title = '';
+					songQueue.songs.push(song);
+					break;
+				default:
+					await interaction.followUp('This should never happen 2.');
+					await playNextSong(guildId);
+					return;
+			}
+		}
 
-          songQueue.songs.push(song);
-          break;
-        default:
-          return interaction.followUp("This should never happen 2.");
-      }
-    }
+		if (first) {
+			await videoPlayer(guildId, songQueue.songs[0]);
+			initiateEvents(guildId);
+		}
 
-    if (first) {
-      await videoPlayer(guildId, songQueue.songs[0]);
-      initiateEvents(guildId);
-    }
-
-    if (!wasPlaylist) {
-      response.setDescription(`Queued [${songQueue.songs.at(-1).title}](${songQueue.songs.at(-1).url}) [${author}]`);
-      await interaction.followUp({ embeds: [response] });
-    }
-  }
+		if (!wasPlaylist) {
+			/* eslint-disable-next-line max-len */
+			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) [${author}]`);
+			await interaction.followUp({ embeds: [response] });
+		}
+	},
 });
 
-export const initiateEvents = (guildId: string): void => {
-  client.playerEvents(guildId);
-}
-
-// Function for playing audio
-export const videoPlayer = async (guildId: string, song: Song, seek?: number): Promise<void> => {
-  // Get the server queue
-  const songQueue = queue.get(guildId);
-
-  // Error Handling
-  if (!song) {
-    playNextSong()
-    return;
-  };
-  if (!song.title) song.title = "";
-
-  try {
-    // Create Player
-    if (!songQueue.player) {
-      const player = createAudioPlayer({
-        behaviors: { noSubscriber: NoSubscriberBehavior.Play },
-      });
-      songQueue.player = player;
-    }
-
-    // Create Player Resources
-    let s = await stream(song.url, { seek: seek });
-    let resource = createAudioResource(s.stream, { inputType: s.type });
-
-    // Play the Audio
-    await songQueue.connection.subscribe(songQueue.player);
-    await songQueue.player.play(resource);
-    if (!songQueue.connection) {
-      songQueue.player.stop();
-      queue.delete(guildId);
-      return;
-    }
-  } catch (e) {
-    if ((seek && seek < song.durationSec) || !seek) console.error(e);
-    playNextSong();
-    return;
-  }
+/**
+ * Initiate events on the audio player
+ * @param {string} id The guild id of the player
+ */
+export const initiateEvents = (id: string): void => {
+	bot.playerEvents(id);
 };
 
-export const createQueue = async (voice: VoiceBasedChannel, text: TextBasedChannel, interaction: SuperInteraction): Promise<void> => {
-  try {
-    const connection = joinVoiceChannel({
-      channelId: voice.id,
-      guildId: guildId,
-      adapterCreator: interaction.member.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
-    });
+/**
+ * Function for creating a resource and playing audio
+ * @param {string} id The guild id of the player
+ * @param {Song} song The song to be played
+ * @param {number} seek Optional number to start the song from
+ */
+export const videoPlayer = async (
+	id: string,
+	song: Song,
+	seek?: number,
+): Promise<void> => {
+	const songQueue = queue.get(id);
+	if (!songQueue) {
+		return;
+	}
 
-    const queueConstructor = new Queue({
-      voiceChannel: voice,
-      textChannel: text,
-      connection: connection,
-      player: null,
-      songs: [] as Song[],
-      stopped: false,
-      loop: false,
-      loopCounter: 0,
-    });;
+	if (!song) {
+		await playNextSong(guildId);
+		return;
+	};
+	if (!song.title) {
+		song.title = '';
+	}
 
-    // Set the queue on the global queue
-    queue.set(guildId, queueConstructor);
-  } catch (e) {
-    queue.delete(guildId);
-    await interaction.followUp("Error connecting.");
-    console.error(e);
-    return;
-  }
-}
+	try {
+		// Create Player
+		if (!songQueue.player) {
+			const player = createAudioPlayer({
+				behaviors: { noSubscriber: NoSubscriberBehavior.Play },
+			});
+			songQueue.player = player;
+		}
 
+		// Create Player Resources
+		const s = await stream(song.url, { seek: seek });
+		const resource = createAudioResource(s.stream, { inputType: s.type });
+		songQueue.audioResource = resource;
+
+		// Play the Audio
+		if (!songQueue.connection) {
+			queue.delete(id);
+			return;
+		}
+		songQueue.connection.subscribe(songQueue.player);
+		songQueue.player.play(resource);
+	}
+	catch (e) {
+		if ((seek && seek < song.durationSec) || !seek) {
+			console.error(e);
+		}
+		await playNextSong(guildId);
+		return;
+	}
+};
+
+/**
+ * Function for creating a new Queue
+ * and connecting to a voice channel
+ * @param {VoiceBasedChannel} voice Channel to play audio in
+ * @param {TextBasedChannel} text Channel to send messages to
+ * @param {SuperInteraction} interaction Interaction made by user
+ * @return {Promise<Queue>} Created Queue
+ */
+export const createQueue = async (
+	voice: VoiceBasedChannel,
+	text: TextBasedChannel,
+	interaction: SuperInteraction,
+): Promise<Queue> => {
+	try {
+		const connection = joinVoiceChannel({
+			channelId: voice.id,
+			guildId: voice.guild.id,
+			adapterCreator:
+				voice.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
+		});
+
+		if (!connection) {
+			throw new Error('Couldn\'t connect to voice channel.');
+		}
+
+		return new Queue({
+			voiceChannel: voice,
+			textChannel: text,
+			connection: connection,
+			songs: [] as Song[],
+			stopped: false,
+			loop: false,
+			loopCounter: 0,
+		});
+	}
+	catch (e) {
+		queue.delete(guildId);
+		console.error(e);
+		throw e;
+	}
+};
+
+/**
+ * Function for searching a song in YouTube
+ * @param {string} query Song to search for
+ * @return {Song} Found song from YouTube
+ */
 const searchSong = async (query: string): Promise<Song> => {
-  let yt_info = await search(query, { limit: 1 });
-  if (!yt_info[0]) return new Song({ title: '', url: '', duration: '', durationSec: 0 });
+	const ytInfo = await search(query, { limit: 1 });
+	if (!ytInfo[0] || !ytInfo[0].url) {
+		throw new Error('Couldn\'t find the requested song.');
+	}
 
-  return new Song({
-    title: yt_info[0].title ?? "Untitled",
-    url: yt_info[0].url,
-    duration: yt_info[0].durationRaw,
-    durationSec: yt_info[0].durationInSec,
-  });
-}
+	return new Song({
+		title: ytInfo[0].title ?? 'Untitled',
+		url: ytInfo[0].url,
+		duration: ytInfo[0].durationRaw,
+		durationSec: ytInfo[0].durationInSec,
+	});
+};
