@@ -1,10 +1,12 @@
 import {
 	EmbedBuilder,
 	ApplicationCommandType,
+	ApplicationCommandOptionType,
 } from 'discord.js';
 
 import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 
 // TODO: Add toggling between looping queue
 // or looping song
@@ -14,21 +16,52 @@ import { queue } from '../../structures/Client';
  */
 export default new Command({
 	name: 'loop',
-	description: 'Loops the queue',
 	type: ApplicationCommandType.ChatInput,
-	run: async ({ interaction }): Promise<void> => {
+	description: 'Loops the queue',
+	options: [
+		{
+			name: 'disable',
+			type: ApplicationCommandOptionType.Subcommand,
+			description: 'Disable looping',
+		},
+		{
+			name: 'song',
+			type: ApplicationCommandOptionType.Subcommand,
+			description: 'Loop the current song',
+		},
+		{
+			name: 'queue',
+			type: ApplicationCommandOptionType.Subcommand,
+			description: 'Loop the entire queue',
+		},
+	],
+	run: async ({ interaction, args }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
 		if (songQueue) {
-			songQueue.loop = !songQueue.loop;
-			songQueue.loopCounter = 0;
-			response
-				.setDescription(songQueue.loop ? 'Now looping.' : 'Stopped looping.');
+			switch (args.getSubcommand()) {
+				case 'disable':
+					songQueue.loop = LoopState.Disabled;
+					songQueue.songs.splice(songQueue.loopCounter);
+					songQueue.loopCounter = 0;
+					response.setDescription('Looping is disabled.');
+					break;
+				case 'song':
+					songQueue.loop = LoopState.Song;
+					response.setDescription('Looping the current song.');
+					break;
+				case 'queue':
+					songQueue.loop = LoopState.Queue;
+					response.setDescription('Looping the queue.');
+					break;
+				default:
+					interaction.followUp('Invalid command.');
+					return;
+			}
 		}
-
 		await interaction.followUp({ embeds: [response] });
 		return;
 	},

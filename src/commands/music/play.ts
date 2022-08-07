@@ -30,9 +30,9 @@ import {
 import { Command } from '../../structures/Command';
 import { Queue } from '../../structures/Queue';
 import { queue, SuperClient } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 import { playNextSong } from '../../events/player/stateChange';
 import { Song } from '../../structures/Song';
-import { SuperInteraction } from '../../typings/Command';
 
 /**
  * @type {string} The id of the current guild
@@ -102,7 +102,7 @@ export default new Command({
 		if (!queue.get(guildId)) {
 			try {
 				queue.set(guildId,
-					await createQueue(voiceChannel, channel, interaction));
+					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
 				interaction.followUp('Error while creating queue');
@@ -339,7 +339,6 @@ export const videoPlayer = async (
 export const createQueue = async (
 	voice: VoiceBasedChannel,
 	text: TextBasedChannel,
-	interaction: SuperInteraction,
 ): Promise<Queue> => {
 	try {
 		const connection = joinVoiceChannel({
@@ -359,7 +358,7 @@ export const createQueue = async (
 			connection: connection,
 			songs: [] as Song[],
 			stopped: false,
-			loop: false,
+			loop: LoopState.Disabled,
 			loopCounter: 0,
 		});
 	}

@@ -5,6 +5,7 @@ import {
 
 import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 import { playNextSong } from '../../events/player/stateChange';
 
 /**
@@ -21,6 +22,12 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.player) {
+			if (songQueue.loop === LoopState.Song) {
+				songQueue.loopCounter++;
+				if (songQueue.loopCounter >= songQueue.songs.length) {
+					songQueue.loopCounter = 0;
+				}
+			}
 			await playNextSong(interaction.commandGuildId!);
 			response.setDescription('Song skipped.');
 		}

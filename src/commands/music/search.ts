@@ -31,7 +31,7 @@ export default new Command({
 			required: true,
 		},
 	],
-	run: async ({ interaction, args }): Promise<void> => {
+	run: async ({ interaction }): Promise<void> => {
 		/**
 		 * Sapphire Discord Utilities is not adapted for v14
 		 * Uncomment when it is available

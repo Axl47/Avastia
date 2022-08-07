@@ -8,6 +8,7 @@ import {
 	videoPlayer,
 } from '../../commands/music/play';
 import { queue } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 import { PlayerEvent } from '../../structures/PlayerEvent';
 
 /**
@@ -61,17 +62,25 @@ export const playNextSong = async (id: string): Promise<void> => {
 		deleteQueue(id);
 	}
 
-	if (songQueue.loop) {
-		// Increment index,
-		// make 0 if greater or equal to the length of the queue
-		songQueue.loopCounter++;
-		if (songQueue.loopCounter >= songQueue.songs.length) {
-			songQueue.loopCounter = 0;
-		}
-	}
-	else {
-		// Delete the first song and make the second be [0]
-		songQueue.songs.shift();
+	switch (songQueue.loop) {
+		case LoopState.Disabled:
+			// Delete the first song and make the second be [0]
+			songQueue.songs.shift();
+			break;
+		case LoopState.Song:
+			// Looping a song doesn't need any logic
+			break;
+		case LoopState.Queue:
+			// Increment index,
+			// make 0 if greater or equal to the length of the queue
+			songQueue.loopCounter++;
+			if (songQueue.loopCounter >= songQueue.songs.length) {
+				songQueue.loopCounter = 0;
+			}
+			break;
+		default:
+			songQueue.loop = LoopState.Disabled;
+			console.log('This should never happen');
 	}
 
 	if (songQueue.songs[0]) {
@@ -82,6 +91,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 	}
 	else {
 		deleteQueue(id);
+		return;
 	}
 };
 

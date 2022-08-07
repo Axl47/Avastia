@@ -8,7 +8,7 @@ import {
 	VoiceConnection,
 } from '@discordjs/voice';
 
-import { QueueType } from '../typings/Queue';
+import { QueueType, LoopState } from '../typings/Queue';
 import { Song } from './Song';
 
 /**
@@ -21,7 +21,7 @@ export class Queue {
 	connection: VoiceConnection;
 	songs: Song[];
 	stopped: boolean;
-	loop: boolean;
+	loop: LoopState;
 	loopCounter: number;
 	player?: AudioPlayer;
 	audioResource?: AudioResource;
@@ -34,7 +34,7 @@ export class Queue {
 	 * @param {VoiceConnection} q.connection Connection to the voice channel
 	 * @param {Song[]} q.songs Songs to be played
 	 * @param {boolean} q.stopped Whether the player is stopped
-	 * @param {boolean} q.loop Whether to loop the queue
+	 * @param {LoopState} q.loop Disabled, looping the song or the queue
 	 * @param {number} q.loopCounter What song index to play if looping
 	 * @param {AudioPlayer} q.player Player for video, optional before creation
 	 * @param {AudioResource} q.audioResource Optional for saving current resource

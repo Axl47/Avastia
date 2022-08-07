@@ -8,7 +8,17 @@ import {
 	VoiceConnection,
 } from '@discordjs/voice';
 
-import { Song } from '../structures/Song';
+import { Song as SongType } from '../structures/Song';
+
+/**
+ * Enum for queue looping state
+ * @enum {number}
+ */
+export enum LoopState {
+	Disabled,
+	Song,
+	Queue,
+}
 
 /**
  * Interface for the song queue type
@@ -18,9 +28,9 @@ export interface QueueType {
 	voiceChannel: VoiceBasedChannel;
 	textChannel: TextBasedChannel;
 	connection: VoiceConnection;
-	songs: Song[];
+	songs: SongType[];
 	stopped: boolean;
-	loop: boolean;
+	loop: LoopState;
 	loopCounter: number;
 	player?: AudioPlayer;
 	audioResource?: AudioResource;
