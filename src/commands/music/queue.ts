@@ -1,12 +1,13 @@
 import {
-	// EmbedBuilder,
+	EmbedBuilder,
 	ApplicationCommandType,
+	TextChannel,
 } from 'discord.js';
-// import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 
 import { Command } from '../../structures/Command';
-// import { queue } from '../../structures/Client';
-// import { Song } from '../../structures/Song';
+import { queue } from '../../structures/Client';
+import { Pagination } from '../../utilities/PaginatedMessage';
+import { Song } from '../../structures/Song';
 
 /**
  * Sends the song queue to the channel
@@ -16,9 +17,6 @@ export default new Command({
 	description: 'Shows the current queue',
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
-		await interaction.followUp('Maintenance in process :D');
-		return;
-		/*
 		const songQueue = queue.get(interaction.commandGuildId!);
 
 		if (!songQueue?.player) {
@@ -29,32 +27,31 @@ export default new Command({
 			return;
 		}
 
-		let songs = '';
+		const songs = songQueue.songs.map((song: Song, index) => {
+			return `${index + 1}) ${song.title} (${song.duration})`;
+		}).join('\n');
 
-		const paginatedLyrics = new PaginatedMessage({
-			template: new EmbedBuilder()
-				.setColor('#ff0000'),
-		});
-
-		let index = 1;
-		songQueue.songs.map(function(song: Song) {
-			songs += `${index}) ${song.title} (${song.duration})\n`;
-			index += 1;
-		});
+		const queueEmbeds: EmbedBuilder[] = [];
 
 		const songsIndex = Math.round(songs.length / 4096) + 1;
 		for (let i = 1; i <= songsIndex; ++i) {
 			const b = i - 1;
 			if (songs.trim().slice(b * 4096, i * 4096).length !== 0) {
-				paginatedLyrics.addPageEmbed((embed: EmbedBuilder) => {
-					return embed.setDescription(songs.slice(b * 4096, i * 4096));
-				});
+				queueEmbeds.push(embedTemplate()
+					.setDescription(songs.slice(b * 4096, i * 4096)));
 			}
 		}
 
 		await interaction.followUp('Queue:');
-		await paginatedLyrics.run(interaction);
+		await new Pagination(
+			interaction.channel as TextChannel,
+			queueEmbeds,
+		).paginate();
 		return;
-		*/
 	},
 });
+
+const embedTemplate = (): EmbedBuilder => {
+	return new EmbedBuilder()
+		.setColor('#ff0000');
+};

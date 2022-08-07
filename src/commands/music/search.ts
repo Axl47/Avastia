@@ -32,6 +32,10 @@ export default new Command({
 		},
 	],
 	run: async ({ interaction, args }): Promise<void> => {
+		/**
+		 * Sapphire Discord Utilities is not adapted for v14
+		 * Uncomment when it is available
+		 */
 		await interaction.followUp('Maintenance in process :D');
 		return;
 		// const response = new EmbedBuilder()
