@@ -3,12 +3,12 @@ import {
 	VoiceBasedChannel,
 } from 'discord.js';
 import {
-	AudioPlayer,
 	AudioResource,
 	VoiceConnection,
 } from '@discordjs/voice';
 
 import { Song as SongType } from '../structures/Song';
+import { SongPlayer } from './SongPlayer';
 
 /**
  * Enum for queue looping state
@@ -32,6 +32,6 @@ export interface QueueType {
 	stopped: boolean;
 	loop: LoopState;
 	loopCounter: number;
-	player?: AudioPlayer;
+	player?: SongPlayer;
 	audioResource?: AudioResource;
 }

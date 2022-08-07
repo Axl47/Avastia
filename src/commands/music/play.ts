@@ -33,6 +33,7 @@ import { queue, SuperClient } from '../../structures/Client';
 import { LoopState } from '../../typings/Queue';
 import { playNextSong } from '../../events/player/stateChange';
 import { Song } from '../../structures/Song';
+import { SongPlayer } from 'src/typings/SongPlayer';
 
 /**
  * @type {string} The id of the current guild
@@ -302,7 +303,7 @@ export const videoPlayer = async (
 		if (!songQueue.player) {
 			const player = createAudioPlayer({
 				behaviors: { noSubscriber: NoSubscriberBehavior.Play },
-			});
+			}) as SongPlayer;
 			songQueue.player = player;
 		}
 

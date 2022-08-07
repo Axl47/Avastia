@@ -5,10 +5,10 @@ import {
 	Collection,
 	GatewayIntentBits,
 } from 'discord.js';
-import { AudioPlayerEvents } from '@discordjs/voice';
 import glob from 'glob';
 import { promisify } from 'util';
 
+import { AudioPlayerEvents } from '../typings/PlayerEvents';
 import { CommandType } from '../typings/Command';
 import { Event } from './Event';
 import { Queue } from '../structures/Queue';
