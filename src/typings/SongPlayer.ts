@@ -5,7 +5,7 @@ import { AudioPlayerEvents } from '../typings/PlayerEvents';
 
 /**
  * Class for an Audio Player
- * Necessary due to deletion of AudioPlayerEvents
+ * Necessary due to deletion of AudioPlayerEvents on voice 0.11
  * @extends {AudioPlayer}
  */
 export interface SongPlayer extends AudioPlayer {

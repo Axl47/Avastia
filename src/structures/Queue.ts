@@ -28,16 +28,16 @@ export class Queue {
 	/**
 	 * Constructor for a new queue
 	 * @constructor
-	 * @param {QueueType} q Options for the queue
-	 * @param {VoiceBasedChannel} q.voiceChannel Channel to play the video
-	 * @param {TextBasedChannel} q.textChannel Channel to send messages to
-	 * @param {VoiceConnection} q.connection Connection to the voice channel
-	 * @param {Song[]} q.songs Songs to be played
-	 * @param {boolean} q.stopped Whether the player is stopped
-	 * @param {LoopState} q.loop Disabled, looping the song or the queue
-	 * @param {number} q.loopCounter What song index to play if looping
-	 * @param {SongPlayer} q.player Player for video, optional before creation
-	 * @param {AudioResource} q.audioResource Optional for saving current resource
+	 * @param {QueueType} q - Options for the queue
+	 * @param {VoiceBasedChannel} q.voiceChannel - Channel to play the video
+	 * @param {TextBasedChannel} q.textChannel - Channel to send messages to
+	 * @param {VoiceConnection} q.connection - Connection to the voice channel
+	 * @param {Song[]} q.songs - Songs to be played
+	 * @param {boolean} q.stopped - Whether the player is stopped
+	 * @param {LoopState} q.loop - Disabled, looping the song or the queue
+	 * @param {number} q.loopCounter - What song index to play if looping
+	 * @param {SongPlayer} q.player - Player for video, optional before creation
+	 * @param {AudioResource} q.audioResource - Optional for saving resource
 	 */
 	constructor({
 		voiceChannel, textChannel,

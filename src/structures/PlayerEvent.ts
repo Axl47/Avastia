@@ -6,7 +6,7 @@ import { AudioPlayerEvents } from '../typings/PlayerEvents';
  */
 export class PlayerEvent<Key extends keyof AudioPlayerEvents> {
 	/**
-	 * Constructor for the client event
+	 * Constructor for the player event
 	 * @constructor
 	 * @param {Key} event Event Key
 	 * @param {Function} run Async Function to run

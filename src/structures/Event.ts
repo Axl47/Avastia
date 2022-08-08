@@ -8,8 +8,8 @@ export class Event<Key extends keyof ClientEvents> {
 	/**
 	 * Constuctor for the client event
 	 * @constructor
-	 * @param {Key} event Event Key
-	 * @param {Function} run Async function to run
+	 * @param {Key} event - Event Key
+	 * @param {Function} run - Async function to run
 	 */
 	constructor(
 		public event: Key,

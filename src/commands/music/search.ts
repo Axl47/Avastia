@@ -67,7 +67,7 @@ export default new Command({
 		// if (!queue.get(guildId)) {
 		// 	try {
 		// 		queue.set(guildId,
-		// 			await createQueue(voiceChannel, channel, interaction));
+		// 			await createQueue(voiceChannel, channel));
 		// 	}
 		// 	catch (e) {
 		// 		interaction.followUp('Error while creating queue');

@@ -8,7 +8,7 @@ export class Command {
 	/**
 	 * Constructor for the command
 	 * @constructor
-	 * @param {CommandName} commandOptions The command options to add
+	 * @param {CommandName} commandOptions - The command options to add
 	 */
 	constructor(commandOptions: CommandType) {
 		Object.assign(this, commandOptions);

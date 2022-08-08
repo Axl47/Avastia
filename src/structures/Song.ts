@@ -12,11 +12,11 @@ export class Song {
 	/**
 	 * Constructor for a new song
 	 * @constructor
-	 * @param {SongType} options The song options
-	 * @param {string} options.title The title of the song
-	 * @param {string} options.url The Youtube Url
-	 * @param {string} options.duration The formatted duration (mm:ss)
-	 * @param {number} options.durationSec The duration in seconds
+	 * @param {SongType} options - The song options
+	 * @param {string} options.title - The title of the song
+	 * @param {string} options.url - The Youtube Url
+	 * @param {string} options.duration - The formatted duration (mm:ss)
+	 * @param {number} options.durationSec - The duration in seconds
 	 */
 	constructor({ title, url, duration, durationSec }: SongType) {
 		this.title = title;

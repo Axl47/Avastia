@@ -332,10 +332,9 @@ export const videoPlayer = async (
 /**
  * Function for creating a new Queue
  * and connecting to a voice channel
- * @param {VoiceBasedChannel} voice Channel to play audio in
- * @param {TextBasedChannel} text Channel to send messages to
- * @param {SuperInteraction} interaction Interaction made by user
- * @return {Promise<Queue>} Created Queue
+ * @param {VoiceBasedChannel} voice - Channel to play audio in
+ * @param {TextBasedChannel} text - Channel to send messages to
+ * @return {Promise<Queue>} - Created Queue
  */
 export const createQueue = async (
 	voice: VoiceBasedChannel,
@@ -372,8 +371,8 @@ export const createQueue = async (
 
 /**
  * Function for searching a song in YouTube
- * @param {string} query Song to search for
- * @return {Song} Found song from YouTube
+ * @param {string} query - Song to search for
+ * @return {Song} - Found song from YouTube
  */
 const searchSong = async (query: string): Promise<Song> => {
 	const ytInfo = await search(query, { limit: 1 });

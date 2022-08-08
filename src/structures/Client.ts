@@ -37,10 +37,11 @@ export class SuperClient extends Client {
 		super({
 			/**
 			 * Intents required for the commands
-			 * @param {GatewayIntentBits} Guilds Access to guild
-			 * @param {GatewayIntentBits} GuildsMessages Access guild messages
-			 * @param {GatewayIntentBits} GuildsVoiceStates Access voice channel state
-			 * @param {GatewayIntentBits} GuildsMessageReactions Access reactions
+			 * @param {ClientOptions} options - The options for the client
+			 * @param {GatewayIntentBits} Guilds - Access to guild
+			 * @param {GatewayIntentBits} GuildsMessages - Access guild messages
+			 * @param {GatewayIntentBits} GuildsVoiceStates - Access voice state
+			 * @param {GatewayIntentBits} GuildsMessageReactions - Access reactions
 			 */
 			intents: [
 				GatewayIntentBits.Guilds,
@@ -53,7 +54,7 @@ export class SuperClient extends Client {
 
 	/**
 	 * Function for importing a file
-	 * @param {string} filePath Path for the file to import
+	 * @param {string} filePath - Path for the file to import
 	 * @private
 	 */
 	private async importFile(filePath: string) {
@@ -62,9 +63,9 @@ export class SuperClient extends Client {
 
 	/**
 	 * Register commands to the server or globally
-	 * @param {RegisterCommandOptions} o Command options
-	 * @param {ApplicationCommandDataResolvable[]} o.commands Commands to register
-	 * @param {string|undefined} o.guildId Optional guild to register commands to
+	 * @param {RegisterCommandOptions} o - Command options
+	 * @param {ApplicationCommandDataResolvable[]} o.commands - Commands
+	 * @param {string|undefined} o.guildId - Optional guild to register commands
 	 * @private
 	 */
 	private registerCommands({ commands, guildId }: RegisterCommandOptions) {
@@ -125,7 +126,7 @@ export class SuperClient extends Client {
 	/**
 	 * Function for initiation of player events
 	 * Called after player is created in commands/music/play initiateEvents
-	 * @param {string} guildId Guild to start events from
+	 * @param {string} guildId - Guild to start events from
 	 * @public
 	 */
 	public async playerEvents(guildId: string): Promise<void> {
