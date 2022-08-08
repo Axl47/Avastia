@@ -77,7 +77,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 	if (songQueue.songs[0]) {
 		// When there are songs, play the next one
 		// When not looping, loopCounter is 0
-		videoPlayer(id, songQueue.songs[songQueue.loopCounter]);
+		await videoPlayer(id, songQueue.songs[songQueue.loopCounter]);
 		return;
 	}
 	else {
