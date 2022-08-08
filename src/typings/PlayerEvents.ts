@@ -19,6 +19,6 @@ export type AudioPlayerEvents = {
 } & {
 		[status in AudioPlayerStatus]: [
 			oldState: AudioPlayerState,
-			newState: AudioPlayerState & { status: status },
+			newState: AudioPlayerState,
 		];
 	};

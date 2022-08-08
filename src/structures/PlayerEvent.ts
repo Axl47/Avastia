@@ -13,7 +13,7 @@ export class PlayerEvent<Key extends keyof AudioPlayerEvents> {
 	 */
 	constructor(
 		public event: Key,
-		public run: () => Promise<void>,
+		public run: (...args: AudioPlayerEvents[Key]) => Promise<void>,
 	) {
 		return;
 	}

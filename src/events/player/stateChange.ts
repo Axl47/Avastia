@@ -1,5 +1,5 @@
-import { EmbedBuilder } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
+import { EmbedBuilder } from 'discord.js';
 
 import {
 	author,
@@ -12,45 +12,36 @@ import { LoopState } from '../../typings/Queue';
 import { PlayerEvent } from '../../structures/PlayerEvent';
 
 /**
- * @const {AudioPlayerStatus} oldState Previous state of the player
- * @default AudioPlayerStatus.Idle
- */
-let oldState: AudioPlayerStatus = AudioPlayerStatus.Idle;
-
-/**
  * Event called when the player changes state
  */
-export default new PlayerEvent('stateChange', async (): Promise<void> => {
-	const songQueue = queue.get(guildId);
-	if (!songQueue?.player) return;
+export default new PlayerEvent('stateChange',
+	async (oldState, newState): Promise<void> => {
+		const songQueue = queue.get(guildId);
+		if (!songQueue?.player) return;
 
-	switch (songQueue.player.state.status) {
-		case AudioPlayerStatus.Playing:
-			// If the player is currently playing, send the song to the channel
-			const play = new EmbedBuilder()
-				.setColor('#f22222')
-				/* eslint-disable max-len */
-				.setDescription(`Started playing [${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${author}]`);
-			channel.send({ embeds: [play] });
-			return;
-		case AudioPlayerStatus.Idle:
-			// If the player is currently idle, play next song
-			if (oldState !== AudioPlayerStatus.Idle) {
-				delete songQueue.audioResource;
+		switch (newState.status) {
+			case AudioPlayerStatus.Playing:
+				// If the player is currently playing, send the song to the channel
+				const play = new EmbedBuilder()
+					.setColor('#f22222')
+					/* eslint-disable-next-line max-len */
+					.setDescription(`Started playing [${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${author}]`);
+				channel.send({ embeds: [play] });
 				return;
-			}
-			playNextSong(guildId);
-			break;
-		default:
-			return;
-	}
-	oldState = songQueue?.player?.state.status ?? AudioPlayerStatus.Idle;
-});
+			case AudioPlayerStatus.Idle:
+				// If the player is currently idle, play next song
+				delete songQueue.audioResource;
+				playNextSong(guildId);
+				break;
+			default:
+				return;
+		}
+	});
 
 /**
  * Function for playing the next song
  * or disconnecting if there is no more songs to play
- * @param {string} id The id of the guild
+ * @param {string} id - The id of the guild
  */
 export const playNextSong = async (id: string): Promise<void> => {
 	const songQueue = queue.get(id);
@@ -97,7 +88,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 
 /**
  * Delete a queue and all its references
- * @param {string} id The id of the guild to clear the queue from
+ * @param {string} id - The id of the guild to clear the queue from
  */
 const deleteQueue = (id: string): void => {
 	const songQueue = queue.get(id);
