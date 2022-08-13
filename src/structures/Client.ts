@@ -64,18 +64,11 @@ export class SuperClient extends Client {
 	 * Register commands to the server or globally
 	 * @param {RegisterCommandOptions} o - Command options
 	 * @param {ApplicationCommandDataResolvable[]} o.commands - Commands
-	 * @param {string|undefined} o.guildId - Optional guild to register commands
 	 * @private
 	 */
-	private registerCommands({ commands, guildId }: RegisterCommandOptions) {
-		if (guildId) {
-			this.guilds.cache.get(guildId)?.commands.set(commands);
-			console.log('Registering commands to guild.');
-		}
-		else {
-			this.application?.commands.set(commands);
-			console.log('Global registering');
-		}
+	private registerCommands({ commands }: RegisterCommandOptions) {
+		this.application?.commands.set(commands);
+		console.log('Global registration...');
 	}
 
 	/**
@@ -101,7 +94,6 @@ export class SuperClient extends Client {
 		this.on('ready', () => {
 			this.registerCommands({
 				commands: slashCommands,
-				// guildId: process.env.guildId
 			});
 		});
 
