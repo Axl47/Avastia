@@ -19,10 +19,12 @@ export class Queue {
 	voiceChannel: VoiceBasedChannel;
 	textChannel: TextBasedChannel;
 	connection: VoiceConnection;
-	songs: Song[];
 	stopped: boolean;
 	loop: LoopState;
 	loopCounter: number;
+	songIndex: number;
+	songs: Song[];
+	fullQueue: Song[];
 	player?: SongPlayer;
 	audioResource?: AudioResource;
 	/**
@@ -36,15 +38,18 @@ export class Queue {
 	 * @param {boolean} q.stopped - Whether the player is stopped
 	 * @param {LoopState} q.loop - Disabled, looping the song or the queue
 	 * @param {number} q.loopCounter - What song index to play if looping
+	 * @param {number} q.songIndex - What song index to play if looping
 	 * @param {SongPlayer} q.player - Player for video, optional before creation
 	 * @param {AudioResource} q.audioResource - Optional for saving resource
+	 * @param {Song[]} q.fullQueue - Songs to be played
 	 */
 	constructor({
 		voiceChannel, textChannel,
 		connection, songs,
 		stopped, loop,
-		loopCounter, audioResource,
-		player,
+		loopCounter, player,
+		audioResource, fullQueue,
+		songIndex,
 	}: QueueType) {
 		this.voiceChannel = voiceChannel;
 		this.textChannel = textChannel;
@@ -53,7 +58,9 @@ export class Queue {
 		this.stopped = stopped;
 		this.loop = loop;
 		this.loopCounter = loopCounter;
+		this.songIndex = songIndex;
 		this.player = player;
 		this.audioResource = audioResource;
+		this.fullQueue = fullQueue;
 	}
 }

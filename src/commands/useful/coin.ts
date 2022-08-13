@@ -17,7 +17,7 @@ export default new Command({
 		const newEmbed = new EmbedBuilder()
 			.setColor('#f22222')
 			/* eslint-disable-next-line max-len */
-			.setDescription(`Y el resultado es... **${(coin >= 1.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`);
+			.setDescription(`Y el resultado es... **${(coin >= 0.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`);
 
 		interaction.followUp({ embeds: [newEmbed] });
 		return;

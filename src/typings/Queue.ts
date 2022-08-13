@@ -28,10 +28,12 @@ export interface QueueType {
 	voiceChannel: VoiceBasedChannel;
 	textChannel: TextBasedChannel;
 	connection: VoiceConnection;
-	songs: SongType[];
 	stopped: boolean;
 	loop: LoopState;
 	loopCounter: number;
+	songIndex: number;
+	songs: SongType[];
+	fullQueue: SongType[];
 	player?: SongPlayer;
 	audioResource?: AudioResource;
 }

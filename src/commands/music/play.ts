@@ -36,22 +36,22 @@ import { Song } from '../../structures/Song';
 import { SongPlayer } from 'src/typings/SongPlayer';
 
 /**
- * @type {string} The id of the current guild
+ * @type {string} - The id of the current guild
  */
 export let guildId: string = '';
 
 /**
- * @type {TextBasedChannel} The channel to send messages to
+ * @type {TextBasedChannel} - The channel to send messages to
  */
 export let channel: TextBasedChannel;
 
 /**
- * @type {User} The user of the interaction
+ * @type {User} - The user of the interaction
  */
 export let author: User;
 
 /**
- * @type {SuperClient} Discord Client
+ * @type {SuperClient} - Discord Client
  */
 let bot: SuperClient;
 
@@ -144,6 +144,7 @@ export default new Command({
 						}
 
 						songQueue.songs.push(song);
+						songQueue.fullQueue.push(song);
 						break;
 					case 'playlist':
 					case 'album':
@@ -163,6 +164,7 @@ export default new Command({
 								continue;
 							}
 							songQueue.songs.push(song);
+							songQueue.fullQueue.push(song);
 						}
 
 						/* eslint-disable-next-line max-len */
@@ -201,6 +203,7 @@ export default new Command({
 							durationSec: video.durationInSec,
 						};
 						songQueue.songs.push(song);
+						songQueue.fullQueue.push(song);
 					}
 
 					/* eslint-disable-next-line max-len */
@@ -223,6 +226,7 @@ export default new Command({
 						}
 
 						songQueue.songs.push(song);
+						songQueue.fullQueue.push(song);
 						break;
 					}
 
@@ -245,6 +249,7 @@ export default new Command({
 					}
 
 					songQueue.songs.push(song);
+					songQueue.fullQueue.push(song);
 					break;
 				default:
 					await interaction.followUp('This should never happen 2.');
@@ -276,9 +281,9 @@ export const initiateEvents = (id: string): void => {
 
 /**
  * Function for creating a resource and playing audio
- * @param {string} id The guild id of the player
- * @param {Song} song The song to be played
- * @param {number} seek Optional number to start the song from
+ * @param {string} id - The guild id of the player
+ * @param {Song} song - The song to be played
+ * @param {number} seek - Optional number to start the song from
  */
 export const videoPlayer = async (
 	id: string,
@@ -321,7 +326,7 @@ export const videoPlayer = async (
 		songQueue.player.play(resource);
 	}
 	catch (e) {
-		if ((seek && seek < song.durationSec) || !seek) {
+		if ((!seek || seek && seek < song.durationSec)) {
 			console.error(e);
 		}
 		await playNextSong(guildId);
@@ -357,9 +362,11 @@ export const createQueue = async (
 			textChannel: text,
 			connection: connection,
 			songs: [] as Song[],
+			fullQueue: [] as Song[],
 			stopped: false,
 			loop: LoopState.Disabled,
 			loopCounter: 0,
+			songIndex: 0,
 		});
 	}
 	catch (e) {
