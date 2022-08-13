@@ -17,7 +17,9 @@ import { PlayerEvent } from '../../structures/PlayerEvent';
 export default new PlayerEvent('stateChange',
 	async (oldState, newState): Promise<void> => {
 		const songQueue = queue.get(guildId);
-		if (!songQueue?.player) return;
+		if (!songQueue?.player) {
+			return;
+		}
 
 		switch (newState.status) {
 			case AudioPlayerStatus.Playing:
@@ -51,6 +53,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 
 	if (songQueue.stopped) {
 		deleteQueue(id);
+		return;
 	}
 
 	switch (songQueue.loop) {

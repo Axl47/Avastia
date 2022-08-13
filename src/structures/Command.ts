@@ -6,9 +6,9 @@ import { CommandType } from '../typings/Command';
  */
 export class Command {
 	/**
-	 * Constructor for the command
+	 * Constructor for the bot commands
 	 * @constructor
-	 * @param {CommandName} commandOptions - The command options to add
+	 * @param {CommandType} commandOptions - The command options to add
 	 */
 	constructor(commandOptions: CommandType) {
 		Object.assign(this, commandOptions);

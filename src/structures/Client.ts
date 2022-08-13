@@ -37,7 +37,6 @@ export class SuperClient extends Client {
 		super({
 			/**
 			 * Intents required for the commands
-			 * @param {ClientOptions} options - The options for the client
 			 * @param {GatewayIntentBits} Guilds - Access to guild
 			 * @param {GatewayIntentBits} GuildsMessages - Access guild messages
 			 * @param {GatewayIntentBits} GuildsVoiceStates - Access voice state

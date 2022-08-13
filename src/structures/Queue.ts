@@ -38,10 +38,10 @@ export class Queue {
 	 * @param {boolean} q.stopped - Whether the player is stopped
 	 * @param {LoopState} q.loop - Disabled, looping the song or the queue
 	 * @param {number} q.loopCounter - What song index to play if looping
-	 * @param {number} q.songIndex - What song index to play if looping
+	 * @param {number} q.songIndex - The index of the played songs
 	 * @param {SongPlayer} q.player - Player for video, optional before creation
 	 * @param {AudioResource} q.audioResource - Optional for saving resource
-	 * @param {Song[]} q.fullQueue - Songs to be played
+	 * @param {Song[]} q.fullQueue - All of the songs added to the queue
 	 */
 	constructor({
 		voiceChannel, textChannel,
