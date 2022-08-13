@@ -51,7 +51,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 		return;
 	}
 
-	if (songQueue.stopped) {
+	if (songQueue.stopped || songQueue.loopCounter >= songQueue.songs.length) {
 		deleteQueue(id);
 		return;
 	}
@@ -60,6 +60,7 @@ export const playNextSong = async (id: string): Promise<void> => {
 		case LoopState.Disabled:
 			// Delete the first song and make the second be [0]
 			songQueue.songs.shift();
+			songQueue.songIndex++;
 			break;
 		case LoopState.Song:
 			// Looping a song doesn't need any logic
@@ -68,19 +69,22 @@ export const playNextSong = async (id: string): Promise<void> => {
 			// Increment index,
 			// make 0 if greater or equal to the length of the queue
 			songQueue.loopCounter++;
+			songQueue.songIndex++;
 			if (songQueue.loopCounter >= songQueue.songs.length) {
 				songQueue.loopCounter = 0;
+				// Reset song index to be the first song of the current queue
+				songQueue.songIndex =
+					songQueue.fullQueue.length - songQueue.songs.length;
 			}
 			break;
 		default:
 			songQueue.loop = LoopState.Disabled;
-			console.log('This should never happen');
+			console.log('Error while getting loop state.');
 	}
 
 	if (songQueue.songs[0]) {
 		// When there are songs, play the next one
 		// When not looping, loopCounter is 0
-		songQueue.songIndex++;
 		await videoPlayer(id, songQueue.songs[songQueue.loopCounter]);
 	}
 	else {

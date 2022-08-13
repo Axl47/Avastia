@@ -8,9 +8,6 @@ import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
 import { LoopState } from '../../typings/Queue';
 
-// TODO: Add toggling between looping queue
-// or looping song
-
 /**
  * Toggles looping the queue
  */

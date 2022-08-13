@@ -27,12 +27,16 @@ export default new Command({
 			return;
 		}
 
+		// Get all songs and turn them into a string
+		// <index>) <song-title> (<song-duration>) \n
 		const songs = songQueue.songs.map((song: Song, index) => {
 			return `${index + 1}) ${song.title} (${song.duration})`;
 		}).join('\n');
 
 		const queueEmbeds: EmbedBuilder[] = [];
 
+		// Create a new embed when the current one
+		// exceeds the maximum character limit
 		const songsIndex = Math.round(songs.length / 4096) + 1;
 		for (let i = 1; i <= songsIndex; ++i) {
 			const b = i - 1;

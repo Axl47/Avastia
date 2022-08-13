@@ -22,8 +22,11 @@ export default new Command({
 
 		if (songQueue?.player && songQueue?.songs[0]) {
 			if (songQueue.loopCounter > 0) songQueue.loopCounter--;
-			songQueue.songs.unshift(songQueue.fullQueue[songQueue.songIndex - 1]);
+
+			// Add the past song to the queue
 			songQueue.songIndex--;
+			songQueue.songs.unshift(songQueue.fullQueue[songQueue.songIndex]);
+
 			playNextSong(interaction.commandGuildId!);
 			response.setDescription('Went back!');
 		}

@@ -20,7 +20,7 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player) {
+		if (songQueue?.songs[0]) {
 			shuffle(songQueue.songs);
 			response.setDescription('Queue shuffled.');
 		}
@@ -31,7 +31,7 @@ export default new Command({
 });
 
 const shuffle = (list: Song[]): Song[] => {
-	const firstSong = list.shift();
+	const firstSong = list.shift()!;
 	let currentIndex = list.length;
 	let randomIndex: number;
 
@@ -47,6 +47,6 @@ const shuffle = (list: Song[]): Song[] => {
 			list[currentIndex],
 		];
 	}
-	list.unshift(firstSong!);
+	list.unshift(firstSong);
 	return list;
 };

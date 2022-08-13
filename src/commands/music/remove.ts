@@ -32,9 +32,12 @@ export default new Command({
 		if (songQueue?.player) {
 			let i = 0;
 			const songs = songQueue.songs;
+			const query = args.getString('query', true);
+
+			// Loop through all songs, i should be the index of the found song
 			for (i = 0; i < songs.length; i++) {
 				if (songs[i].title.toLowerCase().includes(
-					(args.getString('query', true)).toLowerCase())) {
+					query.toLowerCase())) {
 					break;
 				}
 			}

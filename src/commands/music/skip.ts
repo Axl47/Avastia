@@ -24,9 +24,6 @@ export default new Command({
 		if (songQueue?.player) {
 			if (songQueue.loop === LoopState.Song) {
 				songQueue.loopCounter++;
-				if (songQueue.loopCounter >= songQueue.songs.length) {
-					songQueue.loopCounter = 0;
-				}
 			}
 			await playNextSong(interaction.commandGuildId!);
 			response.setDescription('Song skipped.');

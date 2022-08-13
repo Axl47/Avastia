@@ -114,7 +114,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			interaction.followUp('Error while creating queue.');
+			interaction.followUp('Error while getting queue.');
 			return;
 		}
 
@@ -134,6 +134,7 @@ export default new Command({
 						spData = await spotify(url) as SpotifyTrack;
 
 						// Search song on Youtube
+						// <Song-Title> <Artist1> <Artist2>...
 						try {
 							/* eslint-disable-next-line max-len */
 							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
@@ -161,6 +162,8 @@ export default new Command({
 										(artist) => artist.name).join(' ')}`);
 							}
 							catch (e) {
+								// Most errors are caused by erroneous search results,
+								// or song visibility, so we ignore it
 								continue;
 							}
 							songQueue.songs.push(song);
@@ -174,7 +177,8 @@ export default new Command({
 						wasPlaylist = true;
 						break;
 					default:
-						interaction.followUp('This should never happen.');
+						interaction.followUp('Error while validating Spotify link.');
+						await playNextSong(guildId);
 						return;
 				}
 			}
@@ -188,6 +192,7 @@ export default new Command({
 		else {
 			switch (ytValidate(url)) {
 				case 'playlist':
+					// Incomplete is true to ignore private or deleted videos
 					const playlist = await playlistInfo(url, { incomplete: true });
 					await playlist.fetch();
 
@@ -212,10 +217,11 @@ export default new Command({
 
 					wasPlaylist = true;
 					break;
-				case 'video':
 				case 'search':
-					// Search gets handled inside video due to ytValidate
-					// returning 'video' instead of 'search' sometimes
+				// Search gets handled inside video due to ytValidate
+				// returning 'video' instead of 'search' sometimes
+				case 'video':
+					// Search the song on youtube
 					if (!url.startsWith('https')) {
 						try {
 							song = await searchSong(url);
@@ -230,6 +236,7 @@ export default new Command({
 						break;
 					}
 
+					// Delete superfluous info, such as the playlist the url comes from
 					if (url.includes('list')) url = url.substring(0, url.indexOf('list'));
 
 					const video = await videoInfo(url);
@@ -252,13 +259,14 @@ export default new Command({
 					songQueue.fullQueue.push(song);
 					break;
 				default:
-					await interaction.followUp('This should never happen 2.');
+					interaction.followUp('Error while validating Youtube link.');
 					await playNextSong(guildId);
 					return;
 			}
 		}
 
 		if (first) {
+			// Start playback and start listening for player events
 			await videoPlayer(guildId, songQueue.songs[0]);
 			initiateEvents(guildId);
 		}
@@ -273,7 +281,7 @@ export default new Command({
 
 /**
  * Initiate events on the audio player
- * @param {string} id The guild id of the player
+ * @param {string} id - The guild id of the player
  */
 export const initiateEvents = (id: string): void => {
 	bot.playerEvents(id);
@@ -299,17 +307,28 @@ export const videoPlayer = async (
 		await playNextSong(guildId);
 		return;
 	};
+
 	if (!song.title) {
-		song.title = '';
+		song.title = 'Untitled';
 	}
+
+	delete songQueue.audioResource;
 
 	try {
 		// Create Player
 		if (!songQueue.player) {
 			const player = createAudioPlayer({
-				behaviors: { noSubscriber: NoSubscriberBehavior.Play },
+				behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 			}) as SongPlayer;
 			songQueue.player = player;
+
+			// Subscribe the player to the voice connection
+			if (!songQueue.connection) {
+				songQueue.songs = [];
+				playNextSong(id);
+				return;
+			}
+			songQueue.connection.subscribe(songQueue.player);
 		}
 
 		// Create Player Resources
@@ -318,11 +337,6 @@ export const videoPlayer = async (
 		songQueue.audioResource = resource;
 
 		// Play the Audio
-		if (!songQueue.connection) {
-			queue.delete(id);
-			return;
-		}
-		songQueue.connection.subscribe(songQueue.player);
 		songQueue.player.play(resource);
 	}
 	catch (e) {
@@ -346,6 +360,7 @@ export const createQueue = async (
 	text: TextBasedChannel,
 ): Promise<Queue> => {
 	try {
+		// Join the voice channel
 		const connection = joinVoiceChannel({
 			channelId: voice.id,
 			guildId: voice.guild.id,

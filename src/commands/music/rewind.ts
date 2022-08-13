@@ -21,6 +21,7 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.player && songQueue?.songs[0]) {
+			// Play the current song again
 			await videoPlayer(
 				interaction.commandGuildId!,
 				songQueue.songs[songQueue.loopCounter]);

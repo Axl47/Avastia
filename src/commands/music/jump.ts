@@ -6,6 +6,7 @@ import {
 
 import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 import { videoPlayer } from './play';
 
 /**
@@ -31,15 +32,20 @@ export default new Command({
 
 		if (songQueue) {
 			const amount = args.getInteger('amount', true);
-			if (songQueue.loop) {
+
+			if (songQueue.loop !== LoopState.Disabled) {
+				// TODO: A % operation might delete this for loop
+
+				// If we are looping, and the amount to skip is greater than
+				// the length of the song, loop through the queue to find the song
 				if (songQueue.songs.length < amount + songQueue.loopCounter) {
 					let number = amount;
 					while (number) {
+						number--;
 						songQueue.loopCounter++;
 						if (songQueue.loopCounter >= songQueue.songs.length) {
 							songQueue.loopCounter = 0;
 						}
-						number--;
 					}
 				}
 				else {
@@ -52,6 +58,7 @@ export default new Command({
 					.setDescription(`Queue length is ${songQueue.songs.length}.`);
 			}
 			else {
+				// TODO: array.slice() can delete this for loop
 				for (let i = 0; i < amount; i++) {
 					songQueue.songs.shift();
 				}

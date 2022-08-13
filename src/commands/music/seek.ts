@@ -17,14 +17,14 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	options: [
 		{
-			name: 'second',
+			name: 'seconds',
 			description: 'amount to seek to',
 			type: ApplicationCommandOptionType.Integer,
 			required: true,
 		},
 	],
 	run: async ({ interaction, args }): Promise<void> => {
-		const amount = args.getInteger('second', true);
+		const amount = args.getInteger('seconds', true);
 
 		const songQueue = queue.get(interaction.commandGuildId!);
 		const response = new EmbedBuilder()
@@ -42,6 +42,8 @@ export default new Command({
 				response.setDescription(`Seeked to ${amount}s!`);
 			}
 			else {
+				// videoPlayer skips whenever an error is encountered,
+				// such as seeking past song duration
 				response.setDescription('Excedeed song duration, skipping...');
 			}
 		}

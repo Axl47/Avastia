@@ -31,6 +31,7 @@ export default new Command({
 	run: async ({ interaction, args }): Promise<void> => {
 		let title = args.getString('title') ?? '';
 
+		// If a title is not specified, use the current song title
 		if (!title) {
 			const songQueue = queue.get(interaction.commandGuildId!);
 			if (songQueue) {

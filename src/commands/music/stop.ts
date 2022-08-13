@@ -22,7 +22,7 @@ export default new Command({
 
 		if (songQueue?.player) {
 			songQueue.stopped = true;
-			// playNextSong takes care of deleting the queue
+			// playNextSong takes care of stopping and deleting the queue
 			await playNextSong(interaction.commandGuildId!);
 
 			response.setDescription('Player stopped.');
