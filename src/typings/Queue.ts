@@ -34,6 +34,7 @@ export interface QueueType {
 	songIndex: number;
 	songs: SongType[];
 	fullQueue: SongType[];
+	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;
 }

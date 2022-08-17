@@ -25,6 +25,7 @@ export class Queue {
 	songIndex: number;
 	songs: Song[];
 	fullQueue: Song[];
+	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;
 	/**
@@ -40,6 +41,7 @@ export class Queue {
 	 * @param {number} q.loopCounter - What song index to play if looping
 	 * @param {number} q.songIndex - The index of the played songs
 	 * @param {SongPlayer} q.player - Player for video, optional before creation
+	 * @param {number} q.volume - Volume at which to play the music
 	 * @param {AudioResource} q.audioResource - Optional for saving resource
 	 * @param {Song[]} q.fullQueue - All of the songs added to the queue
 	 */
@@ -49,7 +51,7 @@ export class Queue {
 		stopped, loop,
 		loopCounter, player,
 		audioResource, fullQueue,
-		songIndex,
+		songIndex, volume,
 	}: QueueType) {
 		this.voiceChannel = voiceChannel;
 		this.textChannel = textChannel;
@@ -60,6 +62,7 @@ export class Queue {
 		this.loopCounter = loopCounter;
 		this.songIndex = songIndex;
 		this.player = player;
+		this.volume = volume;
 		this.audioResource = audioResource;
 		this.fullQueue = fullQueue;
 	}
