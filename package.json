@@ -1,6 +1,6 @@
 {
 	"name": "avastia",
-	"version": "3.0.0",
+	"version": "3.3.0",
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",
-		"@types/node": "^18.7.2",
+		"@types/node": "^18.7.6",
 		"@typescript-eslint/eslint-plugin": "^5.33.0",
 		"@typescript-eslint/parser": "^5.33.0",
 		"eslint": "^8.21.0",
