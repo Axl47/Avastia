@@ -1,6 +1,6 @@
 {
 	"name": "avastia",
-	"version": "3.3.0",
+	"version": "3.4.0",
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
@@ -14,7 +14,7 @@
 	"engines": {
 		"node": "16.x"
 	},
-	"license": "ISC",
+	"license": "MIT",
 	"dependencies": {
 		"@discordjs/opus": "^0.8.0",
 		"@discordjs/rest": "^1.0.1",
