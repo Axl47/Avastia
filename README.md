@@ -52,8 +52,8 @@ Create a new file named `.env` and create the next values
 ⚠️ **Note: Never commit or share tokens or api keys publicly** ⚠️
 
 ```
-DSTOKEN={bot token here}
-geniusKey={genius key here}
+DSTOKEN=bot token
+geniusKey=genius key
 ```
 
 ## 📝 Commands
