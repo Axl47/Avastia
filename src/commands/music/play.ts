@@ -333,12 +333,14 @@ export const videoPlayer = async (
 
 		// Create Player Resources
 		const s = await stream(song.url, { seek: seek });
-		const resource = createAudioResource(s.stream, { inputType: s.type });
+		const resource = createAudioResource(s.stream,
+			{ inputType: s.type, inlineVolume: true },
+		);
 		resource.volume?.setVolumeLogarithmic(songQueue.volume / 100);
 		songQueue.audioResource = resource;
 
 		// Play the Audio
-		songQueue.player.play(resource);
+		songQueue.player.play(songQueue.audioResource);
 	}
 	catch (e) {
 		if ((!seek || seek && seek < song.durationSec)) {
