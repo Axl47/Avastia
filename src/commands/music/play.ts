@@ -33,7 +33,7 @@ import { queue, SuperClient } from '../../structures/Client';
 import { LoopState } from '../../typings/Queue';
 import { playNextSong } from '../../events/player/stateChange';
 import { Song } from '../../structures/Song';
-import { SongPlayer } from 'src/typings/SongPlayer';
+import { SongPlayer } from '../../typings/SongPlayer';
 
 /**
  * @type {string} - The id of the current guild
