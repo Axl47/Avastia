@@ -130,6 +130,4 @@ npm run start:prod
 2. Node.js
 3. Discord.js v14
 4. [play-dl](https://github.com/play-dl/play-dl)
-5. ffmpeg & sodium
-
-> Note: sodium requires multiple requirements for installation. Recommended to use libsodium-wrappers instead if there's any installation issues
+5. ffmpeg & libsodium-wrappers
