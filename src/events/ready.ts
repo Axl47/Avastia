@@ -1,4 +1,4 @@
-import { ActivityType } from 'discord.js';
+// import { ActivityType } from 'discord.js';
 
 import { Event } from '../structures/Event';
 
@@ -9,5 +9,4 @@ import { Event } from '../structures/Event';
 export default new Event('ready', async (client): Promise<void> => {
 	console.log(`${client?.user?.username} is online!`);
 	client.user?.setStatus('online');
-	client.user?.setActivity('/help', { type: ActivityType.Playing });
 });

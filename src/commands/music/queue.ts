@@ -23,7 +23,7 @@ export default new Command({
 			const response = new EmbedBuilder()
 				.setColor('#f22222')
 				.setDescription('Not playing anything.');
-			await interaction.followUp({ embeds: [response] });
+			await interaction.editReply({ embeds: [response] });
 			return;
 		}
 
@@ -46,7 +46,7 @@ export default new Command({
 			}
 		}
 
-		await interaction.followUp('Queue:');
+		await interaction.editReply('Queue:');
 		await new Pagination(
 			interaction.channel as TextChannel,
 			queueEmbeds,

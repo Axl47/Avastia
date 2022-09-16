@@ -29,7 +29,7 @@ export default new Command({
 			response.setDescription('Song skipped.');
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

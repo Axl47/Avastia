@@ -115,7 +115,7 @@ export default new Command({
 				{ name: '\u200B', value: '\u200B' },
 			);
 
-		interaction.followUp({ embeds: [response] });
+		interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

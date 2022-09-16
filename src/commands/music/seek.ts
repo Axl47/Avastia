@@ -48,7 +48,7 @@ export default new Command({
 			}
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

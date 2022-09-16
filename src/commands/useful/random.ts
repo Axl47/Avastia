@@ -113,6 +113,6 @@ export default new Command({
 		const response = new EmbedBuilder()
 			.setColor('#15b500')
 			.setDescription(description);
-		interaction.followUp({ embeds: [response] });
+		interaction.editReply({ embeds: [response] });
 	},
 });

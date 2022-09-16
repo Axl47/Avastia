@@ -36,7 +36,7 @@ export default new Command({
 		 * Sapphire Discord Utilities is not adapted for v14
 		 * Uncomment when it is available
 		 */
-		await interaction.followUp('Maintenance in process :D');
+		await interaction.editReply('Maintenance in process :D');
 		return;
 		// const response = new EmbedBuilder()
 		// 	.setColor('#15b500')
@@ -45,7 +45,7 @@ export default new Command({
 		// if (!interaction.member.voice.channel) {
 		/* eslint-disable-next-line max-len */
 		// 	response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
-		// 	await interaction.followUp({ embeds: [response] });
+		// 	await interaction.editReply({ embeds: [response] });
 		// 	return;
 		// }
 
@@ -53,11 +53,11 @@ export default new Command({
 		// 	interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
 
 		// if (!voiceChannel) {
-		// 	interaction.followUp('Error while getting voice channel.');
+		// 	interaction.editReply('Error while getting voice channel.');
 		// 	return;
 		// }
 		// if (!interaction.channel) {
-		// 	interaction.followUp('Error while getting text channel.');
+		// 	interaction.editReply('Error while getting text channel.');
 		// 	return;
 		// }
 
@@ -70,7 +70,7 @@ export default new Command({
 		// 			await createQueue(voiceChannel, channel));
 		// 	}
 		// 	catch (e) {
-		// 		interaction.followUp('Error while creating queue');
+		// 		interaction.editReply('Error while creating queue');
 		// 		console.error(e);
 		// 		return;
 		// 	}
@@ -78,7 +78,7 @@ export default new Command({
 
 		// const songQueue = queue.get(guildId);
 		// if (!songQueue) {
-		// 	interaction.followUp('Error while creating queue.');
+		// 	interaction.editReply('Error while creating queue.');
 		// 	return;
 		// }
 
@@ -92,7 +92,7 @@ export default new Command({
 		// 	index++;
 		// });
 		// response.setDescription(videos);
-		// interaction.followUp({ embeds: [response] });
+		// interaction.editReply({ embeds: [response] });
 
 		// const handler = new MessagePrompter('Play which one?', 'number', {
 		// 	start: 1,

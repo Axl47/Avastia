@@ -18,7 +18,7 @@ export default new Event('interactionCreate',
 			// Should only happen when registering commands has not finished
 			// or calling a deleted command before refresh
 			if (!command) {
-				interaction.followUp('Non existent command');
+				interaction.editReply('Non existent command');
 				return;
 			}
 

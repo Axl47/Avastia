@@ -41,7 +41,7 @@ export default new Command({
 				const response = new EmbedBuilder()
 					.setColor('#ff0000')
 					.setDescription('Provide a title or start playing something.');
-				await interaction.followUp({ embeds: [response] });
+				await interaction.editReply({ embeds: [response] });
 				return;
 			}
 		}
@@ -60,7 +60,7 @@ export default new Command({
 				}
 			}
 
-			await interaction.followUp('Lyrics generated:');
+			await interaction.editReply('Lyrics generated:');
 			await new Pagination(
 				interaction.channel as TextChannel,
 				lyricEmbeds,
@@ -69,7 +69,7 @@ export default new Command({
 		}
 		catch (e) {
 			console.log(e);
-			await interaction.followUp('Something went wrong :(');
+			await interaction.editReply('Something went wrong :(');
 			return;
 		}
 	},

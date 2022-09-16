@@ -70,7 +70,7 @@ export default new Command({
 			response.setDescription(`Jumped **${amount}** songs.`);
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

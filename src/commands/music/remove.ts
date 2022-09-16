@@ -51,7 +51,7 @@ export default new Command({
 				response.setDescription('Song not in queue.');
 			}
 		}
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

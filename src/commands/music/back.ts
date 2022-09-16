@@ -28,11 +28,11 @@ export default new Command({
 
 			videoPlayer(
 				interaction.commandGuildId!,
-				songQueue.songs[songQueue.songIndex]);
+				songQueue.songs[0]);
 			response.setDescription('Went back!');
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

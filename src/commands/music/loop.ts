@@ -58,11 +58,11 @@ export default new Command({
 					response.setDescription('Looping the queue.');
 					break;
 				default:
-					interaction.followUp('Invalid command.');
+					interaction.editReply('Invalid command.');
 					return;
 			}
 		}
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

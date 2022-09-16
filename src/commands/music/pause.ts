@@ -31,7 +31,7 @@ export default new Command({
 			}
 		}
 
-		interaction.followUp({ embeds: [response] });
+		interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

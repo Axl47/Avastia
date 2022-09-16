@@ -19,7 +19,7 @@ export default new Command({
 			/* eslint-disable-next-line max-len */
 			.setDescription(`Y el resultado es... **${(coin >= 0.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`);
 
-		interaction.followUp({ embeds: [newEmbed] });
+		interaction.editReply({ embeds: [newEmbed] });
 		return;
 	},
 });

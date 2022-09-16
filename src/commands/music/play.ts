@@ -81,7 +81,7 @@ export default new Command({
 		if (!interaction.member.voice.channel) {
 			/* eslint-disable-next-line max-len */
 			response.setDescription(`You need to be in a voice channel to execute this command ${author}!`);
-			await interaction.followUp({ embeds: [response] });
+			await interaction.editReply({ embeds: [response] });
 			return;
 		}
 
@@ -89,11 +89,11 @@ export default new Command({
 			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
 		if (!voiceChannel) {
-			interaction.followUp('Error while getting voice channel.');
+			interaction.editReply('Error while getting voice channel.');
 			return;
 		}
 		if (!interaction.channel) {
-			interaction.followUp('Error while getting text channel.');
+			interaction.editReply('Error while getting text channel.');
 			return;
 		}
 
@@ -106,7 +106,7 @@ export default new Command({
 					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
-				interaction.followUp('Error while creating queue');
+				interaction.editReply('Error while creating queue');
 				console.error(e);
 				return;
 			}
@@ -114,7 +114,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			interaction.followUp('Error while getting queue.');
+			interaction.editReply('Error while getting queue.');
 			return;
 		}
 
@@ -140,7 +140,7 @@ export default new Command({
 							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
 						}
 						catch (e) {
-							await interaction.followUp('No video result found.');
+							await interaction.editReply('No video result found.');
 							return;
 						}
 
@@ -172,19 +172,19 @@ export default new Command({
 
 						/* eslint-disable-next-line max-len */
 						response.setDescription(`:thumbsup: Added **${tracks.length}** songs to the queue!`);
-						await interaction.followUp({ embeds: [response] });
+						await interaction.editReply({ embeds: [response] });
 
 						wasPlaylist = true;
 						break;
 					default:
-						interaction.followUp('Error while validating Spotify link.');
+						interaction.editReply('Error while validating Spotify link.');
 						await playNextSong(guildId);
 						return;
 				}
 			}
 			catch (e) {
 				console.error(e);
-				await interaction.followUp('Error playing.');
+				await interaction.editReply('Error playing.');
 				await playNextSong(guildId);
 				return;
 			}
@@ -213,7 +213,7 @@ export default new Command({
 
 					/* eslint-disable-next-line max-len */
 					response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
-					await interaction.followUp({ embeds: [response] });
+					await interaction.editReply({ embeds: [response] });
 
 					wasPlaylist = true;
 					break;
@@ -227,7 +227,7 @@ export default new Command({
 							song = await searchSong(url);
 						}
 						catch (e) {
-							await interaction.followUp('No video result found.');
+							await interaction.editReply('No video result found.');
 							return;
 						}
 
@@ -248,7 +248,7 @@ export default new Command({
 					};
 
 					if (!song.url) {
-						await interaction.followUp('No video result found.');
+						await interaction.editReply('No video result found.');
 						return;
 					}
 					if (!song.title) {
@@ -259,7 +259,7 @@ export default new Command({
 					songQueue.fullQueue.push(song);
 					break;
 				default:
-					interaction.followUp('Error while validating Youtube link.');
+					interaction.editReply('Error while validating Youtube link.');
 					await playNextSong(guildId);
 					return;
 			}
@@ -274,7 +274,7 @@ export default new Command({
 		if (!wasPlaylist) {
 			/* eslint-disable-next-line max-len */
 			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) (${songQueue.songs.at(-1)?.duration}) [${author}]`);
-			await interaction.followUp({ embeds: [response] });
+			await interaction.editReply({ embeds: [response] });
 		}
 	},
 });
@@ -400,7 +400,7 @@ export const createQueue = async (
  * @param {string} query - Song to search for
  * @return {Song} - Found song from YouTube
  */
-const searchSong = async (query: string): Promise<Song> => {
+export const searchSong = async (query: string): Promise<Song> => {
 	const ytInfo = await search(query, { limit: 1 });
 	if (!ytInfo[0] || !ytInfo[0].url) {
 		throw new Error('Couldn\'t find the requested song.');

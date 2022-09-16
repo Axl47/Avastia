@@ -33,7 +33,7 @@ export default new Command({
 			// Play the current song again
 			if (volume < 0 || volume > 100) {
 				response.setDescription('Number must be between 0 and 100.');
-				await interaction.followUp({ embeds: [response] });
+				await interaction.editReply({ embeds: [response] });
 				return;
 			}
 			response.setDescription(
@@ -43,7 +43,7 @@ export default new Command({
 			songQueue.audioResource.volume?.setVolumeLogarithmic(volume / 100);
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

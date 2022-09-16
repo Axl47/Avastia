@@ -25,7 +25,7 @@ export default new Command({
 			response.setDescription('Queue shuffled.');
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });

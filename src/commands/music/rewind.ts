@@ -28,7 +28,7 @@ export default new Command({
 			response.setDescription('Rewinded!');
 		}
 
-		await interaction.followUp({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 		return;
 	},
 });
