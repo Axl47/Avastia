@@ -1,6 +1,6 @@
 {
 	"name": "avastia",
-	"version": "3.6.0",
+	"version": "3.7.0",
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
@@ -19,7 +19,7 @@
 		"@discordjs/opus": "^0.8.0",
 		"@discordjs/rest": "^1.1.0",
 		"@discordjs/voice": "^0.11.0",
-		"discord-api-types": "^0.37.5",
+		"discord-api-types": "^0.37.10",
 		"discord.js": "^14.3.0",
 		"dotenv": "^16.0.1",
 		"ffmpeg-static": "^5.1.0",
