@@ -155,6 +155,9 @@ export default new Command({
 						await spData.fetch();
 						const tracks = await spData.all_tracks();
 
+						// TODO: it might be faster to only search each track on yt when
+						// they are going to be played, instead of searching them all at
+						// the same time
 						for (const track of tracks) {
 							try {
 								song =
@@ -332,9 +335,9 @@ export const videoPlayer = async (
 		}
 
 		// Create Player Resources
-		const s = await stream(song.url, { seek: seek });
-		const resource = createAudioResource(s.stream,
-			{ inputType: s.type, inlineVolume: true },
+		const songStream = await stream(song.url, { seek: seek });
+		const resource = createAudioResource(songStream.stream,
+			{ inputType: songStream.type, inlineVolume: true },
 		);
 		resource.volume?.setVolumeLogarithmic(songQueue.volume / 100);
 		songQueue.audioResource = resource;

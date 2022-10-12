@@ -113,6 +113,11 @@ export default new Command({
 					inline: true,
 				},
 				{ name: '\u200B', value: '\u200B' },
+				{
+					name: '/next',
+					value: 'Adds a song to be played next, regardless of the queue.',
+					inline: true,
+				},
 			);
 
 		interaction.editReply({ embeds: [response] });
