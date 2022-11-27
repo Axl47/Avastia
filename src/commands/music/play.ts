@@ -24,7 +24,9 @@ import {
 	spotify,
 	SpotifyAlbum,
 	SpotifyTrack,
+	YouTubeVideo,
 	stream,
+	InfoData,
 } from 'play-dl';
 
 import { Command } from '../../structures/Command';
@@ -106,7 +108,7 @@ export default new Command({
 					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
-				interaction.editReply('Error while creating queue');
+				interaction.editReply('Error while joining the channel.');
 				console.error(e);
 				return;
 			}
@@ -114,7 +116,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			interaction.editReply('Error while getting queue.');
+			interaction.editReply('Error while getting the queue.');
 			return;
 		}
 
@@ -125,6 +127,9 @@ export default new Command({
 		let url = args.getString('query', true);
 
 		if (url.includes('spotify')) {
+			/**
+			 * Refresh the Spotify Token
+			 */
 			if (isExpired()) await refreshToken();
 			let spData: SpotifyTrack | SpotifyAlbum;
 
@@ -138,6 +143,10 @@ export default new Command({
 						try {
 							/* eslint-disable-next-line max-len */
 							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
+							if (song.url == 'Song was not found') {
+								await interaction.editReply('No video result found.');
+								return;
+							}
 						}
 						catch (e) {
 							await interaction.editReply('No video result found.');
@@ -163,6 +172,9 @@ export default new Command({
 								song =
 									await searchSong(`${track.name} ${track.artists.map(
 										(artist) => artist.name).join(' ')}`);
+								if (song.url == 'Song was not found') {
+									continue;
+								}
 							}
 							catch (e) {
 								// Most errors are caused by erroneous search results,
@@ -228,6 +240,10 @@ export default new Command({
 					if (!url.startsWith('https')) {
 						try {
 							song = await searchSong(url);
+							if (song.url == 'Song was not found') {
+								await interaction.editReply('No video result found.');
+								return;
+							}
 						}
 						catch (e) {
 							await interaction.editReply('No video result found.');
@@ -240,22 +256,25 @@ export default new Command({
 					}
 
 					// Delete superfluous info, such as the playlist the url comes from
-					if (url.includes('list')) url = url.substring(0, url.indexOf('list'));
-
-					const video = await videoInfo(url);
-					song = {
-						title: video.video_details.title ?? 'Untitled',
-						url: video.video_details.url,
-						duration: video.video_details.durationRaw,
-						durationSec: video.video_details.durationInSec,
-					};
-
-					if (!song.url) {
-						await interaction.editReply('No video result found.');
-						return;
+					if (url.includes('&list')) {
+						url = url.substring(0, url.indexOf('&list'));
 					}
-					if (!song.title) {
-						song.title = '';
+
+					try {
+						const video: InfoData = await videoInfo(url);
+						const details: YouTubeVideo = video.video_details;
+
+						song = {
+							title: details.title ?? 'Untitled',
+							url: details.url,
+							duration: details.durationRaw,
+							durationSec: details.durationInSec,
+						};
+					}
+					catch (err) {
+						await interaction.editReply('No video result found.');
+						console.error(err);
+						return;
 					}
 
 					songQueue.songs.push(song);
@@ -404,9 +423,21 @@ export const createQueue = async (
  * @return {Song} - Found song from YouTube
  */
 export const searchSong = async (query: string): Promise<Song> => {
-	const ytInfo = await search(query, { limit: 1 });
+	let ytInfo: YouTubeVideo[] = [];
+	try {
+		ytInfo = await search(query, { limit: 1 });
+	}
+	catch (err) {
+		console.error(err);
+	}
+
 	if (!ytInfo[0] || !ytInfo[0].url) {
-		throw new Error('Couldn\'t find the requested song.');
+		return new Song({
+			title: 'Untitled',
+			url: 'Song was not found',
+			duration: '',
+			durationSec: 0,
+		});
 	}
 
 	return new Song({

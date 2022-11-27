@@ -28,7 +28,7 @@ export default new Command({
 		}
 
 		// Get all songs and turn them into a string
-		// <index>) <song-title> (<song-duration>) \n
+		// <index>) <song-title> (<song-duration>)\n
 		const songs = songQueue.songs.map((song: Song, index) => {
 			return `${index + 1}) ${song.title} (${song.duration})`;
 		}).join('\n');

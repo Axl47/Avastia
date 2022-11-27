@@ -32,7 +32,7 @@ export default new Command({
 		let title = args.getString('title') ?? '';
 
 		// If a title is not specified, use the current song title
-		if (!title) {
+		if (title == '') {
 			const songQueue = queue.get(interaction.commandGuildId!);
 			if (songQueue) {
 				title = songQueue.songs[songQueue.loopCounter].title;

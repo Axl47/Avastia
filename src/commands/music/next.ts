@@ -33,6 +33,10 @@ export default new Command({
 			const url = args.getString('query', true);
 
 			const song = await searchSong(url);
+			if (song.url.includes('Invalid')) {
+				await interaction.editReply('No video result found.');
+				return;
+			}
 			songQueue.songs.splice(1, 0, song);
 			songQueue.fullQueue.splice(songQueue.songIndex + 1, 0, song);
 
