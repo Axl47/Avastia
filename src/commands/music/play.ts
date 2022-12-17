@@ -25,6 +25,7 @@ import {
 	SpotifyAlbum,
 	SpotifyTrack,
 	YouTubeVideo,
+	YouTubePlayList,
 	stream,
 	InfoData,
 } from 'play-dl';
@@ -57,6 +58,15 @@ export let author: User;
  */
 let bot: SuperClient;
 
+const NO_VIDEO_RESULT_MESSAGE = 'No video result found.';
+const NO_VOICE_CHANNEL_MESSAGE =
+	'You need to be in a voice channel to execute this command.';
+const VOICE_CHANNEL_NOT_FOUND = 'Error while getting voice channel.';
+const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
+const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
+const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
+
+
 /**
  * Searches a song with a query on Spotify or YouTube
  * and adds it to the queue
@@ -82,7 +92,7 @@ export default new Command({
 
 		if (!interaction.member.voice.channel) {
 			/* eslint-disable-next-line max-len */
-			response.setDescription(`You need to be in a voice channel to execute this command ${author}!`);
+			response.setDescription(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
 			await interaction.editReply({ embeds: [response] });
 			return;
 		}
@@ -91,11 +101,11 @@ export default new Command({
 			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
 		if (!voiceChannel) {
-			interaction.editReply('Error while getting voice channel.');
+			interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
 			return;
 		}
 		if (!interaction.channel) {
-			interaction.editReply('Error while getting text channel.');
+			interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
 			return;
 		}
 
@@ -108,7 +118,7 @@ export default new Command({
 					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
-				interaction.editReply('Error while joining the channel.');
+				interaction.editReply(BAD_VOICE_CONNECTION);
 				console.error(e);
 				return;
 			}
@@ -116,7 +126,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			interaction.editReply('Error while getting the queue.');
+			interaction.editReply(QUEUE_NOT_FOUND);
 			return;
 		}
 
@@ -143,13 +153,13 @@ export default new Command({
 						try {
 							/* eslint-disable-next-line max-len */
 							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
-							if (song.url == 'Song was not found') {
-								await interaction.editReply('No video result found.');
-								return;
+							if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
+								throw new Error(NO_VIDEO_RESULT_MESSAGE);
 							}
 						}
 						catch (e) {
-							await interaction.editReply('No video result found.');
+							await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
+							console.error(e);
 							return;
 						}
 
@@ -172,13 +182,15 @@ export default new Command({
 								song =
 									await searchSong(`${track.name} ${track.artists.map(
 										(artist) => artist.name).join(' ')}`);
-								if (song.url == 'Song was not found') {
-									continue;
+
+								if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
+									throw new Error(NO_VIDEO_RESULT_MESSAGE);
 								}
 							}
 							catch (e) {
 								// Most errors are caused by erroneous search results,
 								// or song visibility, so we ignore it
+								console.error(e);
 								continue;
 							}
 							songQueue.songs.push(song);
@@ -208,10 +220,11 @@ export default new Command({
 			switch (ytValidate(url)) {
 				case 'playlist':
 					// Incomplete is true to ignore private or deleted videos
-					const playlist = await playlistInfo(url, { incomplete: true });
+					const playlist: YouTubePlayList =
+						await playlistInfo(url, { incomplete: true });
 					await playlist.fetch();
 
-					const videos = await playlist.all_videos();
+					const videos: YouTubeVideo[] = await playlist.all_videos();
 
 					for (const video of videos) {
 						if (!video.url) continue;
@@ -226,8 +239,9 @@ export default new Command({
 						songQueue.fullQueue.push(song);
 					}
 
-					/* eslint-disable-next-line max-len */
-					response.setDescription(`:thumbsup: Added **${playlist.total_videos}** videos to the queue!`);
+					response.setDescription(
+						`Added **${playlist.total_videos}** videos to the queue!` +
+						' :thumbsup:');
 					await interaction.editReply({ embeds: [response] });
 
 					wasPlaylist = true;
@@ -240,13 +254,13 @@ export default new Command({
 					if (!url.startsWith('https')) {
 						try {
 							song = await searchSong(url);
-							if (song.url == 'Song was not found') {
-								await interaction.editReply('No video result found.');
-								return;
+							if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
+								throw new Error(NO_VIDEO_RESULT_MESSAGE);
 							}
 						}
 						catch (e) {
-							await interaction.editReply('No video result found.');
+							await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
+							console.error(e);
 							return;
 						}
 
@@ -272,7 +286,7 @@ export default new Command({
 						};
 					}
 					catch (err) {
-						await interaction.editReply('No video result found.');
+						await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
 						console.error(err);
 						return;
 					}
@@ -330,10 +344,6 @@ export const videoPlayer = async (
 		return;
 	};
 
-	if (!song.title) {
-		song.title = 'Untitled';
-	}
-
 	delete songQueue.audioResource;
 
 	try {
@@ -365,7 +375,9 @@ export const videoPlayer = async (
 		songQueue.player.play(songQueue.audioResource);
 	}
 	catch (e) {
-		if ((!seek || seek && seek < song.durationSec)) {
+		// Only display error if it's not related to
+		// a seek number being greater than song duration
+		if ((!seek || seek < song.durationSec)) {
 			console.error(e);
 		}
 		await playNextSong(guildId);
@@ -378,7 +390,7 @@ export const videoPlayer = async (
  * and connecting to a voice channel
  * @param {VoiceBasedChannel} voice - Channel to play audio in
  * @param {TextBasedChannel} text - Channel to send messages to
- * @return {Promise<Queue>} - Created Queue
+ * @return {Promise<Queue>} Created Queue
  */
 export const createQueue = async (
 	voice: VoiceBasedChannel,
@@ -394,7 +406,7 @@ export const createQueue = async (
 		});
 
 		if (!connection) {
-			throw new Error('Couldn\'t connect to voice channel.');
+			throw new Error(BAD_VOICE_CONNECTION);
 		}
 
 		return new Queue({
@@ -420,30 +432,27 @@ export const createQueue = async (
 /**
  * Function for searching a song in YouTube
  * @param {string} query - Song to search for
- * @return {Song} - Found song from YouTube
+ * @return {Song} Found song from YouTube
  */
 export const searchSong = async (query: string): Promise<Song> => {
-	let ytInfo: YouTubeVideo[] = [];
+	let video: YouTubeVideo;
 	try {
-		ytInfo = await search(query, { limit: 1 });
+		video = (await search(query, { limit: 1 }))[0];
 	}
 	catch (err) {
 		console.error(err);
-	}
-
-	if (!ytInfo[0] || !ytInfo[0].url) {
 		return new Song({
 			title: 'Untitled',
-			url: 'Song was not found',
+			url: NO_VIDEO_RESULT_MESSAGE,
 			duration: '',
 			durationSec: 0,
 		});
 	}
 
 	return new Song({
-		title: ytInfo[0].title ?? 'Untitled',
-		url: ytInfo[0].url,
-		duration: ytInfo[0].durationRaw,
-		durationSec: ytInfo[0].durationInSec,
+		title: video.title ?? 'Untitled',
+		url: video.url,
+		duration: video.durationRaw,
+		durationSec: video.durationInSec,
 	});
 };
