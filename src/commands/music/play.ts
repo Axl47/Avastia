@@ -66,7 +66,6 @@ const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
 const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
 const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
 
-
 /**
  * Searches a song with a query on Spotify or YouTube
  * and adds it to the queue
@@ -91,7 +90,6 @@ export default new Command({
 			.setDescription('Empty');
 
 		if (!interaction.member.voice.channel) {
-			/* eslint-disable-next-line max-len */
 			response.setDescription(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
 			await interaction.editReply({ embeds: [response] });
 			return;
@@ -151,8 +149,10 @@ export default new Command({
 						// Search song on Youtube
 						// <Song-Title> <Artist1> <Artist2>...
 						try {
-							/* eslint-disable-next-line max-len */
-							song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`);
+							song = await searchSong(`${spData.name} ${spData.artists.map(
+								(artist) => artist.name).join(' ')}`,
+							);
+
 							if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
 								throw new Error(NO_VIDEO_RESULT_MESSAGE);
 							}
@@ -197,8 +197,9 @@ export default new Command({
 							songQueue.fullQueue.push(song);
 						}
 
-						/* eslint-disable-next-line max-len */
-						response.setDescription(`:thumbsup: Added **${tracks.length}** songs to the queue!`);
+						response.setDescription(
+							`Added **${tracks.length}** songs to the queue!` +
+							':thumbsup:');
 						await interaction.editReply({ embeds: [response] });
 
 						wasPlaylist = true;
@@ -308,8 +309,10 @@ export default new Command({
 		}
 
 		if (!wasPlaylist) {
-			/* eslint-disable-next-line max-len */
-			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) (${songQueue.songs.at(-1)?.duration}) [${author}]`);
+			const currSong = songQueue.songs.at(-1) as Song;
+			response.setDescription(
+				`Queued [${currSong.title}](${currSong.url}) (${currSong.duration})` +
+				` [${author}]`);
 			await interaction.editReply({ embeds: [response] });
 		}
 	},

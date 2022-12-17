@@ -20,9 +20,13 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue) {
-			response.setTitle('Now Playing...')
-				/* eslint-disable-next-line max-len */
-				.setDescription(`[${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${interaction.user}]`);
+			const song = songQueue.songs[songQueue.loopCounter];
+			const user = interaction.user;
+			response
+				.setTitle('Now Playing...')
+				.setDescription(
+					`[${song.title}](${song.url}) (${song.duration}) [${user}]`,
+				);
 		}
 
 		await interaction.editReply({ embeds: [response] });

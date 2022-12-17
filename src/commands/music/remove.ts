@@ -43,8 +43,10 @@ export default new Command({
 			}
 
 			if (i < songQueue.songs.length) {
-				/* eslint-disable-next-line max-len */
-				response.setDescription(`Removed [${songs[i].title}](${songs[i].url}) [${interaction.user}]`);
+				response.setDescription(
+					`Removed [${songs[i].title}](${songs[i].url})` +
+					`[${interaction.user}]`,
+				);
 				songQueue.songs.splice(i, 1);
 			}
 			else {

@@ -24,10 +24,13 @@ export default new PlayerEvent('stateChange',
 		switch (newState.status) {
 			case AudioPlayerStatus.Playing:
 				// If the player is currently playing, send the song to the channel
+				const song = songQueue.songs[songQueue.loopCounter];
 				const play = new EmbedBuilder()
 					.setColor('#f22222')
-					/* eslint-disable-next-line max-len */
-					.setDescription(`Started playing [${songQueue.songs[songQueue.loopCounter].title}](${songQueue.songs[songQueue.loopCounter].url}) (${songQueue.songs[songQueue.loopCounter].duration}) [${author}]`);
+					.setDescription(
+						`Started playing [${song.title}](${song.url}) (${song.duration})` +
+						`[${author}]`,
+					);
 				channel.send({ embeds: [play] });
 				return;
 			case AudioPlayerStatus.Idle:

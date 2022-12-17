@@ -40,8 +40,9 @@ export default new Command({
 			songQueue.songs.splice(1, 0, song);
 			songQueue.fullQueue.splice(songQueue.songIndex + 1, 0, song);
 
-			/* eslint-disable-next-line max-len */
-			response.setDescription(`Queued [${song.title}](${song.url}) (${song.duration}) [${interaction.user}]`);
+			response.setDescription(
+				`Queued [${song.title}](${song.url}) (${song.duration}) ` +
+				`[${interaction.user}]`);
 		}
 
 		await interaction.editReply({ embeds: [response] });

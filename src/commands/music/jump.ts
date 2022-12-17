@@ -34,7 +34,7 @@ export default new Command({
 			const amount = args.getInteger('amount', true);
 
 			if (songQueue.loop !== LoopState.Disabled) {
-				// TODO: A % operation might delete this for loop
+				// TODO: A % operation might delete this while loop
 
 				// If we are looping, and the amount to skip is greater than
 				// the length of the song, loop through the queue to find the song
