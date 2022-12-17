@@ -29,9 +29,9 @@ export default new Command({
 		const songQueue = queue.get(interaction.commandGuildId!);
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
-			.setDescription('Not playing anything.');
+			.setDescription('Invalid number.');
 
-		if (songQueue) {
+		if (songQueue && amount >= 0) {
 			await videoPlayer(
 				interaction.commandGuildId!,
 				songQueue.songs[songQueue.loopCounter],
