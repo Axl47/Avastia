@@ -7,4 +7,5 @@ export interface SongType {
 	url: string;
 	duration: string;
 	durationSec: number;
+	spotify?: boolean;
 }

@@ -171,20 +171,23 @@ export default new Command({
 						// unnecessary for searching the song on youtube
 						spData = await spotify(url) as SpotifyAlbum;
 						await spData.fetch();
-						const tracks = await spData.all_tracks();
+						const tracks: SpotifyTrack[] = await spData.all_tracks();
 
-						// TODO: it might be faster to only search each track on yt when
-						// they are going to be played, instead of searching them all at
-						// the same time
 						for (const track of tracks) {
 							try {
-								song =
-									await searchSong(`${track.name} ${track.artists.map(
-										(artist) => artist.name).join(' ')}`);
+								const dur: number = track.durationInSec;
+								const durMin: number = Math.floor(dur / 60);
+								const durSec = (dur % 60).toString().padStart(2, '0');
+								const durFormat = `${durMin}:${durSec}`;
 
-								if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
-									throw new Error(NO_VIDEO_RESULT_MESSAGE);
-								}
+								song = new Song({
+									title: `${track.name} - ${track.artists.map(
+										(artist) => artist.name).join(', ')}`,
+									url: track.url,
+									duration: durFormat,
+									durationSec: dur,
+									spotify: true,
+								});
 							}
 							catch (e) {
 								// Most errors are caused by erroneous search results,
@@ -362,6 +365,14 @@ export const videoPlayer = async (
 		}
 
 		// Create Player Resources
+		if (song.spotify) {
+			song = await searchSong(song.title);
+
+			if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
+				throw new Error(NO_VIDEO_RESULT_MESSAGE);
+			}
+		}
+
 		const songStream = await stream(song.url, { seek: seek });
 		const resource = createAudioResource(songStream.stream,
 			{ inputType: songStream.type, inlineVolume: true },
