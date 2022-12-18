@@ -1,6 +1,6 @@
 {
 	"name": "avastia",
-	"version": "3.7.0",
+	"version": "1.4.0",
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
