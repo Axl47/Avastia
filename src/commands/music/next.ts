@@ -37,8 +37,11 @@ export default new Command({
 				await interaction.editReply('No video result found.');
 				return;
 			}
-			songQueue.songs.splice(1, 0, song);
-			songQueue.fullQueue.splice(songQueue.songIndex + 1, 0, song);
+			songQueue.songs.splice(
+				songQueue.songIndex + songQueue.loopCounter + 1,
+				0,
+				song,
+			);
 
 			response.setDescription(
 				`Queued [${song.title}](${song.url}) (${song.duration}) ` +

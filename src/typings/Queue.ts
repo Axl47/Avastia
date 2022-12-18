@@ -33,7 +33,7 @@ export interface QueueType {
 	loopCounter: number;
 	songIndex: number;
 	songs: SongType[];
-	fullQueue: SongType[];
+	songsPlayed: number;
 	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;

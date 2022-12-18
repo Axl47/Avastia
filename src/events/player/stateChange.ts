@@ -24,7 +24,8 @@ export default new PlayerEvent('stateChange',
 		switch (newState.status) {
 			case AudioPlayerStatus.Playing:
 				// If the player is currently playing, send the song to the channel
-				const song = songQueue.songs[songQueue.loopCounter];
+				const song =
+					songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
 				const play = new EmbedBuilder()
 					.setColor('#f22222')
 					.setDescription(
@@ -54,16 +55,15 @@ export const playNextSong = async (id: string): Promise<void> => {
 		return;
 	}
 
-	if (songQueue.stopped || songQueue.loopCounter >= songQueue.songs.length) {
+	if (songQueue.stopped || songQueue.songIndex >= songQueue.songs.length) {
 		deleteQueue(id);
 		return;
 	}
 
 	switch (songQueue.loop) {
 		case LoopState.Disabled:
-			// Delete the first song and make the second be [0]
-			songQueue.songs.shift();
 			songQueue.songIndex++;
+			songQueue.songsPlayed++;
 			break;
 		case LoopState.Song:
 			// Looping a song doesn't need any logic
@@ -72,12 +72,8 @@ export const playNextSong = async (id: string): Promise<void> => {
 			// Increment index,
 			// make 0 if greater or equal to the length of the queue
 			songQueue.loopCounter++;
-			songQueue.songIndex++;
 			if (songQueue.loopCounter >= songQueue.songs.length) {
 				songQueue.loopCounter = 0;
-				// Reset song index to be the first song of the current queue
-				songQueue.songIndex =
-					songQueue.fullQueue.length - songQueue.songs.length;
 			}
 			break;
 		default:
@@ -88,7 +84,9 @@ export const playNextSong = async (id: string): Promise<void> => {
 	if (songQueue.songs[0]) {
 		// When there are songs, play the next one
 		// When not looping, loopCounter is 0
-		await videoPlayer(id, songQueue.songs[songQueue.loopCounter]);
+		await videoPlayer(id,
+			songQueue.songs[songQueue.songIndex + songQueue.loopCounter],
+		);
 	}
 	else {
 		deleteQueue(id);

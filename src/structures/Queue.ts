@@ -24,7 +24,7 @@ export class Queue {
 	loopCounter: number;
 	songIndex: number;
 	songs: Song[];
-	fullQueue: Song[];
+	songsPlayed: number;
 	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;
@@ -43,14 +43,14 @@ export class Queue {
 	 * @param {SongPlayer} q.player - Player for video, optional before creation
 	 * @param {number} q.volume - Volume at which to play the music
 	 * @param {AudioResource} q.audioResource - Optional for saving resource
-	 * @param {Song[]} q.fullQueue - All of the songs added to the queue
+	 * @param {number} q.songsPlayed - Number of songs played
 	 */
 	constructor({
 		voiceChannel, textChannel,
 		connection, songs,
 		stopped, loop,
 		loopCounter, player,
-		audioResource, fullQueue,
+		audioResource, songsPlayed,
 		songIndex, volume,
 	}: QueueType) {
 		this.voiceChannel = voiceChannel;
@@ -64,6 +64,6 @@ export class Queue {
 		this.player = player;
 		this.volume = volume;
 		this.audioResource = audioResource;
-		this.fullQueue = fullQueue;
+		this.songsPlayed = songsPlayed;
 	}
 }

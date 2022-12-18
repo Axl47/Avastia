@@ -5,7 +5,9 @@ import {
 
 import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { LoopState } from '../../typings/Queue';
 import { videoPlayer } from '../../commands/music/play';
+
 /**
  * Goes back a song from the queue
  */
@@ -20,15 +22,29 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.player && songQueue?.songs[0]) {
-			if (songQueue.loopCounter > 0) songQueue.loopCounter--;
+			if (songQueue.loop !== LoopState.Disabled) {
+				songQueue.loopCounter--;
+			}
+			else {
+				songQueue.songIndex--;
+				songQueue.songsPlayed--;
+			}
 
-			// Add the past song to the queue
-			songQueue.songIndex--;
-			songQueue.songs.unshift(songQueue.fullQueue[songQueue.songIndex]);
+			if (songQueue.songIndex < 0 || songQueue.loopCounter < 0) {
+				if (songQueue.loop !== LoopState.Disabled) {
+					songQueue.loopCounter =
+						songQueue.songs.length - songQueue.songsPlayed - 1;
+				}
+				else {
+					response.setDescription('Already at the start.');
+					await interaction.editReply({ embeds: [response] });
+					return;
+				}
+			}
 
 			videoPlayer(
 				interaction.commandGuildId!,
-				songQueue.songs[0]);
+				songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
 			response.setDescription('Went back!');
 		}
 

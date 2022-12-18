@@ -21,7 +21,9 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.songs[0]) {
-			shuffle(songQueue.songs);
+			const trueSongs = songQueue.songs.splice(songQueue.songIndex);
+			shuffle(trueSongs);
+			songQueue.songs = songQueue.songs.concat(trueSongs);
 			response.setDescription('Queue shuffled.');
 		}
 

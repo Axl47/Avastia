@@ -48,6 +48,7 @@ export default new Command({
 					`[${interaction.user}]`,
 				);
 				songQueue.songs.splice(i, 1);
+				console.log(`${i} | ${songQueue.songs.length}`);
 			}
 			else {
 				response.setDescription('Song not in queue.');

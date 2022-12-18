@@ -42,10 +42,8 @@ export default new Command({
 			switch (args.getSubcommand()) {
 				case 'disable':
 					songQueue.loop = LoopState.Disabled;
-					songQueue.songs = songQueue.songs.slice(
-						songQueue.loopCounter,
-						songQueue.songs.length,
-					);
+					songQueue.songsPlayed += songQueue.loopCounter;
+					songQueue.songIndex += songQueue.loopCounter;
 					songQueue.loopCounter = 0;
 					response.setDescription('Looping is disabled.');
 					break;

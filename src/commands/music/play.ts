@@ -164,7 +164,6 @@ export default new Command({
 						}
 
 						songQueue.songs.push(song);
-						songQueue.fullQueue.push(song);
 						break;
 					case 'playlist':
 					case 'album':
@@ -194,7 +193,6 @@ export default new Command({
 								continue;
 							}
 							songQueue.songs.push(song);
-							songQueue.fullQueue.push(song);
 						}
 
 						response.setDescription(
@@ -237,7 +235,6 @@ export default new Command({
 							durationSec: video.durationInSec,
 						};
 						songQueue.songs.push(song);
-						songQueue.fullQueue.push(song);
 					}
 
 					response.setDescription(
@@ -266,7 +263,6 @@ export default new Command({
 						}
 
 						songQueue.songs.push(song);
-						songQueue.fullQueue.push(song);
 						break;
 					}
 
@@ -293,7 +289,6 @@ export default new Command({
 					}
 
 					songQueue.songs.push(song);
-					songQueue.fullQueue.push(song);
 					break;
 				default:
 					interaction.editReply('Error while validating Youtube link.');
@@ -417,7 +412,7 @@ export const createQueue = async (
 			textChannel: text,
 			connection: connection,
 			songs: [] as Song[],
-			fullQueue: [] as Song[],
+			songsPlayed: 0,
 			stopped: false,
 			loop: LoopState.Disabled,
 			loopCounter: 0,
@@ -434,7 +429,7 @@ export const createQueue = async (
 
 /**
  * Function for searching a song in YouTube
- * @param {string} query - Song to search for
+ * @param {string} query Song to search for
  * @return {Song} Found song from YouTube
  */
 export const searchSong = async (query: string): Promise<Song> => {

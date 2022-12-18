@@ -20,7 +20,7 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue) {
-			const song = songQueue.songs[songQueue.loopCounter];
+			const song = songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
 			const user = interaction.user;
 			response
 				.setTitle('Now Playing...')

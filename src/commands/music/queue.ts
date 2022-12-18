@@ -30,7 +30,11 @@ export default new Command({
 		// Get all songs and turn them into a string
 		// <index>) <song-title> (<song-duration>)\n
 		const songs = songQueue.songs.map((song: Song, index) => {
-			return `${index + 1}) ${song.title} (${song.duration})`;
+			let message = `${index + 1}) ${song.title} (${song.duration})`;
+			if (index === songQueue.songIndex + songQueue.loopCounter) {
+				message += ' -> Current Song';
+			}
+			return message;
 		}).join('\n');
 
 		const queueEmbeds: EmbedBuilder[] = [];

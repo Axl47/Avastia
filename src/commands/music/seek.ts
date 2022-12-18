@@ -34,7 +34,7 @@ export default new Command({
 		if (songQueue && amount >= 0) {
 			await videoPlayer(
 				interaction.commandGuildId!,
-				songQueue.songs[songQueue.loopCounter],
+				songQueue.songs[songQueue.songIndex + songQueue.loopCounter],
 				amount,
 			);
 
