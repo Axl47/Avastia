@@ -30,7 +30,7 @@ export default new PlayerEvent('stateChange',
 					.setColor('#f22222')
 					.setDescription(
 						`Started playing [${song.title}](${song.url}) (${song.duration})` +
-						`[${author}]`,
+						` [${author}]`,
 					);
 				channel.send({ embeds: [play] });
 				return;

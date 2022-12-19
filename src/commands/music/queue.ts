@@ -19,7 +19,7 @@ export default new Command({
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
 
-		if (!songQueue?.player) {
+		if (!songQueue?.songs[0]) {
 			const response = new EmbedBuilder()
 				.setColor('#f22222')
 				.setDescription('Not playing anything.');
