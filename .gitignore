@@ -5,3 +5,5 @@
 /.data/
 /.vs/
 /.vscode/
+src/commands/useful/character.ts
+src/structures/Characters.ts
