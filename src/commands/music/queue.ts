@@ -29,19 +29,20 @@ export default new Command({
 
 		// Get all songs and turn them into a string
 		// <index>) <song-title> (<song-duration>)\n
-		const songs = songQueue.songs.map((song: Song, index) => {
-			let message = `${index + 1}) ${song.title} (${song.duration})`;
-			if (index === songQueue.songIndex + songQueue.loopCounter) {
-				message += ' -> Current Song';
-			}
-			return message;
-		}).join('\n');
+		const songs = songQueue.songs.slice(songQueue.songIndex).map(
+			(song: Song, index) => {
+				let message = `${index + 1}) ${song.title} (${song.duration})`;
+				if (index === songQueue.songIndex + songQueue.loopCounter) {
+					message = `\n${message} -> Current Song\n`;
+				}
+				return message;
+			}).join('\n');
 
 		const queueEmbeds: EmbedBuilder[] = [];
 
 		// Create a new embed when the current one
 		// exceeds the maximum character limit
-		const songsIndex = Math.round(songs.length / 4096) + 1;
+		const songsIndex = Math.round((songs.length) / 4096) + 1;
 		for (let i = 1; i <= songsIndex; ++i) {
 			const b = i - 1;
 			if (songs.trim().slice(b * 4096, i * 4096).length !== 0) {
