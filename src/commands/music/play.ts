@@ -2,7 +2,7 @@ import {
 	ApplicationCommandType,
 	ApplicationCommandOptionType,
 	EmbedBuilder,
-	TextBasedChannel,
+	TextChannel,
 	User,
 	VoiceBasedChannel,
 } from 'discord.js';
@@ -46,7 +46,7 @@ export let guildId: string = '';
 /**
  * @type {TextBasedChannel} - The channel to send messages to
  */
-export let channel: TextBasedChannel;
+export let channel: TextChannel;
 
 /**
  * @type {User} - The user of the interaction
@@ -108,7 +108,7 @@ export default new Command({
 		}
 
 		guildId = interaction.commandGuildId!;
-		channel = interaction.channel;
+		channel = interaction.channel as TextChannel;
 
 		if (!queue.get(guildId)) {
 			try {
@@ -403,7 +403,7 @@ export const videoPlayer = async (
  */
 export const createQueue = async (
 	voice: VoiceBasedChannel,
-	text: TextBasedChannel,
+	text: TextChannel,
 ): Promise<Queue> => {
 	try {
 		// Join the voice channel
@@ -413,6 +413,24 @@ export const createQueue = async (
 			adapterCreator:
 				voice.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
 		});
+
+		// This section has been added as a fix to the @discord.js/voice
+		// automatic disconnection issue in most recent version
+		const networkStateChangeHandler = (
+			oldNetworkState: any,
+			newNetworkState: any,
+		) => {
+			const newUdp = Reflect.get(newNetworkState, 'udp');
+			clearInterval(newUdp?.keepAliveInterval);
+		};
+
+		connection.on('stateChange', (oldState, newState) => {
+			// eslint-disable-next-line max-len
+			Reflect.get(oldState, 'networking')?.off('stateChange', networkStateChangeHandler);
+			// eslint-disable-next-line max-len
+			Reflect.get(newState, 'networking')?.on('stateChange', networkStateChangeHandler);
+		});
+		// end of section
 
 		if (!connection) {
 			throw new Error(BAD_VOICE_CONNECTION);

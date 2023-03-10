@@ -3,6 +3,7 @@ import {
 	EmbedBuilder,
 	TextChannel,
 	ButtonStyle,
+	MessageComponentInteraction,
 } from 'discord.js';
 
 const availableEmojis = ['⏮️', '◀️', '⏹️', '▶️', '⏭️'];
@@ -104,41 +105,42 @@ export class Pagination {
 			},
 			this.timeout,
 		);
-		interactionCollector.on('collect', async (interaction) => {
-			const { customId } = interaction;
-			let newIndex =
-				// Start
-				customId === availableEmojis[0] ?
-					0 :
-					// Prev
-					customId === availableEmojis[1] ?
-						this.index - 1 :
-						// Stop
-						customId === availableEmojis[2] ?
-							NaN :
-							// Next
-							customId === availableEmojis[3] ?
-								this.index + 1 :
-								// End
-								customId === availableEmojis[4] ?
-									this.pages.length - 1 :
-									this.index;
-			if (isNaN(newIndex)) {
-				// Stop
-				interactionCollector.stop('stopped by user');
-				await interaction.update({
-					components: [],
-				});
-			}
-			else {
-				if (newIndex < 0) newIndex = 0;
-				if (newIndex >= this.pages.length) newIndex = this.pages.length - 1;
-				this.index = newIndex;
-				await interaction.update({
-					embeds: [this.pages[this.index]],
-				});
-			}
-		});
+		interactionCollector.on('collect',
+			async (interaction: MessageComponentInteraction) => {
+				const { customId } = interaction;
+				let newIndex =
+					// Start
+					customId === availableEmojis[0] ?
+						0 :
+						// Prev
+						customId === availableEmojis[1] ?
+							this.index - 1 :
+							// Stop
+							customId === availableEmojis[2] ?
+								NaN :
+								// Next
+								customId === availableEmojis[3] ?
+									this.index + 1 :
+									// End
+									customId === availableEmojis[4] ?
+										this.pages.length - 1 :
+										this.index;
+				if (isNaN(newIndex)) {
+					// Stop
+					interactionCollector.stop('stopped by user');
+					await interaction.update({
+						components: [],
+					});
+				}
+				else {
+					if (newIndex < 0) newIndex = 0;
+					if (newIndex >= this.pages.length) newIndex = this.pages.length - 1;
+					this.index = newIndex;
+					await interaction.update({
+						embeds: [this.pages[this.index]],
+					});
+				}
+			});
 		interactionCollector.on('end', async () => {
 			await this?.message?.edit({
 				components: [],
