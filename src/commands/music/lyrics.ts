@@ -35,7 +35,8 @@ export default new Command({
 		if (title == '') {
 			const songQueue = queue.get(interaction.commandGuildId!);
 			if (songQueue) {
-				title = songQueue.songs[songQueue.loopCounter].title;
+				title =
+					songQueue.songs[songQueue.songIndex + songQueue.loopCounter].title;
 			}
 			else {
 				const response = new EmbedBuilder()
