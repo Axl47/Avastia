@@ -425,10 +425,10 @@ export const createQueue = async (
 		};
 
 		connection.on('stateChange', (oldState, newState) => {
-			// eslint-disable-next-line max-len
-			Reflect.get(oldState, 'networking')?.off('stateChange', networkStateChangeHandler);
-			// eslint-disable-next-line max-len
-			Reflect.get(newState, 'networking')?.on('stateChange', networkStateChangeHandler);
+			Reflect.get(oldState, 'networking')
+				?.off('stateChange', networkStateChangeHandler);
+			Reflect.get(newState, 'networking')
+				?.on('stateChange', networkStateChangeHandler);
 		});
 		// end of section
 
