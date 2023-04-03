@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import glob from 'glob';
 import { promisify } from 'util';
+import { sep } from 'path';
 
 import { AudioPlayerEvents } from '../typings/PlayerEvents';
 import { CommandType } from '../typings/Command';
@@ -81,13 +82,14 @@ export class SuperClient extends Client {
 		// Commands
 		const slashCommands: ApplicationCommandDataResolvable[] = [];
 		const commandFiles =
-			await globPromise(`${__dirname}/../commands/*/*{.ts,.js}`);
+			await globPromise(`${__dirname.split(sep).join('/')}/../commands/*/*{.ts,.js}`);
 
 		commandFiles.forEach(async (filePath) => {
 			const command: CommandType = await this.importFile(filePath);
 			if (!command.name) return;
 
 			this.commands.set(command.name, command);
+			// 838258760731983872
 			slashCommands.push(command);
 		});
 
@@ -98,7 +100,8 @@ export class SuperClient extends Client {
 		});
 
 		// events
-		const eventFiles = await globPromise(`${__dirname}/../events/*{.ts,.js}`);
+		const eventFiles =
+			await globPromise(`${__dirname.split(sep).join('/')}/../events/*{.ts,.js}`);
 		eventFiles.forEach(async (filePath) => {
 			const event: Event<keyof ClientEvents> = await this.importFile(filePath);
 			this.on(event.event, event.run);
