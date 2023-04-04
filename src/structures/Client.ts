@@ -129,7 +129,7 @@ export class SuperClient extends Client {
 			return;
 		}
 		const eventFiles =
-			await globPromise(`${__dirname}/../events/player/*{.ts,.js}`);
+			await globPromise(`${__dirname.split(sep).join('/')}/../events/player/*{.ts,.js}`);
 		eventFiles.forEach(async (filePath) => {
 			const event: PlayerEvent<keyof AudioPlayerEvents> =
 				await this.importFile(filePath);
