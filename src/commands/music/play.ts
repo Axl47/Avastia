@@ -1,12 +1,4 @@
 import {
-	ApplicationCommandType,
-	ApplicationCommandOptionType,
-	EmbedBuilder,
-	TextChannel,
-	User,
-	VoiceBasedChannel,
-} from 'discord.js';
-import {
 	createAudioPlayer,
 	createAudioResource,
 	DiscordGatewayAdapterCreator,
@@ -14,28 +6,36 @@ import {
 	NoSubscriberBehavior,
 } from '@discordjs/voice';
 import {
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	EmbedBuilder,
+	TextChannel,
+	User,
+	VoiceBasedChannel,
+} from 'discord.js';
+import {
+	InfoData,
 	is_expired as isExpired,
 	playlist_info as playlistInfo,
-	video_info as videoInfo,
-	yt_validate as ytValidate,
-	sp_validate as spValidate,
 	refreshToken,
 	search,
 	spotify,
 	SpotifyAlbum,
 	SpotifyTrack,
-	YouTubeVideo,
-	YouTubePlayList,
+	sp_validate as spValidate,
 	stream,
-	InfoData,
+	video_info as videoInfo,
+	YouTubePlayList,
+	YouTubeVideo,
+	yt_validate as ytValidate,
 } from 'play-dl';
 
+import { playNextSong } from '../../events/player/stateChange';
+import { queue, SuperClient } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Queue } from '../../structures/Queue';
-import { queue, SuperClient } from '../../structures/Client';
-import { LoopState } from '../../typings/Queue';
-import { playNextSong } from '../../events/player/stateChange';
 import { Song } from '../../structures/Song';
+import { LoopState } from '../../typings/Queue';
 import { SongPlayer } from '../../typings/SongPlayer';
 
 /**
@@ -51,7 +51,7 @@ export let channel: TextChannel;
 /**
  * @type {User} - The user of the interaction
  */
-export let author: User;
+let author: User;
 
 /**
  * @type {SuperClient} - Discord Client
@@ -90,8 +90,7 @@ export default new Command({
 			.setDescription('Empty');
 
 		if (!interaction.member.voice.channel) {
-			response.setDescription(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
 			return;
 		}
 
@@ -99,11 +98,11 @@ export default new Command({
 			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
 		if (!voiceChannel) {
-			interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
+			await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
 			return;
 		}
 		if (!interaction.channel) {
-			interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
+			await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
 			return;
 		}
 
@@ -186,6 +185,7 @@ export default new Command({
 									url: track.url,
 									duration: durFormat,
 									durationSec: dur,
+									requester: author,
 									spotify: true,
 								});
 							}
@@ -236,6 +236,7 @@ export default new Command({
 							url: video.url,
 							duration: video.durationRaw,
 							durationSec: video.durationInSec,
+							requester: author,
 						};
 						songQueue.songs.push(song);
 					}
@@ -283,6 +284,7 @@ export default new Command({
 							url: details.url,
 							duration: details.durationRaw,
 							durationSec: details.durationInSec,
+							requester: author,
 						};
 					}
 					catch (err) {
@@ -473,6 +475,7 @@ export const searchSong = async (query: string): Promise<Song> => {
 			url: NO_VIDEO_RESULT_MESSAGE,
 			duration: '',
 			durationSec: 0,
+			requester: author,
 		});
 	}
 
@@ -481,5 +484,6 @@ export const searchSong = async (query: string): Promise<Song> => {
 		url: video.url,
 		duration: video.durationRaw,
 		durationSec: video.durationInSec,
+		requester: author,
 	});
 };

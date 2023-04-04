@@ -2,20 +2,19 @@ import { AudioPlayerStatus } from '@discordjs/voice';
 import { EmbedBuilder } from 'discord.js';
 
 import {
-	author,
 	channel,
 	guildId,
 	videoPlayer,
 } from '../../commands/music/play';
 import { queue } from '../../structures/Client';
-import { LoopState } from '../../typings/Queue';
 import { PlayerEvent } from '../../structures/PlayerEvent';
+import { LoopState } from '../../typings/Queue';
 
 /**
  * Event called when the player changes state
  */
 export default new PlayerEvent('stateChange',
-	async (oldState, newState): Promise<void> => {
+	async (_oldState, newState): Promise<void> => {
 		const songQueue = queue.get(guildId);
 		if (!songQueue?.player) {
 			return;
@@ -30,7 +29,7 @@ export default new PlayerEvent('stateChange',
 					.setColor('#f22222')
 					.setDescription(
 						`Started playing [${song.title}](${song.url}) (${song.duration})` +
-						` [${author}]`,
+						` [${song.requester}]`,
 					);
 				channel.send({ embeds: [play] });
 				return;

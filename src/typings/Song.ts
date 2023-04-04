@@ -1,3 +1,5 @@
+import { User } from 'discord.js';
+
 /**
  * Type for creating a song to be played
  * @interface SongType
@@ -7,5 +9,6 @@ export interface SongType {
 	url: string;
 	duration: string;
 	durationSec: number;
+	requester: User;
 	spotify?: boolean;
 }
