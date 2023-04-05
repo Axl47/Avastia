@@ -1,11 +1,11 @@
 import {
-	TextBasedChannel,
-	VoiceBasedChannel,
-} from 'discord.js';
-import {
 	AudioResource,
 	VoiceConnection,
 } from '@discordjs/voice';
+import {
+	TextBasedChannel,
+	VoiceBasedChannel,
+} from 'discord.js';
 
 import { Song as SongType } from '../structures/Song';
 import { SongPlayer } from './SongPlayer';

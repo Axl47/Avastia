@@ -1,14 +1,14 @@
 import {
-	EmbedBuilder,
-	ApplicationCommandType,
 	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	EmbedBuilder,
 	TextChannel,
 } from 'discord.js';
 import { Client as GeniusClient } from 'genius-lyrics';
 
+import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Pagination } from '../../utilities/PaginatedMessage';
-import { queue } from '../../structures/Client';
 
 const genius = new GeniusClient(process.env.geniusKey);
 

@@ -122,6 +122,7 @@
 		"space-unary-ops": "error",
 		"spaced-comment": "error",
 		"yoda": "error",
-		"no-tabs": "off"
+		"no-tabs": "off",
+		"max-len": 0
 	}
 }

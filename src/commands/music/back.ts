@@ -3,10 +3,10 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { Command } from '../../structures/Command';
-import { queue } from '../../structures/Client';
-import { LoopState } from '../../typings/Queue';
 import { videoPlayer } from '../../commands/music/play';
+import { queue } from '../../structures/Client';
+import { Command } from '../../structures/Command';
+import { LoopState } from '../../typings/Queue';
 
 /**
  * Goes back a song from the queue

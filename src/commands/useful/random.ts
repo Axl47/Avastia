@@ -1,6 +1,6 @@
 import {
-	ApplicationCommandType,
 	ApplicationCommandOptionType,
+	ApplicationCommandType,
 	EmbedBuilder,
 } from 'discord.js';
 

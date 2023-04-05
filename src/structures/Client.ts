@@ -82,7 +82,9 @@ export class SuperClient extends Client {
 		// Commands
 		const slashCommands: ApplicationCommandDataResolvable[] = [];
 		const commandFiles =
-			await globPromise(`${__dirname.split(sep).join('/')}/../commands/*/*{.ts,.js}`);
+			await globPromise(
+				`${__dirname.split(sep).join('/')}/../commands/*/*{.ts,.js}`,
+			);
 
 		commandFiles.forEach(async (filePath) => {
 			const command: CommandType = await this.importFile(filePath);
@@ -101,7 +103,9 @@ export class SuperClient extends Client {
 
 		// events
 		const eventFiles =
-			await globPromise(`${__dirname.split(sep).join('/')}/../events/*{.ts,.js}`);
+			await globPromise(
+				`${__dirname.split(sep).join('/')}/../events/*{.ts,.js}`,
+			);
 		eventFiles.forEach(async (filePath) => {
 			const event: Event<keyof ClientEvents> = await this.importFile(filePath);
 			this.on(event.event, event.run);
@@ -129,7 +133,9 @@ export class SuperClient extends Client {
 			return;
 		}
 		const eventFiles =
-			await globPromise(`${__dirname.split(sep).join('/')}/../events/player/*{.ts,.js}`);
+			await globPromise(
+				`${__dirname.split(sep).join('/')}/../events/player/*{.ts,.js}`,
+			);
 
 		eventFiles.forEach(async (filePath) => {
 			const event: PlayerEvent<keyof AudioPlayerEvents> =

@@ -1,13 +1,13 @@
 import {
-	EmbedBuilder,
 	ApplicationCommandType,
+	EmbedBuilder,
 	TextChannel,
 } from 'discord.js';
 
-import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
-import { Pagination } from '../../utilities/PaginatedMessage';
+import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
+import { Pagination } from '../../utilities/PaginatedMessage';
 
 /**
  * Sends the song queue to the channel

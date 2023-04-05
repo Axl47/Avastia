@@ -1,11 +1,11 @@
 import {
-	EmbedBuilder,
-	ApplicationCommandType,
 	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	EmbedBuilder,
 } from 'discord.js';
 
-import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { Command } from '../../structures/Command';
 import { LoopState } from '../../typings/Queue';
 
 /**

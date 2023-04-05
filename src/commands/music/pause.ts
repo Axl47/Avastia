@@ -1,11 +1,11 @@
+import { AudioPlayerStatus } from '@discordjs/voice';
 import {
 	ApplicationCommandType,
 	EmbedBuilder,
 } from 'discord.js';
-import { AudioPlayerStatus } from '@discordjs/voice';
 
-import { Command } from '../../structures/Command';
 import { queue } from '../../structures/Client';
+import { Command } from '../../structures/Command';
 
 /**
  * Command for pausing and unpausing the player
