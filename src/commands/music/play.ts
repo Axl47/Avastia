@@ -250,25 +250,6 @@ export const createQueue = async (
 				voice.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
 		});
 
-		/* ------------------------------- Keep Alive ------------------------------- */
-		// This section has been added as a fix to the @discord.js/voice
-		// automatic disconnection issue in most recent version
-		// const networkStateChangeHandler = (
-		// 	_oldNetworkState: any,
-		// 	newNetworkState: any,
-		// ) => {
-		// 	const newUdp = Reflect.get(newNetworkState, 'udp');
-		// 	clearInterval(newUdp?.keepAliveInterval);
-		// };
-
-		// connection.on('stateChange', (oldState, newState) => {
-		// 	Reflect.get(oldState, 'networking')
-		// 		?.off('stateChange', networkStateChangeHandler);
-		// 	Reflect.get(newState, 'networking')
-		// 		?.on('stateChange', networkStateChangeHandler);
-		// });
-		/* ----------------------------- end of section ----------------------------- */
-
 		if (!connection) {
 			throw new Error(BAD_VOICE_CONNECTION);
 		}
