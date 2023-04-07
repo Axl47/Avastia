@@ -14,7 +14,7 @@ import { LoopState } from '../../typings/Queue';
  * Event called when the player changes state
  */
 export default new PlayerEvent('stateChange',
-	async (_oldState, newState): Promise<void> => {
+	async (oldState, newState): Promise<void> => {
 		const songQueue = queue.get(guildId);
 		if (!songQueue?.player) {
 			return;
@@ -22,6 +22,12 @@ export default new PlayerEvent('stateChange',
 
 		switch (newState.status) {
 			case AudioPlayerStatus.Playing:
+				// If the player was paused before
+				// don't do anything
+				if (oldState.status == AudioPlayerStatus.Paused) {
+					break;
+				}
+
 				// If the player is currently playing, send the song to the channel
 				const song =
 					songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
