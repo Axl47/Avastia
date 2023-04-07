@@ -1,9 +1,9 @@
 import {
 	ButtonStyle,
-	EmbedBuilder,
-	Message,
-	MessageComponentInteraction,
-	TextChannel,
+	type EmbedBuilder,
+	type Message,
+	type MessageComponentInteraction,
+	type TextChannel,
 } from 'discord.js';
 
 const availableEmojis = ['⏮️', '◀️', '⏹️', '▶️', '⏭️'];

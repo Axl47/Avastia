@@ -1,8 +1,8 @@
-import {
+import type {
 	AudioPlayerError,
+	AudioPlayerState,
 	AudioPlayerStatus,
 	PlayerSubscription,
-	type AudioPlayerState,
 } from '@discordjs/voice';
 
 /**

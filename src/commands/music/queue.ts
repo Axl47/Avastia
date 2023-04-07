@@ -1,7 +1,7 @@
 import {
 	ApplicationCommandType,
 	EmbedBuilder,
-	TextChannel,
+	type TextChannel,
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';

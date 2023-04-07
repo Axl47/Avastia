@@ -2,7 +2,7 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	EmbedBuilder,
-	TextChannel,
+	type TextChannel,
 } from 'discord.js';
 import { Client as GeniusClient } from 'genius-lyrics';
 

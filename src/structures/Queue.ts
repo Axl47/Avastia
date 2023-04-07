@@ -1,4 +1,4 @@
-import {
+import type {
 	AudioResource,
 	VoiceConnection,
 } from '@discordjs/voice';

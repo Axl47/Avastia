@@ -9,8 +9,8 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	EmbedBuilder,
-	TextChannel,
-	User,
+	type TextChannel,
+	type User,
 	type VoiceBasedChannel,
 } from 'discord.js';
 import {
@@ -19,15 +19,15 @@ import {
 	refreshToken,
 	search,
 	spotify,
-	SpotifyAlbum,
-	SpotifyTrack,
 	sp_validate as spValidate,
 	stream,
 	video_info as videoInfo,
-	YouTubePlayList,
-	YouTubeVideo,
 	yt_validate as ytValidate,
 	type InfoData,
+	type SpotifyAlbum,
+	type SpotifyTrack,
+	type YouTubePlayList,
+	type YouTubeVideo,
 } from 'play-dl';
 
 import { playNextSong } from '../../events/player/stateChange';
