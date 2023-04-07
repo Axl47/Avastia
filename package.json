@@ -12,7 +12,7 @@
 		"watch": "tsc -w"
 	},
 	"engines": {
-		"node": "19.x"
+		"node": ">=v16.9.0"
 	},
 	"license": "MIT",
 	"dependencies": {
