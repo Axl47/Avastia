@@ -6,6 +6,7 @@ import {
 
 import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
+import { Colors } from '../../typings/Colors';
 
 /**
  * Command for pausing and unpausing the player
@@ -17,7 +18,7 @@ export default new Command({
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(Colors.Green)
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.player) {

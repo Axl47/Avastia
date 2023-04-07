@@ -67,6 +67,8 @@ const VOICE_CHANNEL_NOT_FOUND = 'Error while getting voice channel.';
 const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
 const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
 const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
+const SPOTIFY_VALIDATION_ERROR = 'Error while validating Spotify link.';
+const YOUTUBE_VALIDATION_ERROR = 'Error while validating YouTube link.';
 
 /**
  * Searches a song with a query on Spotify or YouTube
@@ -125,7 +127,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			interaction.editReply(QUEUE_NOT_FOUND);
+			await interaction.editReply(QUEUE_NOT_FOUND);
 			return;
 		}
 
@@ -346,7 +348,7 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				response.setDescription(
 					`Queued [${song.title}](${song.url}) (${song.duration})` +
 					` [${author}]`);
-				interaction.editReply({ embeds: [response] });
+				await interaction.editReply({ embeds: [response] });
 				break;
 			case 'playlist':
 			case 'album':
@@ -383,11 +385,11 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				}
 
 				response.setDescription(
-					`Added **${tracks.length}** songs from ${spData.name}! :thumbsup:`);
-				interaction.editReply({ embeds: [response] });
+					`Added **${tracks.length}** songs from **${spData.name}**! :thumbsup:`);
+				await interaction.editReply({ embeds: [response] });
 				break;
 			default:
-				interaction.editReply('Error while validating Spotify link.');
+				await interaction.editReply(SPOTIFY_VALIDATION_ERROR);
 				await playNextSong(guildId);
 				return;
 		}
@@ -469,6 +471,11 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 				}
 
 				songQueue.songs.push(song);
+				response.setDescription(
+					`Queued [${song.title}](${song.url}) (${song.duration})` +
+					` [${author}]`);
+
+				await interaction.editReply({ embeds: [response] });
 				break;
 			}
 
@@ -488,7 +495,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 					`Queued [${song.title}](${song.url}) (${song.duration})` +
 					` [${author}]`);
 
-				interaction.editReply({ embeds: [response] });
+				await interaction.editReply({ embeds: [response] });
 			}
 			catch (err) {
 				await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
@@ -499,7 +506,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 			songQueue.songs.push(song);
 			break;
 		default:
-			interaction.editReply('Error while validating Youtube link.');
+			await interaction.editReply(YOUTUBE_VALIDATION_ERROR);
 			await playNextSong(guildId);
 			return;
 	}
