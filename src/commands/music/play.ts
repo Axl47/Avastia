@@ -60,13 +60,13 @@ let author: User;
 let bot: SuperClient;
 
 /* ----------------------------- Error Messages ----------------------------- */
-const NO_VIDEO_RESULT_MESSAGE = 'No video result found.';
-const NO_VOICE_CHANNEL_MESSAGE =
+export const NO_VIDEO_RESULT_MESSAGE = 'No video result found.';
+export const NO_VOICE_CHANNEL_MESSAGE =
 	'You need to be in a voice channel to execute this command.';
-const VOICE_CHANNEL_NOT_FOUND = 'Error while getting voice channel.';
-const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
-const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
-const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
+export const VOICE_CHANNEL_NOT_FOUND = 'Error while getting voice channel.';
+export const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
+export const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
+export const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
 const SPOTIFY_VALIDATION_ERROR = 'Error while validating Spotify link.';
 const YOUTUBE_VALIDATION_ERROR = 'Error while validating YouTube link.';
 
@@ -326,8 +326,8 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 
 				songQueue.songs.push(song);
 				response.setDescription(
-					`Queued [${song.title}](${song.url}) (${song.duration})` +
-					` [${author}]`);
+					`Queued [${song.title}](${song.url}) (${song.duration}) [${author}]`,
+				);
 				await interaction.editReply({ embeds: [response] });
 				break;
 			case 'playlist':

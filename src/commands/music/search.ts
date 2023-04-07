@@ -1,24 +1,37 @@
-import {
-	ApplicationCommandType,
-	ApplicationCommandOptionType,
-	EmbedBuilder,
-	TextChannel,
-} from 'discord.js';
 import { MessagePrompter } from '@sapphire/discord.js-utilities';
+import {
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	EmbedBuilder,
+	type TextBasedChannel,
+	type TextChannel,
+	type User,
+} from 'discord.js';
 import { search } from 'play-dl';
 
+import { queue } from '../../structures/Client';
+import { Command } from '../../structures/Command';
+import { Song } from '../../structures/Song';
 import {
+	BAD_VOICE_CONNECTION,
+	NO_VIDEO_RESULT_MESSAGE,
+	NO_VOICE_CHANNEL_MESSAGE,
+	QUEUE_NOT_FOUND,
+	TEXT_CHANNEL_NOT_FOUND,
+	VOICE_CHANNEL_NOT_FOUND,
 	createQueue,
 	initiateEvents,
 	videoPlayer,
 } from './play';
-import { Command } from '../../structures/Command';
-import { queue } from '../../structures/Client';
-import { Song } from '../../structures/Song';
 
 /**
- * Searches a song and lets the user choose
- * which to play
+ * @type {User} - The user of the interaction
+ */
+let author: User;
+
+/**
+ * Searches a song and lets the
+ * user choose which one to play
  */
 export default new Command({
 	name: 'search',
@@ -33,13 +46,15 @@ export default new Command({
 		},
 	],
 	run: async ({ interaction, args }): Promise<void> => {
+		author = interaction.user;
+
 		const response = new EmbedBuilder()
 			.setColor('#15b500')
 			.setDescription('Empty');
 
+		/* ------------------------- Basic Error Handling ------------------------- */
 		if (!interaction.member.voice.channel) {
-			response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
 			return;
 		}
 
@@ -47,24 +62,26 @@ export default new Command({
 			interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
 
 		if (!voiceChannel) {
-			await interaction.editReply('Error while getting voice channel.');
-			return;
-		}
-		if (!interaction.channel) {
-			await interaction.editReply('Error while getting text channel.');
+			await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
 			return;
 		}
 
-		const guildId = interaction.commandGuildId!;
+		if (!interaction.channel) {
+			await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
+			return;
+		}
+
 		const channel = interaction.channel as TextChannel;
+		const guildId = interaction.commandGuildId!;
 
 		if (!queue.get(guildId)) {
+			// Create a server queue with the server id as the key
 			try {
 				queue.set(guildId,
 					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
-				interaction.editReply('Error while creating queue');
+				interaction.editReply(BAD_VOICE_CONNECTION);
 				console.error(e);
 				return;
 			}
@@ -72,7 +89,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			await interaction.editReply('Error while creating queue.');
+			await interaction.editReply(QUEUE_NOT_FOUND);
 			return;
 		}
 
@@ -81,51 +98,56 @@ export default new Command({
 		const ytInfo = await search(query, { limit: 5 });
 		let videos = '';
 		let index = 1;
+
 		ytInfo.forEach((video) => {
 			videos += `${index}) [${video.title ?? 'Untitled'}](${video.url})\n`;
 			index++;
 		});
 		response.setDescription(videos);
-		interaction.editReply({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 
-		const handler = new MessagePrompter('Play which one?', 'number', {
+		const handler = new MessagePrompter('Select song to play', 'number', {
 			start: 1,
 			end: 6,
 			timeout: 15000,
 		});
+
 		let result =
-			await handler.run(interaction.channel as never, interaction.user);
+			await handler.run(channel as TextBasedChannel, interaction.user);
+
 		const first = (songQueue.songs.length) ? false : true;
 
 		if (typeof result === 'number') {
 			result--;
 
-			if (!ytInfo[result].url) {
-				response.setDescription('Error searching for song.');
+			const video = ytInfo[result];
+			if (!video.url) {
+				response.setDescription(NO_VIDEO_RESULT_MESSAGE);
 				await interaction.editReply({ embeds: [response] });
 				return;
 			}
 
 			const song: Song = {
-				title: ytInfo[result].title ?? 'Untitled',
-				url: ytInfo[result].url,
-				duration: ytInfo[result].durationRaw,
-				durationSec: ytInfo[result].durationInSec,
-				requester: interaction.user,
+				title: video.title ?? 'Untitled',
+				url: video.url,
+				duration: video.durationRaw,
+				durationSec: video.durationInSec,
+				requester: author,
 			};
 
 			songQueue.songs.push(song);
-			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) [${interaction.user}]`);
+			response.setDescription(
+				`Queued [${song.title}](${song.url}) [${author}]`,
+			);
 			await interaction.editReply({ embeds: [response] });
 
 			if (first) {
-				await videoPlayer(interaction.commandGuildId!, songQueue.songs[0]);
-				initiateEvents(interaction.commandGuildId!);
-				return;
+				// Start playback
+				await videoPlayer(guildId, songQueue.songs[0]);
+
+				// Start listening for player events
+				initiateEvents(guildId);
 			}
-		}
-		else {
-			return;
 		}
 	},
 });
