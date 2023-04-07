@@ -1,9 +1,9 @@
 import {
 	createAudioPlayer,
 	createAudioResource,
-	DiscordGatewayAdapterCreator,
 	joinVoiceChannel,
 	NoSubscriberBehavior,
+	type DiscordGatewayAdapterCreator,
 } from '@discordjs/voice';
 import {
 	ApplicationCommandOptionType,
@@ -11,10 +11,9 @@ import {
 	EmbedBuilder,
 	TextChannel,
 	User,
-	VoiceBasedChannel,
+	type VoiceBasedChannel,
 } from 'discord.js';
 import {
-	InfoData,
 	is_expired as isExpired,
 	playlist_info as playlistInfo,
 	refreshToken,
@@ -28,6 +27,7 @@ import {
 	YouTubePlayList,
 	YouTubeVideo,
 	yt_validate as ytValidate,
+	type InfoData,
 } from 'play-dl';
 
 import { playNextSong } from '../../events/player/stateChange';
@@ -35,9 +35,9 @@ import { queue, SuperClient } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Queue } from '../../structures/Queue';
 import { Song } from '../../structures/Song';
+import type { SuperInteraction } from '../../typings/Command';
 import { LoopState } from '../../typings/Queue';
-import { SongPlayer } from '../../typings/SongPlayer';
-import { SuperInteraction } from 'src/typings/Command';
+import type { SongPlayer } from '../../typings/SongPlayer';
 
 /**
  * @type {string} - The id of the current guild

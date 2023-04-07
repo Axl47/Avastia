@@ -1,4 +1,4 @@
-import { CommandType } from '../typings/Command';
+import type { CommandType } from '../typings/Command';
 
 /**
  * Class for creating a command

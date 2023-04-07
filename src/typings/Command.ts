@@ -1,9 +1,9 @@
 import {
-	ChatInputApplicationCommandData,
 	CommandInteraction,
 	CommandInteractionOptionResolver,
 	GuildMember,
-	PermissionResolvable,
+	type ChatInputApplicationCommandData,
+	type PermissionResolvable,
 } from 'discord.js';
 
 import { SuperClient } from '../structures/Client';

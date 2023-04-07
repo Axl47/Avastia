@@ -2,13 +2,13 @@ import {
 	AudioResource,
 	VoiceConnection,
 } from '@discordjs/voice';
-import {
+import type {
 	TextBasedChannel,
 	VoiceBasedChannel,
 } from 'discord.js';
 
 import { Song as SongType } from '../structures/Song';
-import { SongPlayer } from './SongPlayer';
+import type { SongPlayer } from './SongPlayer';
 
 /**
  * Enum for queue looping state

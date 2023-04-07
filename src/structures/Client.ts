@@ -1,20 +1,20 @@
 import {
-	ApplicationCommandDataResolvable,
 	Client,
-	ClientEvents,
 	Collection,
 	GatewayIntentBits,
+	type ApplicationCommandDataResolvable,
+	type ClientEvents,
 } from 'discord.js';
 import glob from 'glob';
-import { promisify } from 'util';
 import { sep } from 'path';
+import { promisify } from 'util';
 
-import { AudioPlayerEvents } from '../typings/PlayerEvents';
-import { CommandType } from '../typings/Command';
-import { Event } from './Event';
 import { Queue } from '../structures/Queue';
+import type { RegisterCommandOptions } from '../typings/Client';
+import type { CommandType } from '../typings/Command';
+import type { AudioPlayerEvents } from '../typings/PlayerEvents';
+import { Event } from './Event';
 import { PlayerEvent } from './PlayerEvent';
-import { RegisterCommandOptions } from '../typings/Client';
 
 /**
  * Global map of all server queues

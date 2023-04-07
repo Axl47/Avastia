@@ -2,13 +2,16 @@ import {
 	AudioResource,
 	VoiceConnection,
 } from '@discordjs/voice';
-import {
+import type {
 	TextBasedChannel,
 	VoiceBasedChannel,
 } from 'discord.js';
 
-import { LoopState, QueueType } from '../typings/Queue';
-import { SongPlayer } from '../typings/SongPlayer';
+import {
+	LoopState,
+	type QueueType,
+} from '../typings/Queue';
+import type { SongPlayer } from '../typings/SongPlayer';
 import { Song } from './Song';
 
 /**
