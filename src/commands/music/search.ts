@@ -1,19 +1,20 @@
 import {
 	ApplicationCommandType,
 	ApplicationCommandOptionType,
-	// EmbedBuilder,
+	EmbedBuilder,
+	TextChannel,
 } from 'discord.js';
-// import { MessagePrompter } from '@sapphire/discord.js-utilities';
-// import { search } from 'play-dl';
+import { MessagePrompter } from '@sapphire/discord.js-utilities';
+import { search } from 'play-dl';
 
-// import {
-// 	createQueue,
-// 	initiateEvents,
-// 	videoPlayer,
-// } from './play';
+import {
+	createQueue,
+	initiateEvents,
+	videoPlayer,
+} from './play';
 import { Command } from '../../structures/Command';
-// import { queue } from '../../structures/Client';
-// import { Song } from '../../structures/Song';
+import { queue } from '../../structures/Client';
+import { Song } from '../../structures/Song';
 
 /**
  * Searches a song and lets the user choose
@@ -31,107 +32,100 @@ export default new Command({
 			required: true,
 		},
 	],
-	run: async ({ interaction }): Promise<void> => {
-		/**
-		 * Sapphire Discord Utilities is not adapted for v14
-		 * Uncomment when it is available
-		 */
-		await interaction.editReply('Maintenance in process :D');
-		return;
-		// const response = new EmbedBuilder()
-		// 	.setColor('#15b500')
-		// 	.setDescription('Empty');
+	run: async ({ interaction, args }): Promise<void> => {
+		const response = new EmbedBuilder()
+			.setColor('#15b500')
+			.setDescription('Empty');
 
-		// if (!interaction.member.voice.channel) {
-		/* eslint-disable-next-line max-len */
-		// 	response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
-		// 	await interaction.editReply({ embeds: [response] });
-		// 	return;
-		// }
+		if (!interaction.member.voice.channel) {
+			response.setDescription(`You need to be in a voice channel to execute this command ${interaction.user}!`);
+			await interaction.editReply({ embeds: [response] });
+			return;
+		}
 
-		// const voiceChannel =
-		// 	interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
+		const voiceChannel =
+			interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
 
-		// if (!voiceChannel) {
-		// 	interaction.editReply('Error while getting voice channel.');
-		// 	return;
-		// }
-		// if (!interaction.channel) {
-		// 	interaction.editReply('Error while getting text channel.');
-		// 	return;
-		// }
+		if (!voiceChannel) {
+			await interaction.editReply('Error while getting voice channel.');
+			return;
+		}
+		if (!interaction.channel) {
+			await interaction.editReply('Error while getting text channel.');
+			return;
+		}
 
-		// const guildId = interaction.commandGuildId!;
-		// const channel = interaction.channel;
+		const guildId = interaction.commandGuildId!;
+		const channel = interaction.channel as TextChannel;
 
-		// if (!queue.get(guildId)) {
-		// 	try {
-		// 		queue.set(guildId,
-		// 			await createQueue(voiceChannel, channel));
-		// 	}
-		// 	catch (e) {
-		// 		interaction.editReply('Error while creating queue');
-		// 		console.error(e);
-		// 		return;
-		// 	}
-		// }
+		if (!queue.get(guildId)) {
+			try {
+				queue.set(guildId,
+					await createQueue(voiceChannel, channel));
+			}
+			catch (e) {
+				interaction.editReply('Error while creating queue');
+				console.error(e);
+				return;
+			}
+		}
 
-		// const songQueue = queue.get(guildId);
-		// if (!songQueue) {
-		// 	interaction.editReply('Error while creating queue.');
-		// 	return;
-		// }
+		const songQueue = queue.get(guildId);
+		if (!songQueue) {
+			await interaction.editReply('Error while creating queue.');
+			return;
+		}
 
-		// const query = args.getString('query', true);
+		const query = args.getString('query', true);
 
-		// const ytInfo = await search(query, { limit: 5 });
-		// let videos = '';
-		// let index = 1;
-		// ytInfo.forEach((video) => {
-		// 	videos += `${index}) [${video.title ?? 'Untitled'}](${video.url})\n`;
-		// 	index++;
-		// });
-		// response.setDescription(videos);
-		// interaction.editReply({ embeds: [response] });
+		const ytInfo = await search(query, { limit: 5 });
+		let videos = '';
+		let index = 1;
+		ytInfo.forEach((video) => {
+			videos += `${index}) [${video.title ?? 'Untitled'}](${video.url})\n`;
+			index++;
+		});
+		response.setDescription(videos);
+		interaction.editReply({ embeds: [response] });
 
-		// const handler = new MessagePrompter('Play which one?', 'number', {
-		// 	start: 1,
-		// 	end: 6,
-		// 	timeout: 15000,
-		// });
-		// let result =
-		// 	await handler.run(interaction.channel as never, interaction.user);
-		// const first = (songQueue.songs.length) ? false : true;
+		const handler = new MessagePrompter('Play which one?', 'number', {
+			start: 1,
+			end: 6,
+			timeout: 15000,
+		});
+		let result =
+			await handler.run(interaction.channel as never, interaction.user);
+		const first = (songQueue.songs.length) ? false : true;
 
-		// if (typeof result === 'number') {
-		// 	result--;
+		if (typeof result === 'number') {
+			result--;
 
-		// 	if (!ytInfo[result].url) {
-		// 		response.setDescription('Error searching for song.');
-		// 		interaction.channel.send({ embeds: [response] });
-		// 		return;
-		// 	}
+			if (!ytInfo[result].url) {
+				response.setDescription('Error searching for song.');
+				await interaction.editReply({ embeds: [response] });
+				return;
+			}
 
-		// 	const song: Song = {
-		// 		title: ytInfo[result].title ?? 'Untitled',
-		// 		url: ytInfo[result].url,
-		// 		duration: ytInfo[result].durationRaw,
-		// 		durationSec: ytInfo[result].durationInSec,
-		// 	};
+			const song: Song = {
+				title: ytInfo[result].title ?? 'Untitled',
+				url: ytInfo[result].url,
+				duration: ytInfo[result].durationRaw,
+				durationSec: ytInfo[result].durationInSec,
+				requester: interaction.user,
+			};
 
-		// 	songQueue.songs.push(song);
-		/* eslint-disable-next-line max-len */
-		// 	response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) [${interaction.user}]`);
-		// 	interaction.channel.send({ embeds: [response] });
+			songQueue.songs.push(song);
+			response.setDescription(`Queued [${songQueue.songs.at(-1)?.title}](${songQueue.songs.at(-1)?.url}) [${interaction.user}]`);
+			await interaction.editReply({ embeds: [response] });
 
-		// 	if (first) {
-		// 		await videoPlayer(interaction.commandGuildId!, songQueue.songs[0]);
-		// 		initiateEvents(interaction.commandGuildId!);
-		// 		return;
-		// 	}
-		// }
-		// else {
-		// 	return;
-		// }
+			if (first) {
+				await videoPlayer(interaction.commandGuildId!, songQueue.songs[0]);
+				initiateEvents(interaction.commandGuildId!);
+				return;
+			}
+		}
+		else {
+			return;
+		}
 	},
 });
