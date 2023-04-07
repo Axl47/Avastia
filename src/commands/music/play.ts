@@ -111,6 +111,7 @@ export default new Command({
 		channel = interaction.channel as TextChannel;
 
 		if (!queue.get(guildId)) {
+			// Create a server queue with the server id as the key
 			try {
 				queue.set(guildId,
 					await createQueue(voiceChannel, channel));
@@ -345,7 +346,7 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				response.setDescription(
 					`Queued [${song.title}](${song.url}) (${song.duration})` +
 					` [${author}]`);
-				await interaction.editReply({ embeds: [response] });
+				interaction.editReply({ embeds: [response] });
 				break;
 			case 'playlist':
 			case 'album':
@@ -382,10 +383,8 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				}
 
 				response.setDescription(
-					`Added **${tracks.length}** songs to the queue!` +
-					':thumbsup:',
-				);
-				await interaction.editReply({ embeds: [response] });
+					`Added **${tracks.length}** songs from ${spData.name}! :thumbsup:`);
+				interaction.editReply({ embeds: [response] });
 				break;
 			default:
 				interaction.editReply('Error while validating Spotify link.');
@@ -489,7 +488,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 					`Queued [${song.title}](${song.url}) (${song.duration})` +
 					` [${author}]`);
 
-				await interaction.editReply({ embeds: [response] });
+				interaction.editReply({ embeds: [response] });
 			}
 			catch (err) {
 				await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);

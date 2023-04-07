@@ -21,7 +21,7 @@ export default new Command({
 			.setDescription('Not playing anything.');
 
 		if (songQueue?.player) {
-			if (songQueue.player.state.status == AudioPlayerStatus.Idle) {
+			if (songQueue.player.state.status == AudioPlayerStatus.Paused) {
 				songQueue.player.unpause();
 				response.setDescription('Playback unpaused.');
 			}
