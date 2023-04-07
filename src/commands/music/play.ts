@@ -269,7 +269,6 @@ export const createQueue = async (
 	}
 	catch (e) {
 		queue.delete(guildId);
-		console.error(e);
 		throw e;
 	}
 };
