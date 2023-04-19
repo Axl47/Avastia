@@ -21,18 +21,15 @@ export default new Command({
 			.setColor(Colors.Green)
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player) {
-			if (songQueue.player.state.status == AudioPlayerStatus.Paused) {
-				songQueue.player.unpause();
-				response.setDescription('Playback unpaused.');
-			}
-			else {
-				songQueue.player.pause(true);
-				response.setDescription('Playback paused.');
-			}
+		if (!songQueue?.player) {
+			interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		songQueue.player.state.status == AudioPlayerStatus.Paused ?
+			(songQueue.player.unpause(), response.setDescription('Playback unpaused.')) :
+			(songQueue.player.pause(true), response.setDescription('Playback paused.'));
+
 		interaction.editReply({ embeds: [response] });
-		return;
 	},
 });
