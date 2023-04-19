@@ -24,7 +24,6 @@ export default new Command({
 			response.setDescription('Queue cleared!');
 		}
 
-		interaction.editReply({ embeds: [response] });
-		return;
+		await interaction.editReply({ embeds: [response] });
 	},
 });

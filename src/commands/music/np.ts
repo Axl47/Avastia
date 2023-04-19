@@ -19,17 +19,19 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue) {
-			const song = songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
-			const user = interaction.user;
-			response
-				.setTitle('Now Playing...')
-				.setDescription(
-					`[${song.title}](${song.url}) (${song.duration}) [${user}]`,
-				);
+		if (!songQueue?.songs) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		const song = songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
+
+		response
+			.setTitle('Now Playing...')
+			.setDescription(
+				`[${song.title}](${song.url}) (${song.duration}) [${interaction.user}]`,
+			);
+
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });

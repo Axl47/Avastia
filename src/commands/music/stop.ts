@@ -16,19 +16,23 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
+
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player) {
-			songQueue.stopped = true;
-			// playNextSong takes care of stopping and deleting the queue
-			await playNextSong(interaction.commandGuildId!);
-
-			response.setDescription('Player stopped.');
+		if (!songQueue?.player) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		songQueue.stopped = true;
+
+		// playNextSong takes care of stopping and deleting the queue
+		await playNextSong(interaction.commandGuildId!);
+
+		response.setDescription('Player stopped.');
+
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });

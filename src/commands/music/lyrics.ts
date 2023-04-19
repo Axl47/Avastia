@@ -10,8 +10,6 @@ import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Pagination } from '../../utilities/PaginatedMessage';
 
-const genius = new GeniusClient(process.env.geniusKey);
-
 /**
  * Sends the lyrics from the current song
  * or from a query to the channel
@@ -30,21 +28,23 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		let title = args.getString('title') ?? '';
+		const genius = new GeniusClient(process.env.geniusKey);
 
 		// If a title is not specified, use the current song title
 		if (title == '') {
 			const songQueue = queue.get(interaction.commandGuildId!);
-			if (songQueue) {
-				title =
-					songQueue.songs[songQueue.songIndex + songQueue.loopCounter].title;
-			}
-			else {
+
+			if (!songQueue) {
 				const response = new EmbedBuilder()
 					.setColor('#ff0000')
 					.setDescription('Provide a title or start playing something.');
+
 				await interaction.editReply({ embeds: [response] });
 				return;
 			}
+
+			title =
+				songQueue.songs[songQueue.songIndex + songQueue.loopCounter].title;
 		}
 
 		try {
@@ -66,12 +66,10 @@ export default new Command({
 				interaction.channel as TextChannel,
 				lyricEmbeds,
 			).paginate();
-			return;
 		}
 		catch (e) {
 			console.log(e);
 			await interaction.editReply('Something went wrong :(');
-			return;
 		}
 	},
 });

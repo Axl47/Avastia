@@ -8,8 +8,8 @@ import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 
 /**
- * Removes a song from the queue with an
- * index or a query
+ * Removes a song from the queue
+ * with an index or a query
  */
 export default new Command({
 	name: 'remove',
@@ -29,32 +29,35 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player) {
-			let i = 0;
-			const songs = songQueue.songs;
-			const query = args.getString('query', true);
+		if (!songQueue?.player) {
+			await interaction.editReply({ embeds: [response] });
+			return;
+		}
 
-			// Loop through all songs, i should be the index of the found song
-			for (i = 0; i < songs.length; i++) {
-				if (songs[i].title.toLowerCase().includes(
-					query.toLowerCase())) {
-					break;
-				}
-			}
+		let i = 0;
+		const songs = songQueue.songs;
+		const query = args.getString('query', true);
 
-			if (i < songQueue.songs.length) {
-				response.setDescription(
-					`Removed [${songs[i].title}](${songs[i].url})` +
-					`[${interaction.user}]`,
-				);
-				songQueue.songs.splice(i, 1);
-				console.log(`${i} | ${songQueue.songs.length}`);
-			}
-			else {
-				response.setDescription('Song not in queue.');
+		// Loop through all songs, i should be the index of the found song
+		for (i = 0; i < songs.length; i++) {
+			if (songs[i].title.toLowerCase().includes(
+				query.toLowerCase())) {
+				break;
 			}
 		}
+
+		if (i < songs.length) {
+			response.setDescription(
+				`Removed [${songs[i].title}](${songs[i].url})` +
+				`[${interaction.user}]`,
+			);
+
+			songQueue.songs.splice(i, 1);
+		}
+		else {
+			response.setDescription('Song not in queue.');
+		}
+
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });

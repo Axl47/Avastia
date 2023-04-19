@@ -29,26 +29,29 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player && songQueue?.songs[0]) {
-			const url = args.getString('query', true);
-
-			const song = await searchSong(url);
-			if (song.url.includes('Invalid')) {
-				await interaction.editReply('No video result found.');
-				return;
-			}
-			songQueue.songs.splice(
-				songQueue.songIndex + songQueue.loopCounter + 1,
-				0,
-				song,
-			);
-
-			response.setDescription(
-				`Queued [${song.title}](${song.url}) (${song.duration}) ` +
-				`[${interaction.user}]`);
+		if (!songQueue?.player || !songQueue?.songs[0]) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		const url = args.getString('query', true);
+		const song = await searchSong(url);
+
+		if (song.url.includes('Invalid')) {
+			await interaction.editReply('No video result found.');
+			return;
+		}
+
+		songQueue.songs.splice(
+			songQueue.songIndex + songQueue.loopCounter + 1,
+			0,
+			song,
+		);
+
+		response.setDescription(
+			`Queued [${song.title}](${song.url}) (${song.duration}) [${song.requester}]`,
+		);
+
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });

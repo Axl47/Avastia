@@ -29,6 +29,5 @@ export default new Command({
 		}
 
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });

@@ -56,7 +56,6 @@ export default new Command({
 			interaction.channel as TextChannel,
 			queueEmbeds,
 		).paginate();
-		return;
 	},
 });
 

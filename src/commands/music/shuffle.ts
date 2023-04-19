@@ -16,6 +16,7 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
+
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
@@ -28,18 +29,19 @@ export default new Command({
 		}
 
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });
 
+// Shuffle implementation using the
+// Fisher-Yates shuffle algorithm
 const shuffle = (list: Song[]): Song[] => {
 	const firstSong = list.shift()!;
 	let currentIndex = list.length;
 	let randomIndex: number;
 
-	// While there remain elements to shuffle...
+	// While there remain elements to shuffle
 	while (currentIndex != 0) {
-		// Pick a remaining element...
+		// Pick a remaining element
 		randomIndex = Math.floor(Math.random() * currentIndex);
 		currentIndex--;
 
