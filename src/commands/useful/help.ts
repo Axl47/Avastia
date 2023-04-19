@@ -16,7 +16,6 @@ export default new Command({
 		const response = new EmbedBuilder()
 			.setColor('#15b500')
 			.setTitle('Commands:')
-			.setDescription('All available commands...')
 			.addFields(
 				{
 					name: '/play',
@@ -32,19 +31,19 @@ export default new Command({
 
 				{
 					name: '/pause',
-					value: 'Pauses the player.',
+					value: 'Pauses or resumes the player.',
 					inline: true,
 				},
 				{
-					name: '/resume',
-					value: 'Unpauses the player.',
+					name: '/clear',
+					value: 'Clears the queue.',
 					inline: true,
 				},
 				{ name: '\u200B', value: '\u200B' },
 
 				{
 					name: '/stop',
-					value: 'Disconnects the player and clears the queue.',
+					value: 'Disconnects the player.',
 					inline: true,
 				},
 				{
@@ -116,6 +115,17 @@ export default new Command({
 				{
 					name: '/next',
 					value: 'Adds a song to be played next, regardless of the queue.',
+					inline: true,
+				},
+				{
+					name: '/volume',
+					value: 'Sets the song volume from 0 to 100.',
+					inline: true,
+				},
+				{ name: '\u200B', value: '\u200B' },
+				{
+					name: '/search',
+					value: 'Lets user choose between 5 songs.',
 					inline: true,
 				},
 			);
