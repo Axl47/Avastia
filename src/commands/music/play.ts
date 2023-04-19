@@ -59,23 +59,25 @@ let author: User;
  */
 let bot: SuperClient;
 
-/* ----------------------------- Error Messages ----------------------------- */
-export const NO_VIDEO_RESULT_MESSAGE = 'No video result found.';
-export const NO_VOICE_CHANNEL_MESSAGE =
-	'You need to be in a voice channel to execute this command.';
-export const VOICE_CHANNEL_NOT_FOUND = 'Error while getting voice channel.';
-export const TEXT_CHANNEL_NOT_FOUND = 'Error while getting text channel.';
-export const BAD_VOICE_CONNECTION = 'Error while joining the channel.';
-export const QUEUE_NOT_FOUND = 'Error while getting the server queue.';
-const SPOTIFY_VALIDATION_ERROR = 'Error while validating Spotify link.';
-const YOUTUBE_VALIDATION_ERROR = 'Error while validating YouTube link.';
+/**
+ * Messages for common errors
+ */
+export const errorMessages = {
+	NO_VIDEO_RESULT: 'No video result found.',
+	NO_VOICE_CHANNEL: 'You need to be in a voice channel to execute this command.',
+	VOICE_CONNECTION_ERROR: 'Error while joining the channel.',
+	VOICE_CHANNEL_ERROR: 'Error while getting voice channel.',
+	TEXT_CHANNEL_ERROR: 'Error while getting text channel.',
+	QUEUE_ERROR: 'Error while getting the server queue.',
+	SPOTIFY_VALIDATION_ERROR: 'Error while validating Spotify link.',
+	YOUTUBE_VALIDATION_ERROR: 'Error while validating YouTube link.',
+};
 
 /**
- * Searches a song with a query on Spotify or YouTube
- * and adds it to the queue
+ * Searches a song with a query on Spotify
+ * or YouTube and adds it to the queue
  */
 export default new Command({
-	/* ---------------------------- Command Options --------------------------- */
 	name: 'play',
 	description: 'Plays a song',
 	type: ApplicationCommandType.ChatInput,
@@ -93,7 +95,7 @@ export default new Command({
 
 		/* ------------------------- Basic Error Handling ------------------------- */
 		if (!interaction.member.voice.channel) {
-			await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
+			await interaction.editReply(`${errorMessages.NO_VOICE_CHANNEL} [${author}]`);
 			return;
 		}
 
@@ -101,11 +103,11 @@ export default new Command({
 			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
 
 		if (!voiceChannel) {
-			await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
+			await interaction.editReply(errorMessages.VOICE_CHANNEL_ERROR);
 			return;
 		}
 		if (!interaction.channel) {
-			await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
+			await interaction.editReply(errorMessages.TEXT_CHANNEL_ERROR);
 			return;
 		}
 
@@ -119,7 +121,7 @@ export default new Command({
 					await createQueue(voiceChannel, channel));
 			}
 			catch (e) {
-				await interaction.editReply(BAD_VOICE_CONNECTION);
+				await interaction.editReply(errorMessages.VOICE_CONNECTION_ERROR);
 				console.error(e);
 				return;
 			}
@@ -127,7 +129,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			await interaction.editReply(QUEUE_NOT_FOUND);
+			await interaction.editReply(errorMessages.QUEUE_ERROR);
 			return;
 		}
 
@@ -204,8 +206,8 @@ export const videoPlayer = async (
 		if (song.spotify) {
 			song = await searchSong(song.title);
 
-			if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
-				throw new Error(NO_VIDEO_RESULT_MESSAGE);
+			if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
+				throw new Error(errorMessages.NO_VIDEO_RESULT);
 			}
 		}
 
@@ -220,8 +222,10 @@ export const videoPlayer = async (
 		songQueue.player.play(songQueue.audioResource);
 	}
 	catch (e) {
-		// Only display error if it's not related to
-		// a seek number being greater than song duration
+		/**
+		 * Only display error if it's not related to
+		 * a seek number being greater than song duration
+		 */
 		if ((!seek || seek < song.durationSec)) {
 			console.error(e);
 		}
@@ -251,7 +255,7 @@ export const createQueue = async (
 		});
 
 		if (!connection) {
-			throw new Error(BAD_VOICE_CONNECTION);
+			throw new Error(errorMessages.VOICE_CONNECTION_ERROR);
 		}
 
 		return new Queue({
@@ -283,7 +287,7 @@ export const searchSong = async (query: string): Promise<Song> => {
 
 	return new Song({
 		title: video?.title ?? 'Untitled',
-		url: video?.url ?? NO_VIDEO_RESULT_MESSAGE,
+		url: video?.url ?? errorMessages.NO_VIDEO_RESULT,
 		duration: video?.durationRaw ?? '',
 		durationSec: video?.durationInSec ?? 0,
 		requester: author,
@@ -300,6 +304,7 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 	const response = new EmbedBuilder()
 		.setColor('#15b500')
 		.setDescription('Empty');
+
 	try {
 		/**
 		 * Refresh Spotify Token
@@ -313,14 +318,16 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 			case 'track':
 				spData = await spotify(url) as SpotifyTrack;
 
-				// Search song on Youtube
-				// <Song-Title> <Artist1> <Artist2>...
+				/**
+				 * Search song on Youtube
+				 * <Song-Title> <Artist1> <Artist2>...
+				 */
 				song = await searchSong(`${spData.name} ${spData.artists.map(
 					(artist) => artist.name).join(' ')}`,
 				);
 
-				if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
-					await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
+				if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
+					await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
 					return;
 				}
 
@@ -332,8 +339,10 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				break;
 			case 'playlist':
 			case 'album':
-				// Distinction between album and playlist is
-				// unnecessary for searching the song on youtube
+				/**
+				 * Distinction between album and playlist is
+				 * unnecessary for searching the song on youtube
+				 */
 				spData = await spotify(url) as SpotifyAlbum;
 				await spData.fetch();
 				const tracks: SpotifyTrack[] = await spData.all_tracks();
@@ -347,7 +356,7 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 
 						song = new Song({
 							title: `${track.name} - ${track.artists.map(
-								(artist) => artist.name).join(', ')}`,
+								(artist) => artist.name).join(' ')}`,
 							url: track.url,
 							duration: durFormat,
 							durationSec: dur,
@@ -356,8 +365,10 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 						});
 					}
 					catch (e) {
-						// Most errors are caused by erroneous search results,
-						// or song visibility, so we ignore it
+						/**
+						 * Most errors are caused by erroneous search
+						 * or song visibility, so we ignore them
+						 */
 						console.error(e);
 						continue;
 					}
@@ -369,16 +380,14 @@ const handleSpotify = async (url: string, interaction: SuperInteraction): Promis
 				await interaction.editReply({ embeds: [response] });
 				break;
 			default:
-				await interaction.editReply(SPOTIFY_VALIDATION_ERROR);
+				await interaction.editReply(errorMessages.SPOTIFY_VALIDATION_ERROR);
 				await playNextSong(guildId);
-				return;
 		}
 	}
 	catch (e) {
 		console.error(e);
 		await interaction.editReply('Error playing.');
 		await playNextSong(guildId);
-		return;
 	}
 };
 
@@ -395,8 +404,8 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 	let song: Song;
 
 	/**
-	 * Delete superfluous info, such as the playlist the url comes from
-	 * when trying to play a video instead of the playlist
+	 * Delete superfluous info, such as the playlist the url comes
+	 * from when trying to play a video instead of the playlist
 	 */
 	const videoFromList = url.includes('&list') && url.includes('&index');
 	if (videoFromList) {
@@ -426,8 +435,10 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 					songQueue.songs.push(song);
 				}
 				catch (e) {
-					// Most errors are caused by erroneous search results,
-					// or song visibility, so we ignore it
+					/**
+					 * Most errors are caused by erroneous search
+					 * or song visibility, so we ignore them
+					 */
 					console.error(e);
 					continue;
 				}
@@ -439,14 +450,17 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 			await interaction.editReply({ embeds: [response] });
 			break;
 		case 'search':
-		// Search gets handled inside video due to ytValidate
-		// returning 'video' instead of 'search' sometimes
+		/**
+		 * Search gets handled inside video due to ytValidate
+		 * returning 'video' instead of 'search' sometimes
+		 */
 		case 'video':
-			// Search the song on youtube
+
+			// Search the song on youtube if it's not a link
 			if (!url.startsWith('https')) {
 				song = await searchSong(url);
-				if (song.url.includes(NO_VIDEO_RESULT_MESSAGE)) {
-					await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
+				if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
+					await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
 					return;
 				}
 
@@ -459,6 +473,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 				break;
 			}
 
+			// Link Handling
 			try {
 				const video: InfoData = await videoInfo(url);
 				const details: YouTubeVideo = video.video_details;
@@ -478,7 +493,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 				await interaction.editReply({ embeds: [response] });
 			}
 			catch (err) {
-				await interaction.editReply(NO_VIDEO_RESULT_MESSAGE);
+				await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
 				console.error(err);
 				return;
 			}
@@ -486,8 +501,7 @@ const handleYoutube = async (url: string, interaction: SuperInteraction): Promis
 			songQueue.songs.push(song);
 			break;
 		default:
-			await interaction.editReply(YOUTUBE_VALIDATION_ERROR);
+			await interaction.editReply(errorMessages.YOUTUBE_VALIDATION_ERROR);
 			await playNextSong(guildId);
-			return;
 	}
 };

@@ -13,13 +13,8 @@ import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
 import {
-	BAD_VOICE_CONNECTION,
-	NO_VIDEO_RESULT_MESSAGE,
-	NO_VOICE_CHANNEL_MESSAGE,
-	QUEUE_NOT_FOUND,
-	TEXT_CHANNEL_NOT_FOUND,
-	VOICE_CHANNEL_NOT_FOUND,
 	createQueue,
+	errorMessages,
 	initiateEvents,
 	videoPlayer,
 } from './play';
@@ -52,7 +47,7 @@ export default new Command({
 		if (!queue.get(interaction.commandGuildId!)?.player) {
 			/* ------------------------- Basic Error Handling ------------------------- */
 			if (!interaction.member.voice.channel) {
-				await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
+				await interaction.editReply(`${errorMessages.NO_VOICE_CHANNEL} [${author}]`);
 				return;
 			}
 
@@ -60,12 +55,12 @@ export default new Command({
 				interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
 
 			if (!voiceChannel) {
-				await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
+				await interaction.editReply(errorMessages.VOICE_CHANNEL_ERROR);
 				return;
 			}
 
 			if (!interaction.channel) {
-				await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
+				await interaction.editReply(errorMessages.TEXT_CHANNEL_ERROR);
 				return;
 			}
 
@@ -76,7 +71,7 @@ export default new Command({
 						await createQueue(voiceChannel, channel));
 				}
 				catch (e) {
-					interaction.editReply(BAD_VOICE_CONNECTION);
+					interaction.editReply(errorMessages.VOICE_CONNECTION_ERROR);
 					console.error(e);
 					return;
 				}
@@ -86,7 +81,7 @@ export default new Command({
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
-			await interaction.editReply(QUEUE_NOT_FOUND);
+			await interaction.editReply(errorMessages.QUEUE_ERROR);
 			return;
 		}
 
@@ -120,7 +115,7 @@ export default new Command({
 
 			const video = ytInfo[result];
 			if (!video.url) {
-				response.setDescription(NO_VIDEO_RESULT_MESSAGE);
+				response.setDescription(errorMessages.NO_VIDEO_RESULT);
 				await interaction.editReply({ embeds: [response] });
 				return;
 			}
