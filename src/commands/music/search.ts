@@ -25,11 +25,6 @@ import {
 } from './play';
 
 /**
- * @type {User} - The user of the interaction
- */
-let author: User;
-
-/**
  * Searches a song and lets the
  * user choose which one to play
  */
@@ -46,46 +41,48 @@ export default new Command({
 		},
 	],
 	run: async ({ interaction, args }): Promise<void> => {
-		author = interaction.user;
+		const author: User = interaction.user;
+		const channel = interaction.channel as TextChannel;
+		const guildId = interaction.commandGuildId!;
 
 		const response = new EmbedBuilder()
 			.setColor('#15b500')
 			.setDescription('Empty');
 
-		/* ------------------------- Basic Error Handling ------------------------- */
-		if (!interaction.member.voice.channel) {
-			await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
-			return;
-		}
-
-		const voiceChannel =
-			interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
-
-		if (!voiceChannel) {
-			await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
-			return;
-		}
-
-		if (!interaction.channel) {
-			await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
-			return;
-		}
-
-		const channel = interaction.channel as TextChannel;
-		const guildId = interaction.commandGuildId!;
-
-		if (!queue.get(guildId)) {
-			// Create a server queue with the server id as the key
-			try {
-				queue.set(guildId,
-					await createQueue(voiceChannel, channel));
-			}
-			catch (e) {
-				interaction.editReply(BAD_VOICE_CONNECTION);
-				console.error(e);
+		if (!queue.get(interaction.commandGuildId!)?.player) {
+			/* ------------------------- Basic Error Handling ------------------------- */
+			if (!interaction.member.voice.channel) {
+				await interaction.editReply(`${NO_VOICE_CHANNEL_MESSAGE} [${author}]`);
 				return;
 			}
+
+			const voiceChannel =
+				interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
+
+			if (!voiceChannel) {
+				await interaction.editReply(VOICE_CHANNEL_NOT_FOUND);
+				return;
+			}
+
+			if (!interaction.channel) {
+				await interaction.editReply(TEXT_CHANNEL_NOT_FOUND);
+				return;
+			}
+
+			if (!queue.get(guildId)) {
+				// Create a server queue with the server id as the key
+				try {
+					queue.set(guildId,
+						await createQueue(voiceChannel, channel));
+				}
+				catch (e) {
+					interaction.editReply(BAD_VOICE_CONNECTION);
+					console.error(e);
+					return;
+				}
+			}
 		}
+
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
@@ -103,6 +100,7 @@ export default new Command({
 			videos += `${index}) [${video.title ?? 'Untitled'}](${video.url})\n`;
 			index++;
 		});
+
 		response.setDescription(videos);
 		await interaction.editReply({ embeds: [response] });
 
@@ -139,7 +137,7 @@ export default new Command({
 			response.setDescription(
 				`Queued [${song.title}](${song.url}) [${author}]`,
 			);
-			await interaction.editReply({ embeds: [response] });
+			await interaction.reply({ embeds: [response] });
 
 			if (first) {
 				// Start playback

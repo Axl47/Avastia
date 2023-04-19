@@ -25,30 +25,37 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		const amount = args.getInteger('seconds', true);
-
 		const songQueue = queue.get(interaction.commandGuildId!);
+
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
-			.setDescription('Invalid number.');
+			.setDescription('Not playing anything.');
 
-		if (songQueue && amount >= 0) {
-			await videoPlayer(
-				interaction.commandGuildId!,
-				songQueue.songs[songQueue.songIndex + songQueue.loopCounter],
-				amount,
-			);
-
-			if (songQueue.songs[songQueue.loopCounter].durationSec > amount) {
-				response.setDescription(`Seeked to ${amount}s!`);
-			}
-			else {
-				// videoPlayer skips whenever an error is encountered,
-				// such as seeking past song duration
-				response.setDescription('Excedeed song duration, skipping...');
-			}
+		if (!songQueue?.player) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		if (amount < 0) {
+			response.setDescription('Invalid amount.');
+			await interaction.editReply({ embeds: [response] });
+			return;
+		}
+
+		const currentSong = songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
+
+		await videoPlayer(
+			interaction.commandGuildId!,
+			currentSong,
+			amount,
+		);
+
+		response.setDescription(
+			(currentSong.durationSec > amount) ?
+				`Seeked to ${amount}s!` :
+				'Excedeed song duration, skipping...',
+		);
+
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });
