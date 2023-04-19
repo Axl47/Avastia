@@ -30,37 +30,37 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue) {
-			const amount = args.getInteger('amount', true);
-
-			if (songQueue.loop !== LoopState.Disabled) {
-				songQueue.loopCounter +=
-					amount % (songQueue.songs.length - songQueue.songsPlayed);
-
-				if (songQueue.loopCounter >= songQueue.songs.length) {
-					songQueue.loopCounter -= songQueue.songs.length;
-				}
-			}
-			else if (songQueue.songs.length < amount) {
-				response
-					.setTitle('Cannot jump that many songs.')
-					.setDescription(
-						`Queue length is ${songQueue.songs.length - songQueue.songsPlayed}`,
-					);
-			}
-			else {
-				songQueue.songsPlayed += amount;
-				songQueue.songIndex += amount;
-			}
-
-			await videoPlayer(
-				interaction.commandGuildId!,
-				songQueue.songs[songQueue.songIndex + songQueue.loopCounter],
-			);
-			response.setDescription(`Jumped **${amount}** songs.`);
+		if (!songQueue) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		const amount = args.getInteger('amount', true);
+
+		if (amount > songQueue.songs.length - songQueue.songsPlayed) {
+			response
+				.setTitle('Cannot jump that many songs.')
+				.setDescription(
+					`Queue length is ${songQueue.songs.length - songQueue.songsPlayed}`,
+				);
+			await interaction.editReply({ embeds: [response] });
+			return;
+		}
+
+		const newIndex = songQueue.songIndex + amount;
+		songQueue.loopCounter =
+			(songQueue.loop !== LoopState.Disabled) ?
+				(songQueue.loopCounter + amount) % (songQueue.songs.length - songQueue.songsPlayed) :
+				0;
+		songQueue.songsPlayed = newIndex;
+		songQueue.songIndex = newIndex;
+
+		await videoPlayer(
+			interaction.commandGuildId!,
+			songQueue.songs[newIndex + songQueue.loopCounter],
+		);
+
+		response.setDescription(`Jumped **${amount}** songs.`);
 		await interaction.editReply({ embeds: [response] });
-		return;
 	},
 });
