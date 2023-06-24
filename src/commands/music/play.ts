@@ -71,6 +71,7 @@ export const errorMessages = {
 	QUEUE_ERROR: 'Error while getting the server queue.',
 	SPOTIFY_VALIDATION_ERROR: 'Error while validating Spotify link.',
 	YOUTUBE_VALIDATION_ERROR: 'Error while validating YouTube link.',
+	ERROR_HANDLER_SUCCESS: 'No errors were encountered.',
 };
 
 /**
@@ -93,38 +94,10 @@ export default new Command({
 		bot = client;
 		author = interaction.user;
 
-		/* ------------------------- Basic Error Handling ------------------------- */
-		if (!interaction.member.voice.channel) {
-			await interaction.editReply(`${errorMessages.NO_VOICE_CHANNEL} [${author}]`);
+		const message = await errorHandler(interaction);
+		if (message != errorMessages.ERROR_HANDLER_SUCCESS) {
+			await interaction.editReply(message);
 			return;
-		}
-
-		const voiceChannel =
-			interaction.guild?.voiceStates.cache.get(author.id)?.channel;
-
-		if (!voiceChannel) {
-			await interaction.editReply(errorMessages.VOICE_CHANNEL_ERROR);
-			return;
-		}
-		if (!interaction.channel) {
-			await interaction.editReply(errorMessages.TEXT_CHANNEL_ERROR);
-			return;
-		}
-
-		guildId = interaction.commandGuildId!;
-		channel = interaction.channel as TextChannel;
-
-		if (!queue.get(guildId)) {
-			// Create a server queue with the server id as the key
-			try {
-				queue.set(guildId,
-					await createQueue(voiceChannel, channel));
-			}
-			catch (e) {
-				await interaction.editReply(errorMessages.VOICE_CONNECTION_ERROR);
-				console.error(e);
-				return;
-			}
 		}
 
 		const songQueue = queue.get(guildId);
@@ -153,6 +126,44 @@ export default new Command({
 		}
 	},
 });
+
+/**
+ * Handles simple errors for play and search commands
+ * @param {SuperInteraction} interaction - The interaction of the command
+ * @return {Promise<string>} Error or success message
+ */
+export const errorHandler = async (interaction: SuperInteraction): Promise<string> => {
+	if (!interaction.member.voice.channel) {
+		return errorMessages.NO_VOICE_CHANNEL;
+	}
+
+	const voiceChannel =
+		interaction.guild?.voiceStates.cache.get(author.id)?.channel;
+
+	if (!voiceChannel) {
+		return errorMessages.VOICE_CHANNEL_ERROR;
+	}
+	if (!interaction.channel) {
+		return errorMessages.TEXT_CHANNEL_ERROR;
+	}
+
+	guildId = interaction.commandGuildId!;
+	channel = interaction.channel as TextChannel;
+
+	if (!queue.get(guildId)) {
+		// Create a server queue with the server id as the key
+		try {
+			queue.set(guildId,
+				await createQueue(voiceChannel, channel));
+		}
+		catch (e) {
+			console.error(e);
+			return errorMessages.VOICE_CONNECTION_ERROR;
+		}
+	};
+
+	return errorMessages.ERROR_HANDLER_SUCCESS;
+};
 
 /**
  * Initiate events on the audio player

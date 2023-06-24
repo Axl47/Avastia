@@ -25,7 +25,6 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-
 		if (!songQueue?.player) {
 			await interaction.editReply('Not playing anything.');
 			return;

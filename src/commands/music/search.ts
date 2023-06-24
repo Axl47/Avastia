@@ -9,11 +9,11 @@ import {
 } from 'discord.js';
 import { search } from 'play-dl';
 
+import { errorHandler } from './play';
 import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
 import {
-	createQueue,
 	errorMessages,
 	initiateEvents,
 	videoPlayer,
@@ -44,40 +44,11 @@ export default new Command({
 			.setColor('#15b500')
 			.setDescription('Empty');
 
-		if (!queue.get(interaction.commandGuildId!)?.player) {
-			/* ------------------------- Basic Error Handling ------------------------- */
-			if (!interaction.member.voice.channel) {
-				await interaction.editReply(`${errorMessages.NO_VOICE_CHANNEL} [${author}]`);
-				return;
-			}
-
-			const voiceChannel =
-				interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
-
-			if (!voiceChannel) {
-				await interaction.editReply(errorMessages.VOICE_CHANNEL_ERROR);
-				return;
-			}
-
-			if (!interaction.channel) {
-				await interaction.editReply(errorMessages.TEXT_CHANNEL_ERROR);
-				return;
-			}
-
-			if (!queue.get(guildId)) {
-				// Create a server queue with the server id as the key
-				try {
-					queue.set(guildId,
-						await createQueue(voiceChannel, channel));
-				}
-				catch (e) {
-					interaction.editReply(errorMessages.VOICE_CONNECTION_ERROR);
-					console.error(e);
-					return;
-				}
-			}
+		const message = await errorHandler(interaction);
+		if (message != errorMessages.ERROR_HANDLER_SUCCESS) {
+			await interaction.editReply(message);
+			return;
 		}
-
 
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
