@@ -24,21 +24,15 @@ export default new Command({
 		},
 	],
 	run: async ({ interaction, args }): Promise<void> => {
-		const amount = args.getInteger('seconds', true);
 		const songQueue = queue.get(interaction.commandGuildId!);
-
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
 		if (!songQueue?.player) {
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
 
-		if (amount < 0) {
-			response.setDescription('Invalid amount.');
-			await interaction.editReply({ embeds: [response] });
+		const amount = args.getInteger('seconds', true);
+		if (amount <= 0) {
+			await interaction.editReply('Amount must be greater than zero.');
 			return;
 		}
 
@@ -50,12 +44,13 @@ export default new Command({
 			amount,
 		);
 
-		response.setDescription(
-			(currentSong.durationSec > amount) ?
-				`Seeked to ${amount}s!` :
-				'Excedeed song duration, skipping...',
-		);
-
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription(
+				(currentSong.durationSec > amount) ?
+					`Seeked to ${amount}s!` :
+					'Excedeed song duration, skipping...',
+			);
 		await interaction.editReply({ embeds: [response] });
 	},
 });

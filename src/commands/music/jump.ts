@@ -26,24 +26,17 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (!songQueue) {
-			await interaction.editReply({ embeds: [response] });
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
 
 		const amount = args.getInteger('amount', true);
-
 		if (amount > songQueue.songs.length - songQueue.songsPlayed) {
-			response
-				.setTitle('Cannot jump that many songs.')
-				.setDescription(
-					`Queue length is ${songQueue.songs.length - songQueue.songsPlayed}`,
-				);
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply(
+				'Cannot jump that many songs.\n' +
+				`Queue length is ${songQueue.songs.length - songQueue.songsPlayed}`,
+			);
 			return;
 		}
 
@@ -52,6 +45,7 @@ export default new Command({
 			(songQueue.loop !== LoopState.Disabled) ?
 				(songQueue.loopCounter + amount) % (songQueue.songs.length - songQueue.songsPlayed) :
 				0;
+
 		songQueue.songsPlayed = newIndex;
 		songQueue.songIndex = newIndex;
 
@@ -60,7 +54,9 @@ export default new Command({
 			songQueue.songs[newIndex + songQueue.loopCounter],
 		);
 
-		response.setDescription(`Jumped **${amount}** songs.`);
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription(`Jumped **${amount}** songs.`);
 		await interaction.editReply({ embeds: [response] });
 	},
 });

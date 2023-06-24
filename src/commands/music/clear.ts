@@ -15,15 +15,16 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (songQueue?.songs) {
-			songQueue.songs.splice(songQueue.songIndex + songQueue.loopCounter);
-			response.setDescription('Queue cleared!');
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
+			return;
 		}
 
+		songQueue.songs.splice(songQueue.songIndex + songQueue.loopCounter);
+
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Queue cleared!');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

@@ -21,33 +21,36 @@ export default new Command({
 			.setColor('#f22222')
 			.setDescription('Not playing anything.');
 
-		if (songQueue?.player && songQueue?.songs[0]) {
-			if (songQueue.loop !== LoopState.Disabled) {
-				songQueue.loopCounter--;
-			}
-			else {
-				songQueue.songIndex--;
-				songQueue.songsPlayed--;
-			}
-
-			if (songQueue.songIndex < 0 || songQueue.loopCounter < 0) {
-				if (songQueue.loop !== LoopState.Disabled) {
-					songQueue.loopCounter =
-						songQueue.songs.length - songQueue.songsPlayed - 1;
-				}
-				else {
-					response.setDescription('Already at the start.');
-					await interaction.editReply({ embeds: [response] });
-					return;
-				}
-			}
-
-			videoPlayer(
-				interaction.commandGuildId!,
-				songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
-			response.setDescription('Went back!');
+		if (!songQueue?.songs[0]) {
+			await interaction.editReply({ embeds: [response] });
+			return;
 		}
 
+		if (songQueue.loop !== LoopState.Disabled) {
+			songQueue.loopCounter--;
+		}
+		else {
+			songQueue.songIndex--;
+			songQueue.songsPlayed--;
+		}
+
+		if (songQueue.songIndex < 0 || songQueue.loopCounter < 0) {
+			if (songQueue.loop !== LoopState.Disabled) {
+				songQueue.loopCounter =
+					songQueue.songs.length - songQueue.songsPlayed - 1;
+			}
+			else {
+				response.setDescription('Already at the start.');
+				await interaction.editReply({ embeds: [response] });
+				return;
+			}
+		}
+
+		videoPlayer(
+			interaction.commandGuildId!,
+			songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
+
+		response.setDescription('Went back!');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

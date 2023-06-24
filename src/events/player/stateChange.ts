@@ -103,7 +103,7 @@ export const playNextSong = async (id: string): Promise<void> => {
  * Delete a queue and all its references
  * @param {string} id - The id of the guild to clear the queue from
  */
-const deleteQueue = (id: string): void => {
+export const deleteQueue = (id: string): void => {
 	const songQueue = queue.get(id);
 	// Delete all references to avoid memory leaks
 	if (songQueue?.connection) {

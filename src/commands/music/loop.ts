@@ -34,14 +34,14 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (!songQueue) {
-			await interaction.editReply({ embeds: [response] });
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
+
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Invalid command.');
 
 		switch (args.getSubcommand()) {
 			case 'disable':
@@ -59,9 +59,6 @@ export default new Command({
 				songQueue.loop = LoopState.Queue;
 				response.setDescription('Looping the queue.');
 				break;
-			default:
-				interaction.editReply('Invalid command.');
-				return;
 		}
 
 		await interaction.editReply({ embeds: [response] });

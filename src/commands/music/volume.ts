@@ -24,26 +24,20 @@ export default new Command({
 	],
 	run: async ({ interaction, args }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
+		if (!songQueue?.audioResource) {
+			await interaction.editReply('Not playing anything.');
+			return;
+		}
+
 		const volume = args.getInteger('number', true);
+		if (volume < 0 || volume > 100) {
+			await interaction.editReply('Number must be between 0 and 100.');
+			return;
+		}
 
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (!songQueue?.audioResource) {
-			await interaction.editReply({ embeds: [response] });
-			return;
-		}
-
-		if (volume < 0 || volume > 100) {
-			response.setDescription('Number must be between 0 and 100.');
-			await interaction.editReply({ embeds: [response] });
-			return;
-		}
-
-		response.setDescription(
-			`Volume changed from ${songQueue.volume} to ${volume}`,
-		);
+			.setDescription(`Volume changed from ${songQueue.volume} to ${volume}`);
 
 		songQueue.volume = volume;
 		songQueue.audioResource.volume?.setVolumeLogarithmic(volume / 100);

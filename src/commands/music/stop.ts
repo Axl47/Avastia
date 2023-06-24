@@ -3,7 +3,7 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { playNextSong } from '../../events/player/stateChange';
+import { deleteQueue } from '../../events/player/stateChange';
 import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 
@@ -16,23 +16,16 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
 		if (!songQueue?.player) {
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
 
-		songQueue.stopped = true;
+		deleteQueue(interaction.commandGuildId!);
 
-		// playNextSong takes care of stopping and deleting the queue
-		await playNextSong(interaction.commandGuildId!);
-
-		response.setDescription('Player stopped.');
-
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Player stopped.');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

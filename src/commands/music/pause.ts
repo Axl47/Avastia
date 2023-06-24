@@ -17,19 +17,19 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor(Colors.Green)
-			.setDescription('Not playing anything.');
-
 		if (!songQueue?.player) {
-			interaction.editReply({ embeds: [response] });
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
+
+		const response = new EmbedBuilder()
+			.setColor(Colors.Green)
+			.setDescription('');
 
 		songQueue.player.state.status == AudioPlayerStatus.Paused ?
 			(songQueue.player.unpause(), response.setDescription('Playback unpaused.')) :
 			(songQueue.player.pause(true), response.setDescription('Playback paused.'));
 
-		interaction.editReply({ embeds: [response] });
+		await interaction.editReply({ embeds: [response] });
 	},
 });

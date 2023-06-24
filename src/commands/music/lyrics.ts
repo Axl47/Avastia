@@ -34,12 +34,8 @@ export default new Command({
 		if (title == '') {
 			const songQueue = queue.get(interaction.commandGuildId!);
 
-			if (!songQueue) {
-				const response = new EmbedBuilder()
-					.setColor('#ff0000')
-					.setDescription('Provide a title or start playing something.');
-
-				await interaction.editReply({ embeds: [response] });
+			if (!songQueue?.player) {
+				await interaction.editReply('Provide a title or start playing something.');
 				return;
 			}
 

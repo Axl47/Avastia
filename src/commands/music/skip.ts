@@ -17,13 +17,8 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
 		if (!songQueue?.player) {
-			await interaction.editReply({ embeds: [response] });
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
 
@@ -32,8 +27,11 @@ export default new Command({
 		}
 
 		await playNextSong(interaction.commandGuildId!);
-		response.setDescription('Song skipped.');
 
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Not playing anything.');
+		response.setDescription('Song skipped.');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

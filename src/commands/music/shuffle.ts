@@ -16,18 +16,19 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
+			return;
+		}
+
+		// Only shuffle the next songs
+		const trueSongs = songQueue.songs.splice(songQueue.songIndex);
+		shuffle(trueSongs);
+		songQueue.songs = songQueue.songs.concat(trueSongs);
 
 		const response = new EmbedBuilder()
 			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (songQueue?.songs[0]) {
-			const trueSongs = songQueue.songs.splice(songQueue.songIndex);
-			shuffle(trueSongs);
-			songQueue.songs = songQueue.songs.concat(trueSongs);
-			response.setDescription('Queue shuffled.');
-		}
-
+			.setDescription('Queue shuffled.');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

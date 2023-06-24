@@ -16,16 +16,16 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (songQueue?.songs) {
-			songQueue.songs = [];
-			deleteQueue(interaction.commandGuildId!);
-			response.setDescription('Queue deleted!');
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
+			return;
 		}
 
+		deleteQueue(interaction.commandGuildId!);
+
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Queue deleted!');
 		await interaction.editReply({ embeds: [response] });
 	},
 });
