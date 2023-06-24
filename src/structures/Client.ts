@@ -11,7 +11,7 @@ import { promisify } from 'util';
 
 import { Queue } from '../structures/Queue';
 import type { RegisterCommandOptions } from '../typings/Client';
-import type { CommandType } from '../typings/Command';
+import type { CommandDescriptionType, CommandType } from '../typings/Command';
 import type { AudioPlayerEvents } from '../typings/PlayerEvents';
 import { Event } from './Event';
 import { PlayerEvent } from './PlayerEvent';
@@ -20,6 +20,12 @@ import { PlayerEvent } from './PlayerEvent';
  * Global map of all server queues
  */
 export const queue = new Map<string, Queue>();
+
+/**
+ * Global map of all commands and their descriptions
+ */
+export const commandsDescriptions: Array<CommandDescriptionType> = [];
+
 const globPromise = promisify(glob);
 
 /**
@@ -90,6 +96,7 @@ export class SuperClient extends Client {
 			const command: CommandType = await this.importFile(filePath);
 			if (!command.name) return;
 
+			commandsDescriptions.push({ name: command.name, description: command.description });
 			this.commands.set(command.name, command);
 			// 838258760731983872
 			slashCommands.push(command);

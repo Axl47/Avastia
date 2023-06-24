@@ -37,3 +37,11 @@ export type CommandType = {
 	userPermissions?: PermissionResolvable[];
 	run: RunFunction;
 } & ChatInputApplicationCommandData;
+
+/**
+ * Type for creating a command description
+ */
+export type CommandDescriptionType = {
+	name: string;
+	description: string;
+}
