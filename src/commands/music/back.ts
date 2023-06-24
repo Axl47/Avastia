@@ -17,12 +17,8 @@ export default new Command({
 	type: ApplicationCommandType.ChatInput,
 	run: async ({ interaction }): Promise<void> => {
 		const songQueue = queue.get(interaction.commandGuildId!);
-		const response = new EmbedBuilder()
-			.setColor('#f22222')
-			.setDescription('Not playing anything.');
-
-		if (!songQueue?.songs[0]) {
-			await interaction.editReply({ embeds: [response] });
+		if (!songQueue?.player) {
+			await interaction.editReply('Not playing anything.');
 			return;
 		}
 
@@ -35,22 +31,22 @@ export default new Command({
 		}
 
 		if (songQueue.songIndex < 0 || songQueue.loopCounter < 0) {
-			if (songQueue.loop !== LoopState.Disabled) {
-				songQueue.loopCounter =
-					songQueue.songs.length - songQueue.songsPlayed - 1;
-			}
-			else {
-				response.setDescription('Already at the start.');
-				await interaction.editReply({ embeds: [response] });
+			if (songQueue.loop === LoopState.Disabled) {
+				await interaction.editReply('Already at the start.');
 				return;
 			}
+
+			songQueue.loopCounter =
+				songQueue.songs.length - songQueue.songsPlayed - 1;
 		}
 
 		videoPlayer(
 			interaction.commandGuildId!,
 			songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
 
-		response.setDescription('Went back!');
+		const response = new EmbedBuilder()
+			.setColor('#f22222')
+			.setDescription('Went back!');
 		await interaction.editReply({ embeds: [response] });
 	},
 });
