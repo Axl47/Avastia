@@ -42,6 +42,8 @@ export default new Command({
 			return;
 		}
 
+		// Add the song to the next
+		// position in the queue
 		songQueue.songs.splice(
 			songQueue.songIndex + songQueue.loopCounter + 1,
 			0,

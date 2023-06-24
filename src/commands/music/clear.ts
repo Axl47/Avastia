@@ -7,7 +7,7 @@ import { queue } from '../../structures/Client';
 import { Command } from '../../structures/Command';
 
 /**
- * Command for pausing and unpausing the player
+ * Command for clearing the queue
  */
 export default new Command({
 	name: 'clear',

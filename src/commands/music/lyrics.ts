@@ -11,12 +11,12 @@ import { Command } from '../../structures/Command';
 import { Pagination } from '../../utilities/PaginatedMessage';
 
 /**
- * Sends the lyrics from the current song
- * or from a query to the channel
+ * Sends the lyrics from the current
+ * song or from a query to the channel
  */
 export default new Command({
 	name: 'lyrics',
-	description: 'Sends the lyrics of the current song',
+	description: 'Sends the lyrics of the current song or a search',
 	type: ApplicationCommandType.ChatInput,
 	options: [
 		{
@@ -53,6 +53,7 @@ export default new Command({
 			const lyricsIndex = Math.round(lyrics.length / 4096) + 1;
 			const lyricEmbeds: EmbedBuilder[] = [];
 
+			// Truncate the lyrics into the Embed limits
 			for (let i = 1; i <= lyricsIndex; ++i) {
 				const b = i - 1;
 				if (lyrics.trim().slice(b * 4096, i * 4096).length !== 0) {
@@ -67,6 +68,8 @@ export default new Command({
 				lyricEmbeds,
 			).paginate();
 		}
+		// Should only happen when something
+		// goes wrong with the Genius API
 		catch (e) {
 			console.log(e);
 			await interaction.editReply('Something went wrong :(');

@@ -15,8 +15,8 @@ export default new Event('interactionCreate',
 			await interaction.deferReply();
 			const command = client.commands.get(interaction.commandName);
 
-			// Should only happen when registering commands has not finished
-			// or calling a deleted command before refresh
+			// Should only happen when registering commands has not
+			// finished or calling a deleted command before refresh
 			if (!command) {
 				interaction.editReply('Non existent command');
 				return;
