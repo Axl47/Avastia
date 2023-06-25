@@ -7,5 +7,6 @@
 /.vscode/
 src/commands/useful/character.ts
 src/commands/useful/random.ts
+src/commands/useful/rules.ts
 src/structures/Characters.ts
 src/typings/Characters.ts

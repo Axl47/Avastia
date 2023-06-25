@@ -94,28 +94,25 @@ export default new Command({
 		bot = client;
 		author = interaction.user;
 
+		/* -------------------------- Check for any errors -------------------------- */
 		const message = await errorHandler(interaction);
 		if (message != errorMessages.ERROR_HANDLER_SUCCESS) {
 			await interaction.editReply(message);
 			return;
 		}
-
 		const songQueue = queue.get(guildId);
 		if (!songQueue) {
 			await interaction.editReply(errorMessages.QUEUE_ERROR);
 			return;
 		}
 
+		// If there are no songs, then this is the first song
 		const first = (songQueue.songs.length) ? false : true;
 
 		const url = args.getString('query', true);
 
-		if (url.includes('spotify')) {
-			await handleSpotify(url, interaction);
-		}
-		else {
-			await handleYoutube(url, interaction);
-		}
+		// Handle the search for the song
+		await handleUrl(url, interaction);
 
 		if (first) {
 			// Start playback
@@ -194,15 +191,15 @@ export const videoPlayer = async (
 		return;
 	};
 
+	// Delete past resource to avoid memory leaks
 	delete songQueue.audioResource;
 
 	try {
-		// Create Player
+		// Create player if it doesn't exist
 		if (!songQueue.player) {
-			const player = createAudioPlayer({
+			songQueue.player = createAudioPlayer({
 				behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 			}) as SongPlayer;
-			songQueue.player = player;
 
 			// Subscribe the player to the voice connection
 			if (!songQueue.connection) {
@@ -213,8 +210,9 @@ export const videoPlayer = async (
 			songQueue.connection.subscribe(songQueue.player);
 		}
 
-		// Create Player Resources
+		// If the song comes from Spotify
 		if (song.spotify) {
+			// Search it on YouTube
 			song = await searchSong(song.title);
 
 			if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
@@ -222,6 +220,7 @@ export const videoPlayer = async (
 			}
 		}
 
+		// Create player resource
 		const songStream = await stream(song.url, { seek: seek });
 		const resource = createAudioResource(songStream.stream,
 			{ inputType: songStream.type, inlineVolume: true },
@@ -237,7 +236,7 @@ export const videoPlayer = async (
 		 * Only display error if it's not related to
 		 * a seek number being greater than song duration
 		 */
-		if ((!seek || seek < song.durationSec)) {
+		if (!seek || seek < song.durationSec) {
 			console.error(e);
 		}
 		await playNextSong(guildId);
@@ -269,6 +268,7 @@ export const createQueue = async (
 			throw new Error(errorMessages.VOICE_CONNECTION_ERROR);
 		}
 
+		// TODO: Delete songsPlayed
 		return new Queue({
 			voiceChannel: voice,
 			textChannel: text,
@@ -306,213 +306,240 @@ export const searchSong = async (query: string): Promise<Song> => {
 };
 
 /**
- * Function for handling a song in Spotify
- * @param {url} url Url of the song
- * @param {SuperInteraction} interaction Search Interaction
+ * Function for handling a Spotify Link
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
  */
-const handleSpotify = async (url: string, interaction: SuperInteraction): Promise<void> => {
-	const songQueue = queue.get(guildId)!;
-	const response = new EmbedBuilder()
-		.setColor('#15b500')
-		.setDescription('Empty');
-
+const handleSpotify = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
 	try {
-		/**
-		 * Refresh Spotify Token
-		 */
+		// Refresh Spotify Token
 		if (isExpired()) await refreshToken();
 
-		let spData: SpotifyTrack | SpotifyAlbum;
-		let song: Song;
-
-		switch (spValidate(url)) {
-			case 'track':
-				spData = await spotify(url) as SpotifyTrack;
-
-				/**
-				 * Search song on Youtube
-				 * <Song-Title> <Artist1> <Artist2>...
-				 */
-				song = await searchSong(`${spData.name} ${spData.artists.map(
-					(artist) => artist.name).join(' ')}`,
-				);
-
-				if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
-					await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
-					return;
-				}
-
-				songQueue.songs.push(song);
-				response.setDescription(
-					`Queued [${song.title}](${song.url}) (${song.duration}) [${author}]`,
-				);
-				await interaction.editReply({ embeds: [response] });
-				break;
-			case 'playlist':
-			case 'album':
-				/**
-				 * Distinction between album and playlist is
-				 * unnecessary for searching the song on youtube
-				 */
-				spData = await spotify(url) as SpotifyAlbum;
-				await spData.fetch();
-				const tracks: SpotifyTrack[] = await spData.all_tracks();
-
-				for (const track of tracks) {
-					try {
-						const dur: number = track.durationInSec;
-						const durMin: number = Math.floor(dur / 60);
-						const durSec = (dur % 60).toString().padStart(2, '0');
-						const durFormat = `${durMin}:${durSec}`;
-
-						song = new Song({
-							title: `${track.name} - ${track.artists.map(
-								(artist) => artist.name).join(' ')}`,
-							url: track.url,
-							duration: durFormat,
-							durationSec: dur,
-							requester: author,
-							spotify: true,
-						});
-					}
-					catch (e) {
-						/**
-						 * Most errors are caused by erroneous search
-						 * or song visibility, so we ignore them
-						 */
-						console.error(e);
-						continue;
-					}
-					songQueue.songs.push(song);
-				}
-
-				response.setDescription(
-					`Added **${tracks.length}** songs from **${spData.name}**! :thumbsup:`);
-				await interaction.editReply({ embeds: [response] });
-				break;
-			default:
-				await interaction.editReply(errorMessages.SPOTIFY_VALIDATION_ERROR);
-				await playNextSong(guildId);
-		}
+		/**
+		 * Distinction between album and playlist is
+		 * unnecessary for searching the song on youtube
+		 */
+		if (spValidate(url) == 'track') await searchSpotifySong(url, songQueue, response);
+		else await searchSpotifyPlaylist(url, songQueue, response);
 	}
 	catch (e) {
 		console.error(e);
-		await interaction.editReply('Error playing.');
+		response.setDescription('Error playing.');
 		await playNextSong(guildId);
 	}
 };
 
 /**
- * Function for handling a song in YouTube
- * @param {url} url Url of the song
- * @param {SuperInteraction} interaction Search Interaction
+ * Function for handling a song in Spotify
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
  */
-const handleYoutube = async (url: string, interaction: SuperInteraction): Promise<void> => {
+const searchSpotifySong = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	const spData = await spotify(url) as SpotifyTrack;
+
+	/**
+	 * Search song on Youtube
+	 * <Song-Title> <Artist1> <Artist2>...
+	 */
+	const song = await searchSong(`${spData.name} ${spData.artists.map((artist) => artist.name).join(' ')}`,
+	);
+
+	if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
+		response.setDescription(errorMessages.NO_VIDEO_RESULT);
+		return;
+	}
+
+	songQueue.songs.push(song);
+	response.setDescription(
+		`Queued [${song.title}](${song.url}) (${song.duration}) [${author}]`,
+	);
+};
+
+/**
+ * Function for handling a playlist in Spotify
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
+ */
+const searchSpotifyPlaylist = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	let song: Song;
+
+	const spData = await spotify(url) as SpotifyAlbum;
+	await spData.fetch();
+	const tracks: SpotifyTrack[] = await spData.all_tracks();
+
+	for (const track of tracks) {
+		try {
+			const dur: number = track.durationInSec;
+			const durMin: number = Math.floor(dur / 60);
+			const durSec = (dur % 60).toString().padStart(2, '0');
+			const durFormat = `${durMin}:${durSec}`;
+
+			song = new Song({
+				title: `${track.name} - ${track.artists.map(
+					(artist) => artist.name).join(' ')}`,
+				url: track.url,
+				duration: durFormat,
+				durationSec: dur,
+				requester: author,
+				spotify: true,
+			});
+		}
+		catch (e) {
+			/**
+			 * Most errors are caused by erroneous search
+			 * or song visibility, so we ignore them
+			 */
+			console.error(e);
+			continue;
+		}
+		songQueue.songs.push(song);
+	}
+
+	response.setDescription(
+		`Added **${tracks.length}** songs from **${spData.name}**! :thumbsup:`);
+};
+
+/**
+ * Function for handling a YouTube Link
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
+ */
+const handleYoutube = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	const videoType = ytValidate(url);
+
+	if (videoType == 'playlist') await searchYoutubeSong(url, songQueue, response);
+	else await searchYoutubePlaylist(url, songQueue, response);
+};
+
+/**
+ * Function for handling a song in YouTube
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
+ */
+const searchYoutubeSong = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	let song: Song;
+
+	try {
+		const video: InfoData = await videoInfo(url);
+		const details: YouTubeVideo = video.video_details;
+
+		song = {
+			title: details.title ?? 'Untitled',
+			url: details.url,
+			duration: details.durationRaw,
+			durationSec: details.durationInSec,
+			requester: author,
+		};
+
+		response.setDescription(
+			`Queued [${song.title}](${song.url}) (${song.duration})` +
+			` [${author}]`);
+	}
+	catch (err) {
+		response.setDescription(errorMessages.NO_VIDEO_RESULT);
+		console.error(err);
+		return;
+	}
+
+	songQueue.songs.push(song);
+};
+
+/**
+ * Function for handling a playlist in YouTube
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
+ */
+const searchYoutubePlaylist = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	let song: Song;
+
+	// Incomplete is true to ignore private or deleted videos
+	const playlist: YouTubePlayList = await playlistInfo(url, { incomplete: true });
+	await playlist.fetch();
+
+	const videos: YouTubeVideo[] = await playlist.all_videos();
+
+	for (const video of videos) {
+		try {
+			if (!video.url) continue;
+
+			song = {
+				title: video.title ?? 'Untitled',
+				url: video.url,
+				duration: video.durationRaw,
+				durationSec: video.durationInSec,
+				requester: author,
+			};
+			songQueue.songs.push(song);
+		}
+		catch (e) {
+			/**
+			 * Most errors are caused by erroneous search
+			 * or song visibility, so we ignore them
+			 */
+			console.error(e);
+			continue;
+		}
+	}
+
+	response.setDescription(
+		`Added **${playlist.total_videos}** videos to the queue!` +
+		' :thumbsup:');
+};
+
+/**
+ * Function for handling an url
+ * @param {string} url Url of the song
+ * @param {SuperInteraction} interaction Interaction of the message
+ */
+const handleUrl = async (url: string, interaction: SuperInteraction): Promise<void> => {
 	const songQueue = queue.get(guildId)!;
 	const response = new EmbedBuilder()
 		.setColor('#15b500')
 		.setDescription('Empty');
-	let song: Song;
 
-	/**
-	 * Delete superfluous info, such as the playlist the url comes
-	 * from when trying to play a video instead of the playlist
-	 */
-	const videoFromList = url.includes('&list') && url.includes('&index');
-	if (videoFromList) {
-		url = url.substring(0, url.indexOf('&list'));
+	// Search the song on youtube if it's not a link
+	if (!url.startsWith('https')) {
+		await searchQuery(url, songQueue, response);
 	}
-
-	switch (ytValidate(url)) {
-		case 'playlist':
-			// Incomplete is true to ignore private or deleted videos
-			const playlist: YouTubePlayList =
-				await playlistInfo(url, { incomplete: true });
-			await playlist.fetch();
-
-			const videos: YouTubeVideo[] = await playlist.all_videos();
-
-			for (const video of videos) {
-				try {
-					if (!video.url) continue;
-
-					song = {
-						title: video.title ?? 'Untitled',
-						url: video.url,
-						duration: video.durationRaw,
-						durationSec: video.durationInSec,
-						requester: author,
-					};
-					songQueue.songs.push(song);
-				}
-				catch (e) {
-					/**
-					 * Most errors are caused by erroneous search
-					 * or song visibility, so we ignore them
-					 */
-					console.error(e);
-					continue;
-				}
-			}
-
-			response.setDescription(
-				`Added **${playlist.total_videos}** videos to the queue!` +
-				' :thumbsup:');
-			await interaction.editReply({ embeds: [response] });
-			break;
-		case 'search':
+	else if (url.includes('spotify')) {
+		await handleSpotify(url, songQueue, response);
+	}
+	else {
 		/**
-		 * Search gets handled inside video due to ytValidate
-		 * returning 'video' instead of 'search' sometimes
+		 * Delete superfluous info, such as the playlist the url comes
+		 * from when trying to play a video instead of the playlist
 		 */
-		case 'video':
+		const videoFromList = url.includes('&list') && url.includes('&index');
+		if (videoFromList) url = url.substring(0, url.indexOf('&list'));
 
-			// Search the song on youtube if it's not a link
-			if (!url.startsWith('https')) {
-				song = await searchSong(url);
-				if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
-					await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
-					return;
-				}
-
-				songQueue.songs.push(song);
-				response.setDescription(
-					`Queued [${song.title}](${song.url}) (${song.duration})` +
-					` [${author}]`);
-
-				await interaction.editReply({ embeds: [response] });
-				break;
-			}
-
-			// Link Handling
-			try {
-				const video: InfoData = await videoInfo(url);
-				const details: YouTubeVideo = video.video_details;
-
-				song = {
-					title: details.title ?? 'Untitled',
-					url: details.url,
-					duration: details.durationRaw,
-					durationSec: details.durationInSec,
-					requester: author,
-				};
-
-				response.setDescription(
-					`Queued [${song.title}](${song.url}) (${song.duration})` +
-					` [${author}]`);
-
-				await interaction.editReply({ embeds: [response] });
-			}
-			catch (err) {
-				await interaction.editReply(errorMessages.NO_VIDEO_RESULT);
-				console.error(err);
-				return;
-			}
-
-			songQueue.songs.push(song);
-			break;
-		default:
-			await interaction.editReply(errorMessages.YOUTUBE_VALIDATION_ERROR);
-			await playNextSong(guildId);
+		await handleYoutube(url, songQueue, response);
 	}
+
+	await interaction.editReply({ embeds: [response] });
+};
+
+/**
+ * Function for handling a non-url search
+ * @param {string} url Url of the song
+ * @param {Queue} songQueue The queue of the server
+ * @param {EmbedBuilder} response The Embed response
+ */
+const searchQuery = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
+	const song = await searchSong(url);
+	if (song.url.includes(errorMessages.NO_VIDEO_RESULT)) {
+		response.setDescription(errorMessages.NO_VIDEO_RESULT);
+		return;
+	}
+
+	songQueue.songs.push(song);
+	response.setDescription(
+		`Queued [${song.title}](${song.url}) (${song.duration})` +
+		` [${author}]`);
+	return;
 };
