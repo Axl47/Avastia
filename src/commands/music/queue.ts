@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
 import { Pagination } from '../../utilities/PaginatedMessage';
@@ -58,5 +59,5 @@ export default new Command({
 
 const embedTemplate = (): EmbedBuilder => {
 	return new EmbedBuilder()
-		.setColor('#ff0000');
+		.setColor(randomColor());
 };

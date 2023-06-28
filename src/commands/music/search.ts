@@ -9,12 +9,12 @@ import {
 } from 'discord.js';
 import { search } from 'play-dl';
 
-import { errorHandler } from './play';
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
 import {
-	errorMessages,
+	errorHandler, errorMessages,
 	initiateEvents,
 	videoPlayer,
 } from './play';
@@ -41,7 +41,7 @@ export default new Command({
 		const guildId = interaction.commandGuildId!;
 
 		const response = new EmbedBuilder()
-			.setColor('#15b500')
+			.setColor(randomColor())
 			.setDescription('Empty');
 
 		const message = await errorHandler(interaction);

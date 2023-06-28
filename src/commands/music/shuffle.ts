@@ -4,6 +4,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { Song } from '../../structures/Song';
 
@@ -27,7 +28,7 @@ export default new Command({
 		songQueue.songs = songQueue.songs.concat(trueSongs);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Queue shuffled.');
 		await interaction.editReply({ embeds: [response] });
 	},

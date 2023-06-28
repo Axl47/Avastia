@@ -5,6 +5,7 @@ import {
 
 import { videoPlayer } from '../../commands/music/play';
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { LoopState } from '../../typings/Queue';
 
@@ -45,7 +46,7 @@ export default new Command({
 			songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Went back!');
 		await interaction.editReply({ embeds: [response] });
 	},

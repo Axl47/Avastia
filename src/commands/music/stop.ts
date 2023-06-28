@@ -5,6 +5,7 @@ import {
 
 import { deleteQueue } from '../../events/player/stateChange';
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 
 /**
@@ -24,7 +25,7 @@ export default new Command({
 		deleteQueue(interaction.commandGuildId!);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Player stopped.');
 		await interaction.editReply({ embeds: [response] });
 	},

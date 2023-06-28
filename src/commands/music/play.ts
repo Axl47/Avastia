@@ -32,11 +32,12 @@ import {
 
 import { playNextSong } from '../../events/player/stateChange';
 import { queue, SuperClient } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { Queue } from '../../structures/Queue';
 import { Song } from '../../structures/Song';
-import type { SuperInteraction } from '../../typings/Command';
 import { LoopState } from '../../typings/Queue';
+import type { SuperInteraction } from '../../typings/Command';
 import type { SongPlayer } from '../../typings/SongPlayer';
 
 /**
@@ -500,7 +501,7 @@ const searchYoutubePlaylist = async (url: string, songQueue: Queue, response: Em
 const handleUrl = async (url: string, interaction: SuperInteraction): Promise<void> => {
 	const songQueue = queue.get(guildId)!;
 	const response = new EmbedBuilder()
-		.setColor('#15b500')
+		.setColor(randomColor())
 		.setDescription('Empty');
 
 	// Search the song on youtube if it's not a link

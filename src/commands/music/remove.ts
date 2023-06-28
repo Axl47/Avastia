@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 
 /**
@@ -48,7 +49,7 @@ export default new Command({
 		}
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription(
 				`Removed [${songs[i].title}](${songs[i].url})` +
 				`[${interaction.user}]`,

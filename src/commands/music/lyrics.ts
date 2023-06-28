@@ -7,6 +7,7 @@ import {
 import { Client as GeniusClient } from 'genius-lyrics';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { Pagination } from '../../utilities/PaginatedMessage';
 
@@ -75,7 +76,7 @@ export default new Command({
 
 const embedTemplate = (title: string): EmbedBuilder => {
 	return new EmbedBuilder()
-		.setColor('#ff0000')
+		.setColor(randomColor())
 		.setTitle(title)
 		.setFooter({
 			text: 'Provided by genius.com',

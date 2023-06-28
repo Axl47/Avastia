@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { videoPlayer } from './play';
 
@@ -45,7 +46,7 @@ export default new Command({
 		);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription(
 				(currentSong.durationSec > amount) ?
 					`Seeked to ${amount}s!` :

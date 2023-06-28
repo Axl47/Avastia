@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { LoopState } from '../../typings/Queue';
 
@@ -40,7 +41,7 @@ export default new Command({
 		}
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Invalid command.');
 
 		switch (args.getSubcommand()) {

@@ -5,6 +5,7 @@ import {
 
 import { playNextSong } from '../../events/player/stateChange';
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 import { LoopState } from '../../typings/Queue';
 
@@ -29,7 +30,7 @@ export default new Command({
 		await playNextSong(interaction.commandGuildId!);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Not playing anything.');
 		response.setDescription('Song skipped.');
 		await interaction.editReply({ embeds: [response] });

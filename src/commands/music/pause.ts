@@ -5,8 +5,8 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
-import { Colors } from '../../typings/Colors';
 
 /**
  * Command for pausing and unpausing the player
@@ -23,7 +23,7 @@ export default new Command({
 		}
 
 		const response = new EmbedBuilder()
-			.setColor(Colors.Green)
+			.setColor(randomColor())
 			.setDescription('');
 
 		songQueue.player.state.status == AudioPlayerStatus.Paused ?

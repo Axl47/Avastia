@@ -3,6 +3,7 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 
 /**
@@ -15,7 +16,7 @@ export default new Command({
 	run: async ({ interaction }): Promise<void> => {
 		const coin = Math.random();
 		const newEmbed = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription(
 				`**${(coin >= 0.51) ? 'Cara | Heads' : 'Cruz | Tails'}**`,
 			);

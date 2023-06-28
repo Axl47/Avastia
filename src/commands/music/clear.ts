@@ -4,6 +4,7 @@ import {
 } from 'discord.js';
 
 import { queue } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 
 /**
@@ -23,7 +24,7 @@ export default new Command({
 		songQueue.songs.splice(songQueue.songIndex + songQueue.loopCounter);
 
 		const response = new EmbedBuilder()
-			.setColor('#f22222')
+			.setColor(randomColor())
 			.setDescription('Queue cleared!');
 		await interaction.editReply({ embeds: [response] });
 	},

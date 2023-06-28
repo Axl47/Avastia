@@ -1,32 +1,24 @@
-import { Colors } from '../typings/Colors';
+import type { ColorResolvable } from 'discord.js';
+
+const Colors: string[] = [
+	// Green
+	'#10eb4e',
+	// Blue
+	'#0a64f5',
+	// Yellow
+	'#e7eb10',
+	// Purple
+	'#2922f2',
+	// Pink
+	'#eb10bb',
+	// Cyan
+	'#6efffa',
+];
 
 /**
- * Class for storing Embed Colors
+ * Function for getting a random color
+ * @return {ColorResolvable} - A random Color from the Colors list
 */
-export class EmbedColors {
-	/**
-	 * Gives a random color from a predetermined list
-	 * @return {string} Random Color
-	 */
-	public get randomColor(): string {
-		return getRandomEnumValue(Colors);
-	}
-}
-
-/**
- * Function for generating a random value from an enum
- * @param {Colors} anEnum - Enum from which to generate the random value
- * @return {String} - The random value
- */
-function getRandomEnumValue<Colors>(anEnum: Colors): Colors[keyof Colors] {
-	// Save enums inside array
-	const enumValues = Object.keys(anEnum as object) as Array<keyof Colors>;
-
-	// Generate a random index
-	const randomIndex = Math.floor(Math.random() * enumValues.length);
-
-	// get the random enum value
-	const randomEnumKey = enumValues[randomIndex];
-
-	return anEnum[randomEnumKey];
-}
+export const randomColor = (): ColorResolvable => {
+	return Colors[Math.floor(Math.random() * Colors.length)] as ColorResolvable;
+};

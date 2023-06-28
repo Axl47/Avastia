@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { commandsDescriptions } from '../../structures/Client';
+import { randomColor } from '../../structures/Colors';
 import { Command } from '../../structures/Command';
 
 /**
@@ -31,7 +32,7 @@ export default new Command({
 		}
 
 		const response = new EmbedBuilder()
-			.setColor('#15b500')
+			.setColor(randomColor())
 			.setTitle('Commands:')
 			.addFields(embedFields);
 
