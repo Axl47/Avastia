@@ -27,14 +27,14 @@
 		"genius-lyrics": "^4.4.3",
 		"glob": "^8.1.0",
 		"libsodium-wrappers": "^0.7.10",
-		"node": "^19.6.0",
+		"node": "^20.1.0",
 		"node-opus": "^0.3.3",
 		"npm": "^9.4.2",
 		"play-dl": "^1.9.6"
 	},
 	"devDependencies": {
 		"@types/glob": "^8.0.1",
-		"@types/node": "^18.7.13",
+		"@types/node": "^20.1.1",
 		"@typescript-eslint/eslint-plugin": "^5.51.0",
 		"@typescript-eslint/parser": "^5.51.0",
 		"eslint": "^8.35.0",
