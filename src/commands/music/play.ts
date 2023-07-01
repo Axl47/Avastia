@@ -412,8 +412,8 @@ const searchSpotifyPlaylist = async (url: string, songQueue: Queue, response: Em
 const handleYoutube = async (url: string, songQueue: Queue, response: EmbedBuilder): Promise<void> => {
 	const videoType = ytValidate(url);
 
-	if (videoType == 'playlist') await searchYoutubeSong(url, songQueue, response);
-	else await searchYoutubePlaylist(url, songQueue, response);
+	if (videoType == 'playlist') await searchYoutubePlaylist(url, songQueue, response);
+	else await searchYoutubeSong(url, songQueue, response);
 };
 
 /**
