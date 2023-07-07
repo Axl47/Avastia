@@ -221,13 +221,25 @@ export const videoPlayer = async (
 			}
 		}
 
-		// Create player resource
+		// Create the stream for the player
 		const songStream = await stream(song.url, { seek: seek });
+
+		// TODO: Changing volume on the fly causes more performance cost
+		// if Volume command isn't used, consider removing the command
 		const resource = createAudioResource(songStream.stream,
 			{ inputType: songStream.type, inlineVolume: true },
 		);
+
+		// Set the volume to the Queue volume
 		resource.volume?.setVolumeLogarithmic(songQueue.volume / 100);
 		songQueue.audioResource = resource;
+
+		// Sometimes the player is not created
+		// Skip to the next song if that's the case
+		if (!songQueue.player) {
+			await playNextSong(guildId);
+			return;
+		}
 
 		// Play the Audio
 		songQueue.player.play(songQueue.audioResource);
