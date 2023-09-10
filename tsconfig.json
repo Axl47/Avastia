@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "Node16",
+		"module": "ESNext",
 		"rootDir": "./src/",
 		"outDir": "dist",
 		"strict": true,
@@ -15,7 +15,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"removeComments": false,
 		"typeRoots": [
-			"node_modules/@types"
+			"node_modules/@types",
+			"src/typings"
 		],
 		"sourceMap": false,
 		"baseUrl": "./",
