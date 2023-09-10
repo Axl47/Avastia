@@ -4,9 +4,9 @@ import {
 	type APIEmbedField,
 } from 'discord.js';
 
-import { commandsDescriptions } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
+import { commandsDescriptions } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
 
 /**
  * Command that explains all possible commands

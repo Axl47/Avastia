@@ -6,7 +6,7 @@ import type {
 	PermissionResolvable,
 } from 'discord.js';
 
-import { SuperClient } from '../structures/Client';
+import { SuperClient } from '../structures/Client.js';
 
 // TODO: SuperInteraction might not be needed anymore
 /**

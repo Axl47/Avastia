@@ -8,13 +8,17 @@ import {
 import glob from 'glob';
 import { sep } from 'path';
 import { promisify } from 'util';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-import { Queue } from '../structures/Queue';
-import type { RegisterCommandOptions } from '../typings/Client';
-import type { CommandDescriptionType, CommandType } from '../typings/Command';
-import type { AudioPlayerEvents } from '../typings/PlayerEvents';
-import { Event } from './Event';
-import { PlayerEvent } from './PlayerEvent';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+import { Queue } from '../structures/Queue.js';
+import type { RegisterCommandOptions } from '../typings/Client.js';
+import type { CommandDescriptionType, CommandType } from '../typings/Command.js';
+import type { AudioPlayerEvents } from '../typings/PlayerEvents.js';
+import { Event } from './Event.js';
+import { PlayerEvent } from './PlayerEvent.js';
 
 /**
  * Global map of all server queues

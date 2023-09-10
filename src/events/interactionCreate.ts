@@ -1,8 +1,8 @@
 import { CommandInteractionOptionResolver } from 'discord.js';
 
-import { client } from '../main';
-import { Event } from '../structures/Event';
-import type { SuperInteraction } from '../typings/Command';
+import { client } from '../main.js';
+import { Event } from '../structures/Event.js';
+import type { SuperInteraction } from '../typings/Command.js';
 
 /**
  * Event called when an interaction is created

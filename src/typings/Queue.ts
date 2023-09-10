@@ -7,8 +7,8 @@ import type {
 	VoiceBasedChannel,
 } from 'discord.js';
 
-import type { SongType } from '../typings/Song';
-import type { SongPlayer } from './SongPlayer';
+import type { SongType } from '../typings/Song.js';
+import type { SongPlayer } from './SongPlayer.js';
 
 /**
  * Enum for queue looping state

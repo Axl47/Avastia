@@ -4,10 +4,10 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { videoPlayer } from './play';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { videoPlayer } from './play.js';
 
 /**
  * Starts the song from the specified second

@@ -1,4 +1,4 @@
-import { Event } from '../structures/Event';
+import { Event } from '../structures/Event.js';
 
 /**
  * Event called after the client

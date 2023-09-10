@@ -5,10 +5,10 @@ import {
 	channel,
 	guildId,
 	videoPlayer,
-} from '../../commands/music/play';
-import { queue } from '../../structures/Client';
-import { PlayerEvent } from '../../structures/PlayerEvent';
-import { LoopState } from '../../typings/Queue';
+} from '../../commands/music/play.js';
+import { queue } from '../../structures/Client.js';
+import { PlayerEvent } from '../../structures/PlayerEvent.js';
+import { LoopState } from '../../typings/Queue.js';
 
 /**
  * Event called when the player changes state

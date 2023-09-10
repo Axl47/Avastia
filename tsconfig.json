@@ -1,11 +1,11 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "ESNext",
+		"module": "nodenext",
 		"rootDir": "./src/",
 		"outDir": "dist",
 		"strict": true,
-		"moduleResolution": "Node",
+		"moduleResolution": "nodenext",
 		"importHelpers": true,
 		"experimentalDecorators": true,
 		"esModuleInterop": true,
@@ -15,8 +15,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"removeComments": false,
 		"typeRoots": [
-			"node_modules/@types",
-			"src/typings"
+			"node_modules/@types"
 		],
 		"sourceMap": false,
 		"baseUrl": "./",

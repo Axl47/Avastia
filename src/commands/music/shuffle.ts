@@ -3,10 +3,10 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { Song } from '../../structures/Song';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { Song } from '../../structures/Song.js';
 
 /**
  * Shuffles the song list

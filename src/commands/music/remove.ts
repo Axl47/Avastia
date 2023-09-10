@@ -4,9 +4,9 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
 
 /**
  * Removes a song from the queue

@@ -4,11 +4,11 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { LoopState } from '../../typings/Queue';
-import { videoPlayer } from './play';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { LoopState } from '../../typings/Queue.js';
+import { videoPlayer } from './play.js';
 
 /**
  * Skips the specified number of songs from the queue

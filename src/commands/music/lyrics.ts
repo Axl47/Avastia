@@ -6,10 +6,10 @@ import {
 } from 'discord.js';
 import { Client as GeniusClient } from 'genius-lyrics';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { Pagination } from '../../utilities/PaginatedMessage';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { Pagination } from '../../utilities/PaginatedMessage.js';
 
 /**
  * Sends the lyrics from the current

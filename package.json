@@ -4,11 +4,12 @@
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
+	"type": "module",
 	"scripts": {
 		"start": "ts-node src/main.ts",
 		"start:dev": "ts-node-dev src/main.ts",
 		"start:prod": "node dist/main.js",
-		"build": "tsc",
+		"build": "tsc src/main.ts",
 		"watch": "tsc -w"
 	},
 	"engines": {

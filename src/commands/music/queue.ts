@@ -4,11 +4,11 @@ import {
 	type TextChannel,
 } from 'discord.js';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { Song } from '../../structures/Song';
-import { Pagination } from '../../utilities/PaginatedMessage';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { Song } from '../../structures/Song.js';
+import { Pagination } from '../../utilities/PaginatedMessage.js';
 
 /**
  * Sends the song queue to the channel

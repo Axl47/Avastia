@@ -1,7 +1,7 @@
 import type { AudioPlayer } from '@discordjs/voice';
 import type { Awaitable } from 'discord.js';
 
-import type { AudioPlayerEvents } from '../typings/PlayerEvents';
+import type { AudioPlayerEvents } from '../typings/PlayerEvents.js';
 
 /**
  * Class for an Audio Player

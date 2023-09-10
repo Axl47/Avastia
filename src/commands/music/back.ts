@@ -3,11 +3,11 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { videoPlayer } from '../../commands/music/play';
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { LoopState } from '../../typings/Queue';
+import { videoPlayer } from '../../commands/music/play.js';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { LoopState } from '../../typings/Queue.js';
 
 /**
  * Goes back a song from the queue

@@ -9,15 +9,15 @@ import {
 } from 'discord.js';
 import { search } from 'play-dl';
 
-import { queue } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { Song } from '../../structures/Song';
+import { queue } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { Song } from '../../structures/Song.js';
 import {
 	errorHandler, errorMessages,
 	initiateEvents,
 	videoPlayer,
-} from './play';
+} from './play.js';
 
 /**
  * Searches a song and lets the

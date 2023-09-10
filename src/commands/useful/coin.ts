@@ -3,8 +3,8 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
 
 /**
  * Randomly decides between heads or tails

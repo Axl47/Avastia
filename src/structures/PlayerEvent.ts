@@ -1,4 +1,4 @@
-import type { AudioPlayerEvents } from '../typings/PlayerEvents';
+import type { AudioPlayerEvents } from '../typings/PlayerEvents.js';
 
 /**
  * Class for the song player events

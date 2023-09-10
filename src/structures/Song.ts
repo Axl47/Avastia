@@ -1,5 +1,5 @@
 import type { User } from 'discord.js';
-import type { SongType } from '../typings/Song';
+import type { SongType } from '../typings/Song.js';
 
 /**
  * Class for a song to be played

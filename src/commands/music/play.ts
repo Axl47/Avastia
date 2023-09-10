@@ -30,15 +30,15 @@ import {
 	type YouTubeVideo,
 } from 'play-dl';
 
-import { playNextSong } from '../../events/player/stateChange';
-import { queue, SuperClient } from '../../structures/Client';
-import { randomColor } from '../../structures/Colors';
-import { Command } from '../../structures/Command';
-import { Queue } from '../../structures/Queue';
-import { Song } from '../../structures/Song';
-import { LoopState } from '../../typings/Queue';
-import type { SuperInteraction } from '../../typings/Command';
-import type { SongPlayer } from '../../typings/SongPlayer';
+import { playNextSong } from '../../events/player/stateChange.js';
+import { queue, SuperClient } from '../../structures/Client.js';
+import { randomColor } from '../../structures/Colors.js';
+import { Command } from '../../structures/Command.js';
+import { Queue } from '../../structures/Queue.js';
+import { Song } from '../../structures/Song.js';
+import { LoopState } from '../../typings/Queue.js';
+import type { SuperInteraction } from '../../typings/Command.js';
+import type { SongPlayer } from '../../typings/SongPlayer.js';
 
 /**
  * @type {string} - The id of the current guild

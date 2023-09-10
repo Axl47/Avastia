@@ -1,4 +1,4 @@
-import type { CommandType } from '../typings/Command';
+import type { CommandType } from '../typings/Command.js';
 
 /**
  * Class for creating a command

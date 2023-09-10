@@ -10,9 +10,9 @@ import type {
 import {
 	LoopState,
 	type QueueType,
-} from '../typings/Queue';
-import type { SongPlayer } from '../typings/SongPlayer';
-import { Song } from './Song';
+} from '../typings/Queue.js';
+import type { SongPlayer } from '../typings/SongPlayer.js';
+import { Song } from './Song.js';
 
 /**
  * Class for the song queue
