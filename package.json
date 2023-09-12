@@ -1,15 +1,15 @@
 {
 	"name": "avastia",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "A music bot with extra commands for personal use",
 	"repository": "https://github.com/Axl47/Avastia",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
-		"start": "ts-node src/main.ts",
-		"start:dev": "ts-node-dev src/main.ts",
-		"start:prod": "node dist/main.js",
-		"build": "tsc src/main.ts",
+		"start": "ts-node --esm src/main.ts",
+		"start:dev": "ts-node-dev --esm src/main.ts",
+		"start:prod": "node --loader ts-node/esm dist/main.js",
+		"build": "tsc",
 		"watch": "tsc -w"
 	},
 	"engines": {
