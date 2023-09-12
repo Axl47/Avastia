@@ -27,10 +27,10 @@ export default new Command({
 
 		// Get all songs and turn them into a string
 		// <index>) <song-title> (<song-duration>)\n
-		const songs = songQueue.songs.slice(songQueue.songIndex).map(
+		const songs = songQueue.songs.slice(0).map(
 			(song: Song, index) => {
 				let message = `${index + 1}) ${song.title} (${song.duration})`;
-				if (index === songQueue.songIndex + songQueue.loopCounter) {
+				if (index === songQueue.loopIndex) {
 					message = `\n${message} -> Current Song\n`;
 				}
 				return message;

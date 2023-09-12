@@ -287,11 +287,10 @@ export const createQueue = async (
 			textChannel: text,
 			connection: connection,
 			songs: [] as Song[],
-			songsPlayed: 0,
+			playedSongs: [] as Song[],
 			stopped: false,
 			loop: LoopState.Disabled,
-			loopCounter: 0,
-			songIndex: 0,
+			loopIndex: 0,
 			volume: 100,
 		});
 	}

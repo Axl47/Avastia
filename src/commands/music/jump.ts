@@ -33,26 +33,24 @@ export default new Command({
 		}
 
 		const amount = args.getInteger('amount', true);
-		if (amount > songQueue.songs.length - songQueue.songsPlayed) {
+		if (amount > songQueue.songs.length) {
 			await interaction.editReply(
 				'Cannot jump that many songs.\n' +
-				`Queue length is ${songQueue.songs.length - songQueue.songsPlayed}`,
+				`Queue length is ${songQueue.songs.length}`,
 			);
 			return;
 		}
 
-		const newIndex = songQueue.songIndex + amount;
-		songQueue.loopCounter =
-			(songQueue.loop !== LoopState.Disabled) ?
-				(songQueue.loopCounter + amount) % (songQueue.songs.length - songQueue.songsPlayed) :
-				0;
-
-		songQueue.songsPlayed = newIndex;
-		songQueue.songIndex = newIndex;
+		if (songQueue.loop !== LoopState.Queue) {
+			songQueue.playedSongs.concat(songQueue.songs.splice(0, amount));
+		}
+		else {
+			songQueue.loopIndex = songQueue.songs.length % (amount + songQueue.loopIndex);
+		}
 
 		await videoPlayer(
 			interaction.commandGuildId!,
-			songQueue.songs[newIndex + songQueue.loopCounter],
+			songQueue.songs[songQueue.loopIndex],
 		);
 
 		const response = new EmbedBuilder()

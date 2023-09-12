@@ -30,10 +30,9 @@ export interface QueueType {
 	connection: VoiceConnection;
 	stopped: boolean;
 	loop: LoopState;
-	loopCounter: number;
-	songIndex: number;
+	loopIndex: number;
 	songs: SongType[];
-	songsPlayed: number;
+	playedSongs: SongType[];
 	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;

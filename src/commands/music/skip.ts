@@ -7,7 +7,6 @@ import { playNextSong } from '../../events/player/stateChange.js';
 import { queue } from '../../structures/Client.js';
 import { randomColor } from '../../structures/Colors.js';
 import { Command } from '../../structures/Command.js';
-import { LoopState } from '../../typings/Queue.js';
 
 /**
  * Skips the current song and plays the next one
@@ -23,16 +22,11 @@ export default new Command({
 			return;
 		}
 
-		if (songQueue.loop === LoopState.Song) {
-			songQueue.loopCounter++;
-		}
-
 		await playNextSong(interaction.commandGuildId!);
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())
-			.setDescription('Not playing anything.');
-		response.setDescription('Song skipped.');
+			.setDescription('Song skipped.');
 		await interaction.editReply({ embeds: [response] });
 	},
 });

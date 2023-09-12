@@ -7,7 +7,6 @@ import { videoPlayer } from '../../commands/music/play.js';
 import { queue } from '../../structures/Client.js';
 import { randomColor } from '../../structures/Colors.js';
 import { Command } from '../../structures/Command.js';
-import { LoopState } from '../../typings/Queue.js';
 
 /**
  * Goes back a song from the queue
@@ -23,27 +22,24 @@ export default new Command({
 			return;
 		}
 
-		if (songQueue.loop !== LoopState.Disabled) {
-			songQueue.loopCounter--;
+		if (!songQueue.playedSongs[0]) {
+			await interaction.editReply('Already at the first song.');
+			return;
+		}
+
+		if (!songQueue.loop) {
+			const song = songQueue.playedSongs.at(-1)!;
+
+			songQueue.songs.unshift(song);
+			songQueue.playedSongs.pop();
 		}
 		else {
-			songQueue.songIndex--;
-			songQueue.songsPlayed--;
+			songQueue.loopIndex = (songQueue.loopIndex == 0) ?
+				songQueue.songs.length - 1 :
+				songQueue.loopIndex - 1;
 		}
 
-		if (songQueue.songIndex < 0 || songQueue.loopCounter < 0) {
-			if (songQueue.loop === LoopState.Disabled) {
-				await interaction.editReply('Already at the start.');
-				return;
-			}
-
-			songQueue.loopCounter =
-				songQueue.songs.length - songQueue.songsPlayed - 1;
-		}
-
-		videoPlayer(
-			interaction.commandGuildId!,
-			songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
+		videoPlayer(interaction.commandGuildId!, songQueue.songs[songQueue.loopIndex]);
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())

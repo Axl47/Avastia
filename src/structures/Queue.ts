@@ -24,10 +24,9 @@ export class Queue {
 	connection: VoiceConnection;
 	stopped: boolean;
 	loop: LoopState;
-	loopCounter: number;
-	songIndex: number;
+	loopIndex: number;
 	songs: Song[];
-	songsPlayed: number;
+	playedSongs: Song[];
 	volume: number;
 	player?: SongPlayer;
 	audioResource?: AudioResource;
@@ -38,35 +37,32 @@ export class Queue {
 	 * @param {VoiceBasedChannel} q.voiceChannel - Channel to play the video
 	 * @param {TextBasedChannel} q.textChannel - Channel to send messages to
 	 * @param {VoiceConnection} q.connection - Connection to the voice channel
-	 * @param {Song[]} q.songs - Songs to be played
 	 * @param {boolean} q.stopped - Whether the player is stopped
 	 * @param {LoopState} q.loop - Disabled, looping the song or the queue
-	 * @param {number} q.loopCounter - What song index to play if looping
-	 * @param {number} q.songIndex - The index of the played songs
-	 * @param {SongPlayer} q.player - Player for video, optional before creation
+	 * @param {LoopState} q.loopIndex - Index of the loop amount
+	 * @param {Song[]} q.songs - Songs to be played
+	 * @param {Song[]} q.playedSongs - Songs already played
 	 * @param {number} q.volume - Volume at which to play the music
+	 * @param {SongPlayer} q.player - Player for video, optional before creation
 	 * @param {AudioResource} q.audioResource - Optional for saving resource
-	 * @param {number} q.songsPlayed - Number of songs played
 	 */
 	constructor({
 		voiceChannel, textChannel,
-		connection, songs,
-		stopped, loop,
-		loopCounter, player,
-		audioResource, songsPlayed,
-		songIndex, volume,
+		connection, stopped,
+		loop, loopIndex, songs,
+		playedSongs, volume,
+		player, audioResource,
 	}: QueueType) {
 		this.voiceChannel = voiceChannel;
 		this.textChannel = textChannel;
 		this.connection = connection;
-		this.songs = songs;
 		this.stopped = stopped;
 		this.loop = loop;
-		this.loopCounter = loopCounter;
-		this.songIndex = songIndex;
-		this.player = player;
+		this.loopIndex = loopIndex;
+		this.songs = songs;
+		this.playedSongs = playedSongs;
 		this.volume = volume;
+		this.player = player;
 		this.audioResource = audioResource;
-		this.songsPlayed = songsPlayed;
 	}
 }

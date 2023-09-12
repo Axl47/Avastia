@@ -23,7 +23,7 @@ export default new Command({
 		}
 
 		// Only shuffle the next songs
-		const trueSongs = songQueue.songs.splice(songQueue.songIndex);
+		const trueSongs = songQueue.songs.splice(songQueue.loopIndex);
 		shuffle(trueSongs);
 		songQueue.songs = songQueue.songs.concat(trueSongs);
 

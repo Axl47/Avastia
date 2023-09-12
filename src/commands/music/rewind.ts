@@ -25,7 +25,7 @@ export default new Command({
 		// Play the current song again
 		await videoPlayer(
 			interaction.commandGuildId!,
-			songQueue.songs[songQueue.songIndex + songQueue.loopCounter]);
+			songQueue.songs[songQueue.loopIndex]);
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())

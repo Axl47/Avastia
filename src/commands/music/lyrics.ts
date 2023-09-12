@@ -41,7 +41,7 @@ export default new Command({
 			}
 
 			title =
-				songQueue.songs[songQueue.songIndex + songQueue.loopCounter].title;
+				songQueue.songs[songQueue.loopIndex].title;
 		}
 
 		try {

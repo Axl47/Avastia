@@ -41,11 +41,7 @@ export default new Command({
 
 		// Add the song to the next
 		// position in the queue
-		songQueue.songs.splice(
-			songQueue.songIndex + songQueue.loopCounter + 1,
-			0,
-			song,
-		);
+		songQueue.songs.splice(songQueue.loopIndex + 1, 0, song);
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())

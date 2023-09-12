@@ -37,7 +37,7 @@ export default new Command({
 			return;
 		}
 
-		const currentSong = songQueue.songs[songQueue.songIndex + songQueue.loopCounter];
+		const currentSong = songQueue.songs[songQueue.loopIndex];
 
 		await videoPlayer(
 			interaction.commandGuildId!,

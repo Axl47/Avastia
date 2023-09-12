@@ -21,7 +21,7 @@ export default new Command({
 			return;
 		}
 
-		songQueue.songs.splice(songQueue.songIndex + songQueue.loopCounter);
+		songQueue.songs = [];
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())
