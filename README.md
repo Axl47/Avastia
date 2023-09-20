@@ -74,21 +74,13 @@ A folder named `.data` should've been created. **Do not** delete this, and **do 
 
 **Starting the bot:**
 - start:  `npm run start`
-  - Runs using ts-node (not recommended for production)
-- dev: `npm run start:dev`
-  - Same as start but recompiles after detecting a change
-- build: `npm run start:build`
-  - Compiles to javascript in a dist folder
-- watch: `npm run start:watch`
-  - Same as build but recompiles after detecting a change
-- prod: `npm run start:prod`
-  - Starts the bot using the compiled code
-  - Recommended for production
+  - Runs using ts-node
 
 Suggested use: 
 ```
-npm run build
-npm run start:prod
+cd Avastia/
+npm install
+npm run start
 ```
 
 <br>

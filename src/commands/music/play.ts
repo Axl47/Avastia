@@ -281,7 +281,6 @@ export const createQueue = async (
 			throw new Error(errorMessages.VOICE_CONNECTION_ERROR);
 		}
 
-		// TODO: Delete songsPlayed
 		return new Queue({
 			voiceChannel: voice,
 			textChannel: text,
