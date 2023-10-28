@@ -24,7 +24,7 @@ export default new Command({
 
 		const response = new EmbedBuilder()
 			.setColor(randomColor())
-			.setDescription('');
+			.setDescription('Empty.');
 
 		songQueue.player.state.status == AudioPlayerStatus.Paused ?
 			(songQueue.player.unpause(), response.setDescription('Playback unpaused.')) :

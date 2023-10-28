@@ -14,7 +14,8 @@ import { randomColor } from '../../structures/Colors.js';
 import { Command } from '../../structures/Command.js';
 import { Song } from '../../structures/Song.js';
 import {
-	errorHandler, errorMessages,
+	errorHandler,
+	errorMessages,
 	initiateEvents,
 	videoPlayer,
 } from './play.js';
@@ -103,7 +104,7 @@ export default new Command({
 			response.setDescription(
 				`Queued [${song.title}](${song.url}) [${author}]`,
 			);
-			await interaction.reply({ embeds: [response] });
+			channel.send({ embeds: [response] });
 
 			if (first) {
 				// Start playback

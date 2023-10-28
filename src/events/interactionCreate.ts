@@ -10,6 +10,10 @@ import type { SuperInteraction } from '../typings/Command.js';
  */
 export default new Event('interactionCreate',
 	async (interaction): Promise<void> => {
+		if (!interaction) {
+			return;
+		}
+
 		// If the interaction is a slash command
 		if (interaction.isChatInputCommand()) {
 			await interaction.deferReply();
